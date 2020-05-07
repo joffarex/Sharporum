@@ -5,4 +5,8 @@
         <RootNamespace>Violetum.Application</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\Violetum.Domain\Violetum.Domain.csproj"/>
+    </ItemGroup>
+
 </Project>

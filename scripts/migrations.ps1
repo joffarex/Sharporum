@@ -1,1 +1,0 @@
-﻿﻿cd src/Violetum.Infrastructure && dotnet ef --startup-project ../Violetum.UI migrations add %1 && dotnet ef --startup-project ../Violetum.UI database update && cd ../../
