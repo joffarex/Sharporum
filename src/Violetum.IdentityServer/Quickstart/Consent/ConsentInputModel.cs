@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace Violetum.IdentityServer
+namespace Violetum.IdentityServer.Quickstart.Consent
 {
     public class ConsentInputModel
     {

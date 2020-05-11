@@ -26,7 +26,8 @@ namespace Violetum.IdentityServer
                 new Client
                 {
                     ClientId = "Violetum.Web",
-                    ClientSecrets = {new Secret("secret".Sha256())},
+                    // ClientSecrets = {new Secret("secret".Sha256())},
+                    ClientSecrets = {new Secret("49C1A7E1-0C79-4A89-A3D6-A37998FB86B0".Sha256())},
 
                     AllowedGrantTypes = GrantTypes.Code,
                     RequireConsent = false,
@@ -35,6 +36,7 @@ namespace Violetum.IdentityServer
                     // where to redirect to after login
                     RedirectUris = {"http://localhost:5002/signin-oidc"},
 
+                    FrontChannelLogoutUri = "http://localhost:5003/signout-oidc",
                     // where to redirect to after logout
                     PostLogoutRedirectUris = {"http://localhost:5002/signout-callback-oidc"},
 

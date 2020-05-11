@@ -1,4 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Security.Principal;
+using System.Threading.Tasks;
 using IdentityModel;
+using IdentityServer4;
 using IdentityServer4.Events;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
@@ -8,25 +15,18 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Security.Principal;
-using System.Threading.Tasks;
-using IdentityServer4;
 
-namespace Violetum.IdentityServer
+namespace Violetum.IdentityServer.Quickstart.Account
 {
     [SecurityHeaders]
     [AllowAnonymous]
     public class ExternalController : Controller
     {
-        private readonly TestUserStore _users;
-        private readonly IIdentityServerInteractionService _interaction;
         private readonly IClientStore _clientStore;
-        private readonly ILogger<ExternalController> _logger;
         private readonly IEventService _events;
+        private readonly IIdentityServerInteractionService _interaction;
+        private readonly ILogger<ExternalController> _logger;
+        private readonly TestUserStore _users;
 
         public ExternalController(
             IIdentityServerInteractionService interaction,
@@ -73,8 +73,8 @@ namespace Violetum.IdentityServer
                     RedirectUri = Url.Action(nameof(Callback)),
                     Items =
                     {
-                        { "returnUrl", returnUrl },
-                        { "scheme", provider },
+                        {"returnUrl", returnUrl},
+                        {"scheme", provider},
                     }
                 };
 
@@ -89,7 +89,9 @@ namespace Violetum.IdentityServer
         public async Task<IActionResult> Callback()
         {
             // read external identity from the temporary cookie
-            var result = await HttpContext.AuthenticateAsync(IdentityServer4.IdentityServerConstants.ExternalCookieAuthenticationScheme);
+            var result =
+                await HttpContext.AuthenticateAsync(IdentityServer4.IdentityServerConstants
+                    .ExternalCookieAuthenticationScheme);
             if (result?.Succeeded != true)
             {
                 throw new Exception("External authentication error");
@@ -138,7 +140,8 @@ namespace Violetum.IdentityServer
 
             // check if external login is in the context of an OIDC request
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
-            await _events.RaiseAsync(new UserLoginSuccessEvent(provider, providerUserId, user.SubjectId, user.Username, true, context?.ClientId));
+            await _events.RaiseAsync(new UserLoginSuccessEvent(provider, providerUserId, user.SubjectId, user.Username,
+                true, context?.ClientId));
 
             if (context != null)
             {
@@ -167,8 +170,8 @@ namespace Violetum.IdentityServer
                     RedirectUri = Url.Action("Callback"),
                     Items =
                     {
-                        { "returnUrl", returnUrl },
-                        { "scheme", AccountOptions.WindowsAuthenticationSchemeName },
+                        {"returnUrl", returnUrl},
+                        {"scheme", AccountOptions.WindowsAuthenticationSchemeName},
                     }
                 };
 
@@ -200,7 +203,8 @@ namespace Violetum.IdentityServer
             }
         }
 
-        private (TestUser user, string provider, string providerUserId, IEnumerable<Claim> claims) FindUserFromExternalProvider(AuthenticateResult result)
+        private (TestUser user, string provider, string providerUserId, IEnumerable<Claim> claims)
+            FindUserFromExternalProvider(AuthenticateResult result)
         {
             var externalUser = result.Principal;
 
@@ -230,7 +234,8 @@ namespace Violetum.IdentityServer
             return user;
         }
 
-        private void ProcessLoginCallbackForOidc(AuthenticateResult externalResult, List<Claim> localClaims, AuthenticationProperties localSignInProps)
+        private void ProcessLoginCallbackForOidc(AuthenticateResult externalResult, List<Claim> localClaims,
+            AuthenticationProperties localSignInProps)
         {
             // if the external system sent a session id claim, copy it over
             // so we can use it for single sign-out
@@ -244,7 +249,7 @@ namespace Violetum.IdentityServer
             var id_token = externalResult.Properties.GetTokenValue("id_token");
             if (id_token != null)
             {
-                localSignInProps.StoreTokens(new[] { new AuthenticationToken { Name = "id_token", Value = id_token } });
+                localSignInProps.StoreTokens(new[] {new AuthenticationToken {Name = "id_token", Value = id_token}});
             }
         }
 

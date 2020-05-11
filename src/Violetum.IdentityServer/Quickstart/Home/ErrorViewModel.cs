@@ -4,7 +4,7 @@
 
 using IdentityServer4.Models;
 
-namespace Violetum.IdentityServer
+namespace Violetum.IdentityServer.Quickstart.Home
 {
     public class ErrorViewModel
     {
@@ -14,7 +14,7 @@ namespace Violetum.IdentityServer
 
         public ErrorViewModel(string error)
         {
-            Error = new ErrorMessage { Error = error };
+            Error = new ErrorMessage {Error = error};
         }
 
         public ErrorMessage Error { get; set; }

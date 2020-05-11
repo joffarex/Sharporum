@@ -13,18 +13,19 @@ using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Violetum.IdentityServer.Quickstart.Consent;
 
-namespace Violetum.IdentityServer.Device
+namespace Violetum.IdentityServer.Quickstart.Device
 {
     [Authorize]
     [SecurityHeaders]
     public class DeviceController : Controller
     {
-        private readonly IDeviceFlowInteractionService _interaction;
         private readonly IClientStore _clientStore;
-        private readonly IResourceStore _resourceStore;
         private readonly IEventService _events;
+        private readonly IDeviceFlowInteractionService _interaction;
         private readonly ILogger<DeviceController> _logger;
+        private readonly IResourceStore _resourceStore;
 
         public DeviceController(
             IDeviceFlowInteractionService interaction,
@@ -89,7 +90,8 @@ namespace Violetum.IdentityServer.Device
                 grantedConsent = ConsentResponse.Denied;
 
                 // emit event
-                await _events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.ClientId, request.ScopesRequested));
+                await _events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.ClientId,
+                    request.ScopesRequested));
             }
             // user clicked 'yes' - validate the data
             else if (model.Button == "yes")
@@ -100,7 +102,8 @@ namespace Violetum.IdentityServer.Device
                     var scopes = model.ScopesConsented;
                     if (ConsentOptions.EnableOfflineAccess == false)
                     {
-                        scopes = scopes.Where(x => x != IdentityServer4.IdentityServerConstants.StandardScopes.OfflineAccess);
+                        scopes = scopes.Where(x =>
+                            x != IdentityServer4.IdentityServerConstants.StandardScopes.OfflineAccess);
                     }
 
                     grantedConsent = new ConsentResponse
@@ -110,7 +113,8 @@ namespace Violetum.IdentityServer.Device
                     };
 
                     // emit event
-                    await _events.RaiseAsync(new ConsentGrantedEvent(User.GetSubjectId(), request.ClientId, request.ScopesRequested, grantedConsent.ScopesConsented, grantedConsent.RememberConsent));
+                    await _events.RaiseAsync(new ConsentGrantedEvent(User.GetSubjectId(), request.ClientId,
+                        request.ScopesRequested, grantedConsent.ScopesConsented, grantedConsent.RememberConsent));
                 }
                 else
                 {
@@ -140,7 +144,8 @@ namespace Violetum.IdentityServer.Device
             return result;
         }
 
-        private async Task<DeviceAuthorizationViewModel> BuildViewModelAsync(string userCode, DeviceAuthorizationInputModel model = null)
+        private async Task<DeviceAuthorizationViewModel> BuildViewModelAsync(string userCode,
+            DeviceAuthorizationInputModel model = null)
         {
             var request = await _interaction.GetAuthorizationContextAsync(userCode);
             if (request != null)
@@ -155,7 +160,8 @@ namespace Violetum.IdentityServer.Device
                     }
                     else
                     {
-                        _logger.LogError("No scopes matching: {0}", request.ScopesRequested.Aggregate((x, y) => x + ", " + y));
+                        _logger.LogError("No scopes matching: {0}",
+                            request.ScopesRequested.Aggregate((x, y) => x + ", " + y));
                     }
                 }
                 else
@@ -167,7 +173,8 @@ namespace Violetum.IdentityServer.Device
             return null;
         }
 
-        private DeviceAuthorizationViewModel CreateConsentViewModel(string userCode, DeviceAuthorizationInputModel model, Client client, Resources resources)
+        private DeviceAuthorizationViewModel CreateConsentViewModel(string userCode,
+            DeviceAuthorizationInputModel model, Client client, Resources resources)
         {
             var vm = new DeviceAuthorizationViewModel
             {
@@ -175,20 +182,24 @@ namespace Violetum.IdentityServer.Device
 
                 RememberConsent = model?.RememberConsent ?? true,
                 ScopesConsented = model?.ScopesConsented ?? Enumerable.Empty<string>(),
-                
+
                 ClientName = client.ClientName ?? client.ClientId,
                 ClientUrl = client.ClientUri,
                 ClientLogoUrl = client.LogoUri,
                 AllowRememberConsent = client.AllowRememberConsent
             };
 
-            vm.IdentityScopes = resources.IdentityResources.Select(x => CreateScopeViewModel(x, vm.ScopesConsented.Contains(x.Name) || model == null)).ToArray();
-            vm.ResourceScopes = resources.ApiResources.SelectMany(x => x.Scopes).Select(x => CreateScopeViewModel(x, vm.ScopesConsented.Contains(x.Name) || model == null)).ToArray();
+            vm.IdentityScopes = resources.IdentityResources
+                .Select(x => CreateScopeViewModel(x, vm.ScopesConsented.Contains(x.Name) || model == null)).ToArray();
+            vm.ResourceScopes = resources.ApiResources.SelectMany(x => x.Scopes).Select(x =>
+                CreateScopeViewModel(x, vm.ScopesConsented.Contains(x.Name) || model == null)).ToArray();
             if (ConsentOptions.EnableOfflineAccess && resources.OfflineAccess)
             {
                 vm.ResourceScopes = vm.ResourceScopes.Union(new[]
                 {
-                    GetOfflineAccessScope(vm.ScopesConsented.Contains(IdentityServer4.IdentityServerConstants.StandardScopes.OfflineAccess) || model == null)
+                    GetOfflineAccessScope(
+                        vm.ScopesConsented.Contains(
+                            IdentityServer4.IdentityServerConstants.StandardScopes.OfflineAccess) || model == null)
                 });
             }
 
@@ -220,6 +231,7 @@ namespace Violetum.IdentityServer.Device
                 Checked = check || scope.Required
             };
         }
+
         private ScopeViewModel GetOfflineAccessScope(bool check)
         {
             return new ScopeViewModel

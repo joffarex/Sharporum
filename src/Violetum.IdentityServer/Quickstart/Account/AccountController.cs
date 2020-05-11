@@ -2,7 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using IdentityModel;
+using IdentityServer4;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
@@ -13,12 +17,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using IdentityServer4;
 
-namespace Violetum.IdentityServer
+namespace Violetum.IdentityServer.Quickstart.Account
 {
     /// <summary>
     /// This sample controller implements a typical login/logout/provision workflow for local and external accounts.
@@ -29,11 +29,11 @@ namespace Violetum.IdentityServer
     [AllowAnonymous]
     public class AccountController : Controller
     {
-        private readonly TestUserStore _users;
-        private readonly IIdentityServerInteractionService _interaction;
         private readonly IClientStore _clientStore;
-        private readonly IAuthenticationSchemeProvider _schemeProvider;
         private readonly IEventService _events;
+        private readonly IIdentityServerInteractionService _interaction;
+        private readonly IAuthenticationSchemeProvider _schemeProvider;
+        private readonly TestUserStore _users;
 
         public AccountController(
             IIdentityServerInteractionService interaction,
@@ -64,7 +64,7 @@ namespace Violetum.IdentityServer
             if (vm.IsExternalLoginOnly)
             {
                 // we only have one option for logging in and it's an external provider
-                return RedirectToAction("Challenge", "External", new { provider = vm.ExternalLoginScheme, returnUrl });
+                return RedirectToAction("Challenge", "External", new {provider = vm.ExternalLoginScheme, returnUrl});
             }
 
             return View(vm);
@@ -113,7 +113,8 @@ namespace Violetum.IdentityServer
                 if (_users.ValidateCredentials(model.Username, model.Password))
                 {
                     var user = _users.FindByUsername(model.Username);
-                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.SubjectId, user.Username, clientId: context?.ClientId));
+                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.SubjectId, user.Username,
+                        clientId: context?.ClientId));
 
                     // only set explicit expiration here if user chooses "remember me". 
                     // otherwise we rely upon expiration configured in cookie middleware.
@@ -125,7 +126,9 @@ namespace Violetum.IdentityServer
                             IsPersistent = true,
                             ExpiresUtc = DateTimeOffset.UtcNow.Add(AccountOptions.RememberMeLoginDuration)
                         };
-                    };
+                    }
+
+                    ;
 
                     // issue authentication cookie with subject ID and username
                     var isuser = new IdentityServerUser(user.SubjectId)
@@ -164,7 +167,8 @@ namespace Violetum.IdentityServer
                     }
                 }
 
-                await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials", clientId:context?.ClientId));
+                await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials",
+                    clientId: context?.ClientId));
                 ModelState.AddModelError(string.Empty, AccountOptions.InvalidCredentialsErrorMessage);
             }
 
@@ -173,7 +177,7 @@ namespace Violetum.IdentityServer
             return View(vm);
         }
 
-        
+
         /// <summary>
         /// Show logout page
         /// </summary>
@@ -218,10 +222,10 @@ namespace Violetum.IdentityServer
                 // build a return URL so the upstream provider will redirect back
                 // to us after the user has logged out. this allows us to then
                 // complete our single sign-out processing.
-                string url = Url.Action("Logout", new { logoutId = vm.LogoutId });
+                string url = Url.Action("Logout", new {logoutId = vm.LogoutId});
 
                 // this triggers a redirect to the external provider for sign-out
-                return SignOut(new AuthenticationProperties { RedirectUri = url }, vm.ExternalAuthenticationScheme);
+                return SignOut(new AuthenticationProperties {RedirectUri = url}, vm.ExternalAuthenticationScheme);
             }
 
             return View("LoggedOut", vm);
@@ -254,7 +258,7 @@ namespace Violetum.IdentityServer
 
                 if (!local)
                 {
-                    vm.ExternalProviders = new[] { new ExternalProvider { AuthenticationScheme = context.IdP } };
+                    vm.ExternalProviders = new[] {new ExternalProvider {AuthenticationScheme = context.IdP}};
                 }
 
                 return vm;
@@ -264,7 +268,8 @@ namespace Violetum.IdentityServer
 
             var providers = schemes
                 .Where(x => x.DisplayName != null ||
-                            (x.Name.Equals(AccountOptions.WindowsAuthenticationSchemeName, StringComparison.OrdinalIgnoreCase))
+                            (x.Name.Equals(AccountOptions.WindowsAuthenticationSchemeName,
+                                StringComparison.OrdinalIgnoreCase))
                 )
                 .Select(x => new ExternalProvider
                 {
@@ -282,7 +287,8 @@ namespace Violetum.IdentityServer
 
                     if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any())
                     {
-                        providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
+                        providers = providers.Where(provider =>
+                            client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
                     }
                 }
             }
@@ -307,7 +313,7 @@ namespace Violetum.IdentityServer
 
         private async Task<LogoutViewModel> BuildLogoutViewModelAsync(string logoutId)
         {
-            var vm = new LogoutViewModel { LogoutId = logoutId, ShowLogoutPrompt = AccountOptions.ShowLogoutPrompt };
+            var vm = new LogoutViewModel {LogoutId = logoutId, ShowLogoutPrompt = AccountOptions.ShowLogoutPrompt};
 
             if (User?.Identity.IsAuthenticated != true)
             {

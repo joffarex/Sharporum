@@ -1,8 +1,9 @@
 using System.Threading.Tasks;
 using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Mvc;
+using Violetum.IdentityServer.Quickstart.Account;
 
-namespace Violetum.IdentityServer
+namespace Violetum.IdentityServer.Quickstart
 {
     public static class Extensions
     {
@@ -27,8 +28,8 @@ namespace Violetum.IdentityServer
         {
             controller.HttpContext.Response.StatusCode = 200;
             controller.HttpContext.Response.Headers["Location"] = "";
-            
-            return controller.View(viewName, new RedirectViewModel { RedirectUrl = redirectUri });
+
+            return controller.View(viewName, new RedirectViewModel {RedirectUrl = redirectUri});
         }
     }
 }

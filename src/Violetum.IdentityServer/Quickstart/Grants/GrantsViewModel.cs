@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Violetum.IdentityServer
+namespace Violetum.IdentityServer.Quickstart.Grants
 {
     public class GrantsViewModel
     {

@@ -1,4 +1,4 @@
-﻿@model ScopeViewModel
+﻿@model Violetum.IdentityServer.Quickstart.Consent.ScopeViewModel
 
 <li class="list-group-item">
     <label>
@@ -8,12 +8,12 @@
                id="scopes_@Model.Name"
                value="@Model.Name"
                checked="@Model.Checked"
-               disabled="@Model.Required" />
+               disabled="@Model.Required"/>
         @if (Model.Required)
         {
             <input type="hidden"
                    name="ScopesConsented"
-                   value="@Model.Name" />
+                   value="@Model.Name"/>
         }
         <strong>@Model.DisplayName</strong>
         @if (Model.Emphasize)
@@ -23,7 +23,9 @@
     </label>
     @if (Model.Required)
     {
-        <span><em>(required)</em></span>
+        <span>
+            <em>(required)</em>
+        </span>
     }
     @if (Model.Description != null)
     {

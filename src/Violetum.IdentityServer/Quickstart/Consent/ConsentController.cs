@@ -2,18 +2,18 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System.Linq;
+using System.Threading.Tasks;
 using IdentityServer4.Events;
+using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
-using IdentityServer4.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Violetum.IdentityServer
+namespace Violetum.IdentityServer.Quickstart.Consent
 {
     /// <summary>
     /// This controller processes the consent UI
@@ -22,11 +22,11 @@ namespace Violetum.IdentityServer
     [Authorize]
     public class ConsentController : Controller
     {
-        private readonly IIdentityServerInteractionService _interaction;
         private readonly IClientStore _clientStore;
-        private readonly IResourceStore _resourceStore;
         private readonly IEventService _events;
+        private readonly IIdentityServerInteractionService _interaction;
         private readonly ILogger<ConsentController> _logger;
+        private readonly IResourceStore _resourceStore;
 
         public ConsentController(
             IIdentityServerInteractionService interaction,
@@ -112,7 +112,8 @@ namespace Violetum.IdentityServer
                 grantedConsent = ConsentResponse.Denied;
 
                 // emit event
-                await _events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.ClientId, request.ScopesRequested));
+                await _events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.ClientId,
+                    request.ScopesRequested));
             }
             // user clicked 'yes' - validate the data
             else if (model?.Button == "yes")
@@ -123,7 +124,8 @@ namespace Violetum.IdentityServer
                     var scopes = model.ScopesConsented;
                     if (ConsentOptions.EnableOfflineAccess == false)
                     {
-                        scopes = scopes.Where(x => x != IdentityServer4.IdentityServerConstants.StandardScopes.OfflineAccess);
+                        scopes = scopes.Where(x =>
+                            x != IdentityServer4.IdentityServerConstants.StandardScopes.OfflineAccess);
                     }
 
                     grantedConsent = new ConsentResponse
@@ -133,7 +135,8 @@ namespace Violetum.IdentityServer
                     };
 
                     // emit event
-                    await _events.RaiseAsync(new ConsentGrantedEvent(User.GetSubjectId(), request.ClientId, request.ScopesRequested, grantedConsent.ScopesConsented, grantedConsent.RememberConsent));
+                    await _events.RaiseAsync(new ConsentGrantedEvent(User.GetSubjectId(), request.ClientId,
+                        request.ScopesRequested, grantedConsent.ScopesConsented, grantedConsent.RememberConsent));
                 }
                 else
                 {
@@ -178,7 +181,8 @@ namespace Violetum.IdentityServer
                     }
                     else
                     {
-                        _logger.LogError("No scopes matching: {0}", request.ScopesRequested.Aggregate((x, y) => x + ", " + y));
+                        _logger.LogError("No scopes matching: {0}",
+                            request.ScopesRequested.Aggregate((x, y) => x + ", " + y));
                     }
                 }
                 else
@@ -212,12 +216,17 @@ namespace Violetum.IdentityServer
                 AllowRememberConsent = client.AllowRememberConsent
             };
 
-            vm.IdentityScopes = resources.IdentityResources.Select(x => CreateScopeViewModel(x, vm.ScopesConsented.Contains(x.Name) || model == null)).ToArray();
-            vm.ResourceScopes = resources.ApiResources.SelectMany(x => x.Scopes).Select(x => CreateScopeViewModel(x, vm.ScopesConsented.Contains(x.Name) || model == null)).ToArray();
+            vm.IdentityScopes = resources.IdentityResources
+                .Select(x => CreateScopeViewModel(x, vm.ScopesConsented.Contains(x.Name) || model == null)).ToArray();
+            vm.ResourceScopes = resources.ApiResources.SelectMany(x => x.Scopes).Select(x =>
+                CreateScopeViewModel(x, vm.ScopesConsented.Contains(x.Name) || model == null)).ToArray();
             if (ConsentOptions.EnableOfflineAccess && resources.OfflineAccess)
             {
-                vm.ResourceScopes = vm.ResourceScopes.Union(new ScopeViewModel[] {
-                    GetOfflineAccessScope(vm.ScopesConsented.Contains(IdentityServer4.IdentityServerConstants.StandardScopes.OfflineAccess) || model == null)
+                vm.ResourceScopes = vm.ResourceScopes.Union(new ScopeViewModel[]
+                {
+                    GetOfflineAccessScope(
+                        vm.ScopesConsented.Contains(
+                            IdentityServer4.IdentityServerConstants.StandardScopes.OfflineAccess) || model == null)
                 });
             }
 
