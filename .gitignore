@@ -73,6 +73,7 @@ artifacts/
 *.pidb
 *.svclog
 *.scc
+*.rsa
 
 # Chutzpah Test files
 _Chutzpah*
@@ -259,6 +260,7 @@ paket-files/
 
 # JetBrains Rider
 .idea/
+.run/
 *.sln.iml
 riderModule.iml
 
