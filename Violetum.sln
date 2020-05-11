@@ -8,7 +8,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Violetum.Infrastructure", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Violetum.API", "src\Violetum.API\Violetum.API.csproj", "{90B3BD36-4923-4A79-B18D-E568F1ACB87A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Violetum.UI", "src\Violetum.UI\Violetum.UI.csproj", "{5E205994-F9C0-41A5-A3CF-41D3434A674F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Violetum.Web", "src\Violetum.Web\Violetum.Web.csproj", "{CF779597-2E03-44DD-95B8-E431425C0323}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Violetum.IdentityServer", "src\Violetum.IdentityServer\Violetum.IdentityServer.csproj", "{44975DDE-F269-48B7-86AC-C664E72F741E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,9 +34,13 @@ Global
 		{90B3BD36-4923-4A79-B18D-E568F1ACB87A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90B3BD36-4923-4A79-B18D-E568F1ACB87A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90B3BD36-4923-4A79-B18D-E568F1ACB87A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5E205994-F9C0-41A5-A3CF-41D3434A674F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5E205994-F9C0-41A5-A3CF-41D3434A674F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5E205994-F9C0-41A5-A3CF-41D3434A674F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5E205994-F9C0-41A5-A3CF-41D3434A674F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF779597-2E03-44DD-95B8-E431425C0323}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF779597-2E03-44DD-95B8-E431425C0323}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF779597-2E03-44DD-95B8-E431425C0323}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF779597-2E03-44DD-95B8-E431425C0323}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44975DDE-F269-48B7-86AC-C664E72F741E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44975DDE-F269-48B7-86AC-C664E72F741E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44975DDE-F269-48B7-86AC-C664E72F741E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44975DDE-F269-48B7-86AC-C664E72F741E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
