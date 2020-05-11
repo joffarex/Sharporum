@@ -21,9 +21,9 @@ namespace Violetum.API
             services.AddAuthentication("Bearer")
                 .AddJwtBearer("Bearer", options =>
                 {
-                    options.Authority = "https://localhost:5000";
+                    options.Authority = "http://localhost:5000";
                     options.RequireHttpsMetadata = false;
-                    
+
                     options.Audience = "Violetum.API";
                 });
 

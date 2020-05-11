@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -42,8 +37,11 @@ namespace Violetum.Web
                     options.ResponseType = "code";
 
                     options.SaveTokens = true;
+
+                    options.Scope.Add("Violetum.API");
+                    options.Scope.Add("offline_access");
                 });
-            
+
             services.AddControllersWithViews();
         }
 
@@ -73,9 +71,9 @@ namespace Violetum.Web
             {
                 endpoints
                     .MapDefaultControllerRoute();
-                    // .MapControllerRoute(
-                    // name: "default",
-                    // pattern: "{controller=Home}/{action=Index}/{id?}");
+                // .MapControllerRoute(
+                // name: "default",
+                // pattern: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }
