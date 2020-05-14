@@ -74,6 +74,7 @@ artifacts/
 *.svclog
 *.scc
 *.rsa
+*.pem
 
 # Chutzpah Test files
 _Chutzpah*

@@ -1,0 +1,1 @@
+openssl pkcs12 -export -in cert.pem -inkey key.pem -out cert.pfx
