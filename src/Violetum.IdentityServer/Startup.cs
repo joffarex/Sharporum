@@ -10,6 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Violetum.IdentityServer.Quickstart;
 using System.Linq;
+using Microsoft.AspNetCore.Identity;
+using Violetum.IdentityServer.Data;
+using System.Security.Cryptography.X509Certificates;
+using System.IO;
 
 namespace Violetum.IdentityServer
 {
@@ -26,7 +30,9 @@ namespace Violetum.IdentityServer
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            string connectionString = Configuration.GetConnectionString("DefaultConnection");
+
+
 
             // configures IIS out-of-proc settings (see https://github.com/aspnet/AspNetCore/issues/14882)
             services.Configure<IISOptions>(iis =>
@@ -42,8 +48,31 @@ namespace Violetum.IdentityServer
                 iis.AutomaticAuthentication = false;
             });
 
-            string connectionString = Configuration.GetConnectionString("DefaultConnection");
+            services.AddDbContext<ApplicationDbContext>(config =>
+            {
+                config.UseSqlServer(connectionString);
+            });
+
+            services.AddIdentity<IdentityUser, IdentityRole>(config =>
+           {
+               config.Password.RequiredLength = 4;
+               config.Password.RequireDigit = false;
+               config.Password.RequireNonAlphanumeric = false;
+               config.Password.RequireUppercase = false;
+           })
+               .AddEntityFrameworkStores<ApplicationDbContext>()
+               .AddDefaultTokenProviders();
+
+            services.ConfigureApplicationCookie(config =>
+            {
+                config.Cookie.Name = "IdentityServer.Cookie";
+                config.LoginPath = "/Auth/Login";
+                config.LogoutPath = "/Auth/Logout";
+            });
+
             string migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
+            var filePath = Path.Combine(Environment.ContentRootPath, "cert.pfx");
+            var certificate = new X509Certificate2(filePath, "password");
 
             services.AddIdentityServer(options =>
                 {
@@ -52,7 +81,7 @@ namespace Violetum.IdentityServer
                     options.Events.RaiseFailureEvents = true;
                     options.Events.RaiseSuccessEvents = true;
                 })
-                .AddTestUsers(TestUsers.Users)
+                .AddAspNetIdentity<IdentityUser>()
                 .AddConfigurationStore(options =>
                 {
                     options.ConfigureDbContext = b => b.UseSqlServer(connectionString,
@@ -63,13 +92,15 @@ namespace Violetum.IdentityServer
                     options.ConfigureDbContext = b => b.UseSqlServer(connectionString,
                         sql => sql.MigrationsAssembly(migrationsAssembly));
                 })
-                .AddDeveloperSigningCredential();
+                .AddSigningCredential(certificate);
+            // .AddDeveloperSigningCredential();
+
+            services.AddControllersWithViews();
+
         }
 
         public void Configure(IApplicationBuilder app)
         {
-            // InitializeDatabase(app); // Run only once, to seed db
-
             if (Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -82,47 +113,6 @@ namespace Violetum.IdentityServer
             app.UseIdentityServer();
 
             app.UseEndpoints(endpoints => { endpoints.MapDefaultControllerRoute(); });
-        }
-
-        private static void InitializeDatabase(IApplicationBuilder app)
-        {
-            using (IServiceScope serviceScope =
-                app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
-            {
-                serviceScope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>().Database.Migrate();
-
-                var context = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
-                context.Database.Migrate();
-                if (!context.Clients.Any())
-                {
-                    foreach (Client client in Config.Clients)
-                    {
-                        context.Clients.Add(client.ToEntity());
-                    }
-
-                    context.SaveChanges();
-                }
-
-                if (!context.IdentityResources.Any())
-                {
-                    foreach (IdentityResource resource in Config.Ids)
-                    {
-                        context.IdentityResources.Add(resource.ToEntity());
-                    }
-
-                    context.SaveChanges();
-                }
-
-                if (!context.ApiResources.Any())
-                {
-                    foreach (ApiResource resource in Config.Apis)
-                    {
-                        context.ApiResources.Add(resource.ToEntity());
-                    }
-
-                    context.SaveChanges();
-                }
-            }
         }
     }
 }
