@@ -5,11 +5,11 @@ using IdentityServer4.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Violetum.IdentityServer.Quickstart;
+using System.Linq;
 
 namespace Violetum.IdentityServer
 {
@@ -68,7 +68,7 @@ namespace Violetum.IdentityServer
 
         public void Configure(IApplicationBuilder app)
         {
-            InitializeDatabase(app); // Run only once, to seed db
+            // InitializeDatabase(app); // Run only once, to seed db
 
             if (Environment.IsDevelopment())
             {
