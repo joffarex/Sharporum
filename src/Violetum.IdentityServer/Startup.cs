@@ -1,19 +1,14 @@
-﻿using System.Reflection;
-using IdentityServer4.EntityFramework.DbContexts;
-using IdentityServer4.EntityFramework.Mappers;
-using IdentityServer4.Models;
+﻿using System.IO;
+using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Violetum.IdentityServer.Quickstart;
-using System.Linq;
-using Microsoft.AspNetCore.Identity;
 using Violetum.IdentityServer.Data;
-using System.Security.Cryptography.X509Certificates;
-using System.IO;
 
 namespace Violetum.IdentityServer
 {
@@ -33,7 +28,6 @@ namespace Violetum.IdentityServer
             string connectionString = Configuration.GetConnectionString("DefaultConnection");
 
 
-
             // configures IIS out-of-proc settings (see https://github.com/aspnet/AspNetCore/issues/14882)
             services.Configure<IISOptions>(iis =>
             {
@@ -48,20 +42,17 @@ namespace Violetum.IdentityServer
                 iis.AutomaticAuthentication = false;
             });
 
-            services.AddDbContext<ApplicationDbContext>(config =>
-            {
-                config.UseSqlServer(connectionString);
-            });
+            services.AddDbContext<ApplicationDbContext>(config => { config.UseSqlServer(connectionString); });
 
             services.AddIdentity<IdentityUser, IdentityRole>(config =>
-           {
-               config.Password.RequiredLength = 4;
-               config.Password.RequireDigit = false;
-               config.Password.RequireNonAlphanumeric = false;
-               config.Password.RequireUppercase = false;
-           })
-               .AddEntityFrameworkStores<ApplicationDbContext>()
-               .AddDefaultTokenProviders();
+                {
+                    config.Password.RequiredLength = 4;
+                    config.Password.RequireDigit = false;
+                    config.Password.RequireNonAlphanumeric = false;
+                    config.Password.RequireUppercase = false;
+                })
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
 
             services.ConfigureApplicationCookie(config =>
             {
@@ -71,7 +62,7 @@ namespace Violetum.IdentityServer
             });
 
             string migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
-            var filePath = Path.Combine(Environment.ContentRootPath, "cert.pfx");
+            string filePath = Path.Combine(Environment.ContentRootPath, "cert.pfx");
             var certificate = new X509Certificate2(filePath, "password");
 
             services.AddIdentityServer(options =>
@@ -96,7 +87,6 @@ namespace Violetum.IdentityServer
             // .AddDeveloperSigningCredential();
 
             services.AddControllersWithViews();
-
         }
 
         public void Configure(IApplicationBuilder app)
