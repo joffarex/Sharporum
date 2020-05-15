@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -26,7 +27,7 @@ namespace Violetum.Web
                     options.DefaultScheme = "Cookies";
                     options.DefaultChallengeScheme = "oidc";
                 })
-                .AddCookie("Cookies")
+                .AddCookie("Cookie")
                 .AddOpenIdConnect("oidc", options =>
                 {
                     options.Authority = "http://localhost:5000";
@@ -38,11 +39,20 @@ namespace Violetum.Web
 
                     options.SaveTokens = true;
 
+                    // claimType is basically a name what we have defined in Identity resources
+                    options.ClaimActions.MapUniqueJsonKey("claim.scope.test", "claim.userfield.test");
+                    options.GetClaimsFromUserInfoEndpoint = true;
+
                     options.Scope.Add("Violetum.API");
                     options.Scope.Add("offline_access");
+                    options.Scope.Add("claim.scope.test");
                 });
 
+            services.AddHttpClient();
+
             services.AddControllersWithViews();
+
+            services.AddApplicationServices();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

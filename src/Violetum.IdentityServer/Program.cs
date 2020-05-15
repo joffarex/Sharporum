@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -18,6 +19,12 @@ namespace Violetum.IdentityServer
 
                 var user = new IdentityUser("joffarex");
                 userManager.CreateAsync(user, "password").GetAwaiter().GetResult();
+                // added in identity token
+                userManager.AddClaimAsync(user, new Claim("claim.userfield.test", "test_value")).GetAwaiter()
+                    .GetResult();
+                // added in access token
+                userManager.AddClaimAsync(user, new Claim("claim.api.userfield.test", "test.api_value")).GetAwaiter()
+                    .GetResult();
             }
 
             host.Run();

@@ -11,12 +11,23 @@ namespace Violetum.IdentityServer
             {
                 new IdentityResources.OpenId(),
                 new IdentityResources.Profile(),
+                new IdentityResource
+                {
+                    Name = "claim.scope.test",
+                    UserClaims =
+                    {
+                        "claim.userfield.test",
+                    },
+                },
             };
 
         public static IEnumerable<ApiResource> Apis =>
             new List<ApiResource>
             {
-                new ApiResource("Violetum.API", "Violetum API"),
+                new ApiResource("Violetum.API", "Violetum API", new List<string>
+                {
+                    "claim.api.userfield.test",
+                }),
             };
 
         public static IEnumerable<Client> Clients =>
@@ -43,6 +54,7 @@ namespace Violetum.IdentityServer
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         "Violetum.API",
+                        "claim.scope.test",
                     },
 
                     AllowOfflineAccess = true,
