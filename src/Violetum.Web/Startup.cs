@@ -10,21 +10,23 @@ namespace Violetum.Web
 {
     public class Startup
     {
+        private readonly IConfiguration _configuration;
+
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            _configuration = configuration;
         }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpContextAccessor();
+
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
             services.AddAuthentication(options =>
                 {
-                    options.DefaultScheme = "Cookies";
+                    options.DefaultScheme = "Cookie";
                     options.DefaultChallengeScheme = "oidc";
                 })
                 .AddCookie("Cookie")
@@ -36,7 +38,7 @@ namespace Violetum.Web
                     options.ClientId = "Violetum.Web";
                     options.ClientSecret = "49C1A7E1-0C79-4A89-A3D6-A37998FB86B0";
                     options.ResponseType = "code";
-
+                    options.SignedOutCallbackPath = "/Home/Index";
                     options.SaveTokens = true;
 
                     // claimType is basically a name what we have defined in Identity resources

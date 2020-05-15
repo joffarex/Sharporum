@@ -15,20 +15,20 @@ namespace Violetum.IdentityServer
 {
     public class Startup
     {
+        private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _environment;
+
         public Startup(IWebHostEnvironment environment, IConfiguration configuration)
         {
-            Environment = environment;
-            Configuration = configuration;
+            _environment = environment;
+            _configuration = configuration;
         }
-
-        public IWebHostEnvironment Environment { get; }
-        public IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
             IdentityModelEventSource.ShowPII = true;
 
-            string connectionString = Configuration.GetConnectionString("DefaultConnection");
+            string connectionString = _configuration.GetConnectionString("DefaultConnection");
 
             // configures IIS out-of-proc settings (see https://github.com/aspnet/AspNetCore/issues/14882)
             services.Configure<IISOptions>(iis =>
@@ -63,8 +63,8 @@ namespace Violetum.IdentityServer
                 config.LogoutPath = "/Auth/Logout";
             });
 
-            string migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
-            string filePath = Path.Combine(Environment.ContentRootPath, "../../cert.pfx");
+            string assembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
+            string filePath = Path.Combine(_environment.ContentRootPath, "../../cert.pfx");
             var certificate = new X509Certificate2(filePath, "password");
 
             services.AddIdentityServer(options =>
@@ -78,12 +78,12 @@ namespace Violetum.IdentityServer
                 .AddConfigurationStore(options =>
                 {
                     options.ConfigureDbContext = b => b.UseSqlServer(connectionString,
-                        sql => sql.MigrationsAssembly(migrationsAssembly));
+                        sql => sql.MigrationsAssembly(assembly));
                 })
                 .AddOperationalStore(options =>
                 {
                     options.ConfigureDbContext = b => b.UseSqlServer(connectionString,
-                        sql => sql.MigrationsAssembly(migrationsAssembly));
+                        sql => sql.MigrationsAssembly(assembly));
                 })
                 .AddSigningCredential(certificate);
             // .AddDeveloperSigningCredential();
@@ -93,7 +93,7 @@ namespace Violetum.IdentityServer
 
         public void Configure(IApplicationBuilder app)
         {
-            if (Environment.IsDevelopment())
+            if (_environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();

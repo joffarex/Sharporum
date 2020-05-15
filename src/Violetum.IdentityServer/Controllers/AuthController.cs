@@ -1,26 +1,35 @@
 using System.Threading.Tasks;
+using IdentityServer4.Models;
+using IdentityServer4.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace Violetum.IdentityServer.Controllers
 {
-
     public class AuthController : Controller
     {
-        public readonly SignInManager<IdentityUser> _signInManager;
-        public readonly UserManager<IdentityUser> _userManager;
+        private readonly IIdentityServerInteractionService _interactionService;
+        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public AuthController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager)
+        public AuthController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager,
+            IIdentityServerInteractionService interactionService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
+            _interactionService = interactionService;
+        }
 
+        public IActionResult Index()
+        {
+            return Redirect("http://localhost:5002/");
         }
 
         [HttpGet]
         public IActionResult Login(string returnUrl)
         {
-            return View(new LoginViewModel { ReturnUrl = returnUrl });
+            return View(new LoginViewModel {ReturnUrl = returnUrl});
         }
 
 
@@ -29,13 +38,16 @@ namespace Violetum.IdentityServer.Controllers
         {
             // TODO: Validate vm
 
-            var result = await _signInManager.PasswordSignInAsync(loginViewModel.Username, loginViewModel.Password, false, false);
+            SignInResult result =
+                await _signInManager.PasswordSignInAsync(loginViewModel.Username, loginViewModel.Password, false,
+                    false);
 
             if (result.Succeeded)
             {
                 return Redirect(loginViewModel.ReturnUrl);
             }
-            else if (result.IsLockedOut)
+
+            if (result.IsLockedOut)
             {
                 // TODO: implement
             }
@@ -50,7 +62,7 @@ namespace Violetum.IdentityServer.Controllers
         [HttpGet]
         public IActionResult Register(string returnUrl)
         {
-            return View(new RegisterViewModel { ReturnUrl = returnUrl });
+            return View(new RegisterViewModel {ReturnUrl = returnUrl});
         }
 
         [HttpPost]
@@ -62,7 +74,7 @@ namespace Violetum.IdentityServer.Controllers
             }
 
             var user = new IdentityUser(registerViewModel.Username);
-            var result = await _userManager.CreateAsync(user, registerViewModel.Password);
+            IdentityResult result = await _userManager.CreateAsync(user, registerViewModel.Password);
 
             if (result.Succeeded)
             {
@@ -72,6 +84,21 @@ namespace Violetum.IdentityServer.Controllers
             }
 
             return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Logout(string logoutId)
+        {
+            await _signInManager.SignOutAsync();
+
+            LogoutRequest logoutRequest = await _interactionService.GetLogoutContextAsync(logoutId);
+
+            if (string.IsNullOrEmpty(logoutRequest.PostLogoutRedirectUri))
+            {
+                return RedirectToAction("Index");
+            }
+
+            return Redirect(logoutRequest.PostLogoutRedirectUri);
         }
     }
 }

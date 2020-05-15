@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using Violetum.Web.Models;
 
 namespace Violetum.Web.Controllers
@@ -32,6 +33,7 @@ namespace Violetum.Web.Controllers
             string accessToken = await HttpContext.GetTokenAsync("access_token");
             string result = await GetUserClaims(accessToken);
 
+            ViewBag.Json = JArray.Parse(result).ToString();
             return View();
         }
 
@@ -42,7 +44,7 @@ namespace Violetum.Web.Controllers
 
         public IActionResult Logout()
         {
-            return SignOut("Cookies", "oidc");
+            return SignOut("Cookie", "oidc");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
