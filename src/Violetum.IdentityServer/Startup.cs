@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Logging;
 using Violetum.IdentityServer.Data;
 
 namespace Violetum.IdentityServer
@@ -25,8 +26,9 @@ namespace Violetum.IdentityServer
 
         public void ConfigureServices(IServiceCollection services)
         {
-            string connectionString = Configuration.GetConnectionString("DefaultConnection");
+            IdentityModelEventSource.ShowPII = true;
 
+            string connectionString = Configuration.GetConnectionString("DefaultConnection");
 
             // configures IIS out-of-proc settings (see https://github.com/aspnet/AspNetCore/issues/14882)
             services.Configure<IISOptions>(iis =>
@@ -62,7 +64,7 @@ namespace Violetum.IdentityServer
             });
 
             string migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
-            string filePath = Path.Combine(Environment.ContentRootPath, "cert.pfx");
+            string filePath = Path.Combine(Environment.ContentRootPath, "../../cert.pfx");
             var certificate = new X509Certificate2(filePath, "password");
 
             services.AddIdentityServer(options =>

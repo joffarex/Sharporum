@@ -5,6 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="IdentityModel" Version="4.2.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.3"/>
     </ItemGroup>
 
@@ -13,6 +14,11 @@
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Violetum.Application\Violetum.Application.csproj"/>
+        <ProjectReference Include="..\Violetum.Infrastructure\Violetum.Infrastructure.csproj"/>
     </ItemGroup>
 
 </Project>
