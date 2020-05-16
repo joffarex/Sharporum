@@ -42,12 +42,15 @@ namespace Violetum.Web
                     options.SaveTokens = true;
 
                     // claimType is basically a name what we have defined in Identity resources
-                    options.ClaimActions.MapUniqueJsonKey("claim.scope.test", "claim.userfield.test");
+                    options.ClaimActions.MapAll();
+                    options.ClaimActions.DeleteClaim("amr");
+                    options.ClaimActions.DeleteClaim("s_hash");
                     options.GetClaimsFromUserInfoEndpoint = true;
 
+                    options.Scope.Clear();
+                    options.Scope.Add("openid");
                     options.Scope.Add("Violetum.API");
                     options.Scope.Add("offline_access");
-                    options.Scope.Add("claim.scope.test");
                 });
 
             services.AddHttpClient();

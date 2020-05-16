@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
+using IdentityModel;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
@@ -9,6 +11,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.SystemConsole.Themes;
 
 namespace Violetum.IdentityServer
 {
@@ -18,18 +22,42 @@ namespace Violetum.IdentityServer
         {
             IHost host = CreateHostBuilder(args).Build();
 
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+                .MinimumLevel.Override("System", LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", LogEventLevel.Information)
+                .Enrich.FromLogContext()
+                .WriteTo.Console(
+                    outputTemplate:
+                    "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}",
+                    theme: AnsiConsoleTheme.Literate)
+                .CreateLogger();
+
             using (IServiceScope scope = host.Services.CreateScope())
             {
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
-                var user = new IdentityUser("joffarex");
+                var user = new IdentityUser
+                {
+                    UserName = "joffarex",
+                    Email = "joffarex@gmail.com",
+                    EmailConfirmed = true,
+                };
                 userManager.CreateAsync(user, "password").GetAwaiter().GetResult();
-                // added in identity token
-                userManager.AddClaimAsync(user, new Claim("claim.userfield.test", "test_value")).GetAwaiter()
-                    .GetResult();
-                // added in access token
-                userManager.AddClaimAsync(user, new Claim("claim.api.userfield.test", "test.api_value")).GetAwaiter()
-                    .GetResult();
+
+                userManager.AddClaimsAsync(user, new List<Claim>
+                {
+                    new Claim(JwtClaimTypes.Name, "Tornike Goshadze"),
+                    new Claim(JwtClaimTypes.GivenName, "Tornike"),
+                    new Claim(JwtClaimTypes.FamilyName, "Goshadze"),
+                    new Claim(JwtClaimTypes.Picture,
+                        "https://avatars1.githubusercontent.com/u/41587092?s=460&u=bfed09c2f733b89c07e85739b6bdaaaaa6288149&v=4"),
+                    new Claim(JwtClaimTypes.Gender, "male"),
+                    new Claim(JwtClaimTypes.BirthDate, "2001-01-26"),
+                    // new Claim(JwtClaimTypes.EmailVerified, "true", ClaimValueTypes.Boolean), // TODO: implement
+                    new Claim(JwtClaimTypes.WebSite, "https://joffarex.com"),
+                }).GetAwaiter().GetResult();
 
                 RunMigrations(scope);
             }
