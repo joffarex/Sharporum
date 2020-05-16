@@ -9,7 +9,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Logging;
-using Violetum.IdentityServer.Data;
+using Violetum.Domain.Models;
+using Violetum.Infrastructure;
 
 namespace Violetum.IdentityServer
 {
@@ -46,7 +47,7 @@ namespace Violetum.IdentityServer
 
             services.AddDbContext<ApplicationDbContext>(config => { config.UseSqlServer(connectionString); });
 
-            services.AddIdentity<IdentityUser, IdentityRole>(config =>
+            services.AddIdentity<User, IdentityRole>(config =>
                 {
                     config.Password.RequiredLength = 4;
                     config.Password.RequireDigit = false;
@@ -74,7 +75,7 @@ namespace Violetum.IdentityServer
                     options.Events.RaiseFailureEvents = true;
                     options.Events.RaiseSuccessEvents = true;
                 })
-                .AddAspNetIdentity<IdentityUser>()
+                .AddAspNetIdentity<User>()
                 .AddConfigurationStore(options =>
                 {
                     options.ConfigureDbContext = b => b.UseSqlServer(connectionString,

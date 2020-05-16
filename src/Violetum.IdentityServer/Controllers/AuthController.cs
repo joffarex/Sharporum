@@ -3,6 +3,7 @@ using IdentityServer4.Models;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Violetum.Domain.Models;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace Violetum.IdentityServer.Controllers
@@ -10,10 +11,10 @@ namespace Violetum.IdentityServer.Controllers
     public class AuthController : Controller
     {
         private readonly IIdentityServerInteractionService _interactionService;
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<User> _userManager;
 
-        public AuthController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager,
+        public AuthController(SignInManager<User> signInManager, UserManager<User> userManager,
             IIdentityServerInteractionService interactionService)
         {
             _signInManager = signInManager;
@@ -73,7 +74,7 @@ namespace Violetum.IdentityServer.Controllers
                 return View(registerViewModel);
             }
 
-            var user = new IdentityUser(registerViewModel.Username);
+            var user = new User(registerViewModel.Username);
             IdentityResult result = await _userManager.CreateAsync(user, registerViewModel.Password);
 
             if (result.Succeeded)

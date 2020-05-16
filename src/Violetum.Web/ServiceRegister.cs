@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Violetum.Application;
+using Violetum.ApplicationCore;
 using Violetum.Domain.Infrastructure;
 using Violetum.Web.Infrastructure;
 

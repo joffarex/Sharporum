@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Violetum.Application", "src\Violetum.Application\Violetum.Application.csproj", "{25F355F8-0620-47AF-92E4-853296534DAF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Violetum.ApplicationCore", "src\Violetum.ApplicationCore\Violetum.ApplicationCore.csproj", "{25F355F8-0620-47AF-92E4-853296534DAF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Violetum.Domain", "src\Violetum.Domain\Violetum.Domain.csproj", "{D36535E6-253E-47B0-9DA8-E92E094B4E10}"
 EndProject

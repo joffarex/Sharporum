@@ -4,21 +4,22 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Violetum.Domain.Models;
 
 namespace Violetum.IdentityServer.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<User> _userManager;
 
-        public AccountController(UserManager<IdentityUser> userManager)
+        public AccountController(UserManager<User> userManager)
         {
             _userManager = userManager;
         }
 
         public async Task<IActionResult> UserInfo(string id)
         {
-            IdentityUser user = await _userManager.FindByIdAsync(id);
+            User user = await _userManager.FindByIdAsync(id);
             IList<Claim> userClaims = await _userManager.GetClaimsAsync(user);
 
             var vm = new UserViewModel

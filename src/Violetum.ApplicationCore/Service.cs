@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Violetum.Application
+namespace Violetum.ApplicationCore
 {
     public class Service : Attribute
     {

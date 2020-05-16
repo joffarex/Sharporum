@@ -2,9 +2,11 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Violetum.Infrastructure;
 
 namespace Violetum.Web
 {
@@ -23,6 +25,11 @@ namespace Violetum.Web
             services.AddHttpContextAccessor();
 
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+
+            string connectionString = _configuration.GetConnectionString("DefaultConnection");
+
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(connectionString));
 
             services.AddAuthentication(options =>
                 {

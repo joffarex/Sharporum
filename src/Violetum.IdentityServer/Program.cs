@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
+using Violetum.Domain.Models;
 
 namespace Violetum.IdentityServer
 {
@@ -36,9 +37,9 @@ namespace Violetum.IdentityServer
 
             using (IServiceScope scope = host.Services.CreateScope())
             {
-                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
 
-                var user = new IdentityUser
+                var user = new User
                 {
                     UserName = "joffarex",
                     Email = "joffarex@gmail.com",

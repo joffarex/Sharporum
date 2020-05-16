@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Violetum.IdentityServer.Data.Migrations.ApplicationMigrations
+namespace Violetum.Infrastructure.Migrations
 {
     public partial class init : Migration
     {
@@ -37,6 +37,7 @@ namespace Violetum.IdentityServer.Data.Migrations.ApplicationMigrations
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     LockoutEnabled = table.Column<bool>(nullable: false),
                     AccessFailedCount = table.Column<int>(nullable: false),
+                    Discriminator = table.Column<string>(nullable: false),
                 },
                 constraints: table => { table.PrimaryKey("PK_AspNetUsers", x => x.Id); });
 
@@ -146,6 +147,85 @@ namespace Violetum.IdentityServer.Data.Migrations.ApplicationMigrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                "Categories",
+                table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    CreatedAt = table.Column<DateTime>(nullable: false),
+                    UpdatedAt = table.Column<DateTime>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    Description = table.Column<string>("ntext", nullable: true),
+                    AuthorId = table.Column<string>(nullable: true),
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.Id);
+                    table.ForeignKey(
+                        "FK_Categories_AspNetUsers_AuthorId",
+                        x => x.AuthorId,
+                        "AspNetUsers",
+                        "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                "Posts",
+                table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    CreatedAt = table.Column<DateTime>(nullable: false),
+                    UpdatedAt = table.Column<DateTime>(nullable: false),
+                    Title = table.Column<string>(nullable: true),
+                    Content = table.Column<string>("ntext", nullable: true),
+                    AuthorId = table.Column<string>(nullable: true),
+                    CategoryId = table.Column<string>(nullable: true),
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Posts", x => x.Id);
+                    table.ForeignKey(
+                        "FK_Posts_AspNetUsers_AuthorId",
+                        x => x.AuthorId,
+                        "AspNetUsers",
+                        "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        "FK_Posts_Categories_CategoryId",
+                        x => x.CategoryId,
+                        "Categories",
+                        "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                "Comments",
+                table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    CreatedAt = table.Column<DateTime>(nullable: false),
+                    UpdatedAt = table.Column<DateTime>(nullable: false),
+                    Content = table.Column<string>("ntext", nullable: true),
+                    AuthorId = table.Column<string>(nullable: true),
+                    PostId = table.Column<string>(nullable: true),
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Comments", x => x.Id);
+                    table.ForeignKey(
+                        "FK_Comments_AspNetUsers_AuthorId",
+                        x => x.AuthorId,
+                        "AspNetUsers",
+                        "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        "FK_Comments_Posts_PostId",
+                        x => x.PostId,
+                        "Posts",
+                        "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 "IX_AspNetRoleClaims_RoleId",
                 "AspNetRoleClaims",
@@ -184,6 +264,31 @@ namespace Violetum.IdentityServer.Data.Migrations.ApplicationMigrations
                 "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                "IX_Categories_AuthorId",
+                "Categories",
+                "AuthorId");
+
+            migrationBuilder.CreateIndex(
+                "IX_Comments_AuthorId",
+                "Comments",
+                "AuthorId");
+
+            migrationBuilder.CreateIndex(
+                "IX_Comments_PostId",
+                "Comments",
+                "PostId");
+
+            migrationBuilder.CreateIndex(
+                "IX_Posts_AuthorId",
+                "Posts",
+                "AuthorId");
+
+            migrationBuilder.CreateIndex(
+                "IX_Posts_CategoryId",
+                "Posts",
+                "CategoryId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -204,7 +309,16 @@ namespace Violetum.IdentityServer.Data.Migrations.ApplicationMigrations
                 "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                "Comments");
+
+            migrationBuilder.DropTable(
                 "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                "Posts");
+
+            migrationBuilder.DropTable(
+                "Categories");
 
             migrationBuilder.DropTable(
                 "AspNetUsers");

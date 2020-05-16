@@ -17,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Violetum.Application\Violetum.Application.csproj"/>
+        <ProjectReference Include="..\Violetum.ApplicationCore\Violetum.ApplicationCore.csproj"/>
         <ProjectReference Include="..\Violetum.Infrastructure\Violetum.Infrastructure.csproj"/>
     </ItemGroup>
 

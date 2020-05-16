@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.1</TargetFramework>
-        <RootNamespace>Violetum.Application</RootNamespace>
+        <RootNamespace>Violetum.ApplicationCore</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
