@@ -9,17 +9,14 @@ namespace Violetum.Infrastructure.Repositories
 {
     public class CommentRepository : BaseRepository, ICommentRepository
     {
-        private readonly ApplicationDbContext _context;
-
         public CommentRepository(ApplicationDbContext context) : base(context)
         {
-            _context = context;
         }
 
-        public IEnumerable<TResult> GetComments<TResult>(Expression<Func<Comment, bool>> predicate,
+        public IEnumerable<TResult> GetComments<TResult>(Expression<Func<Comment, bool>> condition,
             Func<Comment, TResult> selector, Paginator paginator)
         {
-            return GetEntities(predicate, selector, paginator);
+            return GetEntities(condition, selector, paginator);
         }
 
         public Task<int> CreateComment(Comment comment)

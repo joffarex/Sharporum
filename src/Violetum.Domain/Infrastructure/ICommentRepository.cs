@@ -8,7 +8,7 @@ namespace Violetum.Domain.Infrastructure
 {
     public interface ICommentRepository
     {
-        IEnumerable<TResult> GetComments<TResult>(Expression<Func<Comment, bool>> predicate,
+        IEnumerable<TResult> GetComments<TResult>(Expression<Func<Comment, bool>> condition,
             Func<Comment, TResult> selector,
             Paginator paginator);
 

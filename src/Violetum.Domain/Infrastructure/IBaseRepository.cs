@@ -8,7 +8,7 @@ namespace Violetum.Domain.Infrastructure
 {
     public interface IBaseRepository
     {
-        IEnumerable<TResult> GetEntities<TEntity, TResult>(Expression<Func<TEntity, bool>> predicate,
+        IEnumerable<TResult> GetEntities<TEntity, TResult>(Expression<Func<TEntity, bool>> condition,
             Func<TEntity, TResult> selector, Paginator paginator) where TEntity : class;
 
         Task<int> CreateEntity<TEntity>(TEntity entity) where TEntity : class;

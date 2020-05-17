@@ -10,7 +10,7 @@ namespace Violetum.Domain.Infrastructure
     {
         TResult GetPostById<TResult>(string postId, Func<Post, TResult> selector);
 
-        IEnumerable<TResult> GetPosts<TResult>(Expression<Func<Post, bool>> predicate, Func<Post, TResult> selector,
+        IEnumerable<TResult> GetPosts<TResult>(Expression<Func<Post, bool>> condition, Func<Post, TResult> selector,
             Paginator paginator);
 
         Task<int> CreatePost(Post post);

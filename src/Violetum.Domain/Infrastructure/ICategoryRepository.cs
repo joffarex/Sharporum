@@ -8,9 +8,12 @@ namespace Violetum.Domain.Infrastructure
 {
     public interface ICategoryRepository
     {
-        TResult GetCategoryByName<TResult>(string name, Func<Category, TResult> selector);
+        Category GetCategory(Expression<Func<Category, bool>> condition);
 
-        IEnumerable<TResult> GetCategories<TResult>(Expression<Func<Category, bool>> predicate,
+        TResult GetCategory<TResult>(Expression<Func<Category, bool>> condition,
+            Func<Category, TResult> selector);
+
+        IEnumerable<TResult> GetCategories<TResult>(Expression<Func<Category, bool>> condition,
             Func<Category, TResult> selector,
             Paginator paginator);
 
