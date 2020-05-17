@@ -11,6 +11,7 @@ using Violetum.Domain.Infrastructure;
 
 namespace Violetum.ApplicationCore.Services
 {
+    [Service]
     public class CategoryService : ICategoryService
     {
         private readonly ICategoryRepository _categoryRepository;
