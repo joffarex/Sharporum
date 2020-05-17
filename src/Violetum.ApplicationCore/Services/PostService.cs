@@ -68,7 +68,7 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<PostViewModel> UpdatePost(string postId, string userId, UpdatePostDto updatePostDto)
         {
-            Post post = await ValidatePostActionData(postId, userId, updatePostDto.Id);
+            Post post = ValidatePostActionData(postId, userId, updatePostDto.Id);
 
             post.Title = updatePostDto.Title;
             post.Content = updatePostDto.Content;
@@ -85,7 +85,7 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<bool> DeleteProduct(string postId, string userId, DeletePostDto deletePostDto)
         {
-            Post post = await ValidatePostActionData(postId, userId, deletePostDto.Id);
+            Post post = ValidatePostActionData(postId, userId, deletePostDto.Id);
 
             return await _postRepository.DeletePost(post) > 0;
         }
@@ -132,7 +132,7 @@ namespace Violetum.ApplicationCore.Services
             };
         }
 
-        private async Task<Post> ValidatePostActionData(string postId, string userId, string dtoPostId)
+        private Post ValidatePostActionData(string postId, string userId, string dtoPostId)
         {
             if (postId != dtoPostId)
             {
