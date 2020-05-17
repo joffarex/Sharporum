@@ -1,4 +1,4 @@
-﻿namespace Violetum.Domain.Models
+﻿namespace Violetum.Domain.Entities
 {
     public class UserTokens
     {

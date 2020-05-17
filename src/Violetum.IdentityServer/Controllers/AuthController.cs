@@ -3,7 +3,7 @@ using IdentityServer4.Models;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Violetum.Domain.Models;
+using Violetum.Domain.Entities;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace Violetum.IdentityServer.Controllers

@@ -236,8 +236,11 @@ namespace Violetum.Infrastructure.Migrations
                 b.Property<string>("Description")
                     .HasColumnType("ntext");
 
-                b.Property<string>("Name")
+                b.Property<string>("Image")
                     .HasColumnType("nvarchar(max)");
+
+                b.Property<string>("Name")
+                    .HasColumnType("nvarchar(450)");
 
                 b.Property<DateTime>("UpdatedAt")
                     .HasColumnType("datetime2");
@@ -245,6 +248,10 @@ namespace Violetum.Infrastructure.Migrations
                 b.HasKey("Id");
 
                 b.HasIndex("AuthorId");
+
+                b.HasIndex("Name")
+                    .IsUnique()
+                    .HasFilter("[Name] IS NOT NULL");
 
                 b.ToTable("Categories");
             });
@@ -262,6 +269,9 @@ namespace Violetum.Infrastructure.Migrations
 
                 b.Property<DateTime>("CreatedAt")
                     .HasColumnType("datetime2");
+
+                b.Property<string>("ParentId")
+                    .HasColumnType("nvarchar(max)");
 
                 b.Property<string>("PostId")
                     .HasColumnType("nvarchar(450)");

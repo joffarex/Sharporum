@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace Violetum.Domain.Models
+namespace Violetum.Domain.Entities
 {
     public class User : IdentityUser
     {

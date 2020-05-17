@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Violetum.Domain.Models
+namespace Violetum.Domain.Entities
 {
     public class Post : BaseEntity
     {

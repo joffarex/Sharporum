@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Violetum.Domain.Models;
+using Violetum.Domain.Entities;
 
 namespace Violetum.Domain.Infrastructure
 {

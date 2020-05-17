@@ -4,7 +4,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Violetum.Domain.Models;
+using Violetum.Domain.Entities;
 
 namespace Violetum.IdentityServer.Controllers
 {

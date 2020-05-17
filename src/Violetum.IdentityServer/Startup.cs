@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Logging;
-using Violetum.Domain.Models;
+using Violetum.Domain.Entities;
 using Violetum.Infrastructure;
 
 namespace Violetum.IdentityServer
