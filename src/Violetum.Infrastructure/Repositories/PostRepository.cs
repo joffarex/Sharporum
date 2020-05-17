@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
 
@@ -19,13 +20,23 @@ namespace Violetum.Infrastructure.Repositories
 
         public TResult GetPostById<TResult>(string postId, Func<Post, TResult> selector)
         {
-            return _context.Posts.Where(x => x.Id == postId).Select(selector).FirstOrDefault();
+            return _context.Posts
+                .Include(x => x.Author)
+                .Include(x => x.Category)
+                .Where(x => x.Id == postId)
+                .Select(selector)
+                .FirstOrDefault();
         }
 
-        public IEnumerable<TResult> GetPosts<TResult>(Expression<Func<Post, bool>> predicate,
+        public IEnumerable<TResult> GetPosts<TResult>(Expression<Func<Post, bool>> condition,
             Func<Post, TResult> selector, Paginator paginator)
         {
-            return GetEntities(predicate, selector, paginator);
+            return _context.Posts.Include(x => x.Category)
+                .Where(condition)
+                .Select(selector)
+                .Skip(paginator.Offset)
+                .Take(paginator.Limit)
+                .ToList();
         }
 
         public Task<int> CreatePost(Post post)

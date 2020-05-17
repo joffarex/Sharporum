@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
 
@@ -17,15 +18,27 @@ namespace Violetum.Infrastructure.Repositories
             _context = context;
         }
 
-        public TResult GetCategoryByName<TResult>(string name, Func<Category, TResult> selector)
+        public Category GetCategory(Expression<Func<Category, bool>> condition)
         {
-            return _context.Categories.Where(x => x.Name == name).Select(selector).FirstOrDefault();
+            return _context.Categories
+                .Include(x => x.Author)
+                .FirstOrDefault(condition);
         }
 
-        public IEnumerable<TResult> GetCategories<TResult>(Expression<Func<Category, bool>> predicate,
+        public TResult GetCategory<TResult>(Expression<Func<Category, bool>> condition,
+            Func<Category, TResult> selector)
+        {
+            return _context.Categories
+                .Include(x => x.Author)
+                .Where(condition)
+                .Select(selector)
+                .FirstOrDefault();
+        }
+
+        public IEnumerable<TResult> GetCategories<TResult>(Expression<Func<Category, bool>> condition,
             Func<Category, TResult> selector, Paginator paginator)
         {
-            return GetEntities(predicate, selector, paginator);
+            return GetEntities(condition, selector, paginator);
         }
 
         public Task<int> CreateCategory(Category category)

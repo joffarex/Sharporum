@@ -17,10 +17,10 @@ namespace Violetum.Infrastructure.Repositories
             _context = context;
         }
 
-        public IEnumerable<TResult> GetEntities<TEntity, TResult>(Expression<Func<TEntity, bool>> predicate,
+        public IEnumerable<TResult> GetEntities<TEntity, TResult>(Expression<Func<TEntity, bool>> condition,
             Func<TEntity, TResult> selector, Paginator paginator) where TEntity : class
         {
-            return _context.Set<TEntity>().Where(predicate).Select(selector).Skip(paginator.Offset)
+            return _context.Set<TEntity>().Where(condition).Select(selector).Skip(paginator.Offset)
                 .Take(paginator.Limit)
                 .ToList();
         }
