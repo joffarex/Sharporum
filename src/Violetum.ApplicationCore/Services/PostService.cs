@@ -83,7 +83,7 @@ namespace Violetum.ApplicationCore.Services
             return _mapper.Map<PostViewModel>(post);
         }
 
-        public async Task<bool> DeleteProduct(string postId, string userId, DeletePostDto deletePostDto)
+        public async Task<bool> DeletePost(string postId, string userId, DeletePostDto deletePostDto)
         {
             Post post = ValidatePostActionData(postId, userId, deletePostDto.Id);
 

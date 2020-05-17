@@ -12,6 +12,6 @@ namespace Violetum.ApplicationCore.Interfaces
         Task<IEnumerable<PostViewModel>> GetPosts(SearchParams searchParams, Paginator paginator);
         Task<PostViewModel> CreatePost(PostDto postDto);
         Task<PostViewModel> UpdatePost(string postId, string userId, UpdatePostDto updatePostDto);
-        Task<bool> DeleteProduct(string postId, string userId, DeletePostDto deletePostDto);
+        Task<bool> DeletePost(string postId, string userId, DeletePostDto deletePostDto);
     }
 }

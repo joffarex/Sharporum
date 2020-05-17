@@ -1,0 +1,16 @@
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Violetum.ApplicationCore.Dtos.Comment;
+using Violetum.ApplicationCore.ViewModels;
+using Violetum.Domain.Entities;
+
+namespace Violetum.ApplicationCore.Interfaces
+{
+    public interface ICommentService
+    {
+        Task<IEnumerable<CommentViewModel>> GetComments(SearchParams searchParams, Paginator paginator);
+        Task<CommentViewModel> CreateComment(CommentDto commentDto);
+        Task<CommentViewModel> UpdateComment(string commentId, string userId, UpdateCommentDto updateCommentDto);
+        Task<bool> DeleteComment(string commentId, string userId, DeleteCommentDto deleteCommentDto);
+    }
+}
