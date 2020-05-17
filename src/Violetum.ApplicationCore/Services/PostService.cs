@@ -77,17 +77,21 @@ namespace Violetum.ApplicationCore.Services
 
             if (!result)
             {
-                throw new Exception("update post failed");
+                throw new Exception("Dpdate post failed");
             }
 
             return _mapper.Map<PostViewModel>(post);
         }
 
-        public async Task<bool> DeletePost(string postId, string userId, DeletePostDto deletePostDto)
+        public async Task DeletePost(string postId, string userId, DeletePostDto deletePostDto)
         {
             Post post = ValidatePostActionData(postId, userId, deletePostDto.Id);
 
-            return await _postRepository.DeletePost(post) > 0;
+            bool result = await _postRepository.DeletePost(post) > 0;
+            if (!result)
+            {
+                throw new Exception("Delete post failed");
+            }
         }
 
 
