@@ -3,6 +3,7 @@
     "Start": {
       "commandName": "Project",
       "launchBrowser": true,
+      "launchUrl": "post",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

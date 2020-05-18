@@ -97,16 +97,22 @@ namespace Violetum.ApplicationCore.Services
 
         private async Task ValidateSearchParams(SearchParams searchParams)
         {
-            Category category = _categoryRepository.GetCategory(x => x.Name == searchParams.CategoryName);
-            if (category == null)
+            if (!string.IsNullOrEmpty(searchParams.CategoryName))
             {
-                throw new Exception("Category not found");
+                Category category = _categoryRepository.GetCategory(x => x.Name == searchParams.CategoryName);
+                if (category == null)
+                {
+                    throw new Exception("Category not found");
+                }
             }
 
-            User user = await _userManager.FindByIdAsync(searchParams.UserId);
-            if (user == null)
+            if (!string.IsNullOrEmpty(searchParams.UserId))
             {
-                throw new Exception("User not found");
+                User user = await _userManager.FindByIdAsync(searchParams.UserId);
+                if (user == null)
+                {
+                    throw new Exception("User not found");
+                }
             }
         }
 

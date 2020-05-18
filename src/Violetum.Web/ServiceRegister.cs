@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Violetum.ApplicationCore;
+using Violetum.ApplicationCore.Interfaces;
+using Violetum.ApplicationCore.Services;
 using Violetum.Domain.Infrastructure;
 using Violetum.Infrastructure.Repositories;
 using Violetum.Web.Infrastructure;
@@ -23,6 +25,10 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 @this.AddTransient(service);
             }
+
+            @this.AddTransient<ICategoryService, CategoryService>();
+            @this.AddTransient<IPostService, PostService>();
+            @this.AddTransient<ICommentService, CommentService>();
 
             @this.AddTransient<ITokenManager, TokenManager>();
             @this.AddTransient<IPostRepository, PostRepository>();

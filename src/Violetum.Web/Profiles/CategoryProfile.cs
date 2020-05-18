@@ -9,6 +9,7 @@ namespace Violetum.Web.Profiles
         public CategoryProfile()
         {
             CreateMap<Category, CategoryViewModel>();
+            CreateMap<Category, PostCategoryViewModel>();
         }
     }
 }

@@ -1,0 +1,55 @@
+﻿@model IEnumerable<PostViewModel>
+
+@{
+    ViewData["Title"] = "Posts";
+}
+
+<h2>Posts</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+    <tr>
+        <th>Id</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Category</th>
+        <th>CreatedAt</th>
+        <th>UpdatedAt</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (PostViewModel post in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => post.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => post.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => post.Author.UserName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => post.Category.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => post.CreatedAt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => post.UpdatedAt)
+            </td>
+            <td>
+                <!-- TODO: disable/enable buttons for users -->
+                <a asp-action="Edit" asp-route-id="@post.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@post.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@post.Id">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,12 +22,16 @@ namespace Violetum.Web.Controllers
             _tokenManager = tokenManager;
         }
 
-        [HttpGet("{postId}")]
-        public IActionResult GetPost(string postId)
+        public IActionResult Details(string id)
         {
+            if (string.IsNullOrEmpty(id))
+            {
+                return NotFound();
+            }
+
             try
             {
-                PostViewModel post = _postService.GetPost(postId);
+                PostViewModel post = _postService.GetPost(id);
                 return View(post);
             }
             catch (Exception e)
@@ -38,8 +41,8 @@ namespace Violetum.Web.Controllers
             }
         }
 
-        [HttpGet("all")]
-        public async Task<IActionResult> GetPosts([FromBody] SearchParams searchParams, [FromBody] Paginator paginator)
+        public async Task<IActionResult> Index([Bind("UserId,CategoryName")] SearchParams searchParams,
+            [Bind("CurrentPage,Limit")] Paginator paginator)
         {
             IEnumerable<PostViewModel> posts = await _postService.GetPosts(searchParams, paginator);
 
@@ -47,21 +50,31 @@ namespace Violetum.Web.Controllers
         }
 
         [Authorize]
-        [HttpGet]
-        public IActionResult New()
+        public async Task<IActionResult> Create()
         {
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
+
+            ViewData["UserId"] = userId;
+            // TODO: populate model with categories
             return View();
         }
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] PostDto postDto)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Title,Content, CategoryId, AuthorId")]
+            PostDto postDto)
         {
             try
             {
-                PostViewModel post = await _postService.CreatePost(postDto);
+                if (ModelState.IsValid)
+                {
+                    PostViewModel post = await _postService.CreatePost(postDto);
 
-                return RedirectToAction("GetPost", new {PostId = post.Id});
+                    return RedirectToAction(nameof(Details), new {post.Id});
+                }
+
+                return View(postDto);
             }
             catch (Exception e)
             {
@@ -71,23 +84,17 @@ namespace Violetum.Web.Controllers
         }
 
         [Authorize]
-        [HttpGet]
-        public IActionResult Edit()
+        public IActionResult Edit(string id)
         {
-            return View();
-        }
+            if (string.IsNullOrEmpty(id))
+            {
+                return NotFound();
+            }
 
-        [Authorize]
-        [HttpPut("{postId}")]
-        public async Task<IActionResult> Update(string postId, [FromBody] UpdatePostDto updatePostDto)
-        {
             try
             {
-                string userId = await GetUserIdFromAccessToken();
-
-                PostViewModel post = await _postService.UpdatePost(postId, userId, updatePostDto);
-
-                return RedirectToAction("GetPost", new {PostId = post.Id});
+                PostViewModel post = _postService.GetPost(id);
+                return View(post);
             }
             catch (Exception e)
             {
@@ -97,16 +104,22 @@ namespace Violetum.Web.Controllers
         }
 
         [Authorize]
-        [HttpDelete("{postId}")]
-        public async Task<IActionResult> Delete(string postId, [FromBody] DeletePostDto deletePostDto)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(string id, [Bind("Id,Title,Content")] UpdatePostDto updatePostDto)
         {
+            if (string.IsNullOrEmpty(id))
+            {
+                return NotFound();
+            }
+
             try
             {
-                string userId = await GetUserIdFromAccessToken();
+                string userId = await _tokenManager.GetUserIdFromAccessToken();
 
-                await _postService.DeletePost(postId, userId, deletePostDto);
+                PostViewModel post = await _postService.UpdatePost(id, userId, updatePostDto);
 
-                return RedirectToAction("GetPosts");
+                return RedirectToAction(nameof(Details), new {post.Id});
             }
             catch (Exception e)
             {
@@ -115,11 +128,49 @@ namespace Violetum.Web.Controllers
             }
         }
 
-        private async Task<string> GetUserIdFromAccessToken()
+        [Authorize]
+        public IActionResult Delete(string id)
         {
-            UserTokens tokens = await _tokenManager.GetUserTokens();
-            JwtSecurityToken accessToken = new JwtSecurityTokenHandler().ReadJwtToken(tokens.AccessToken);
-            return accessToken.Subject;
+            if (string.IsNullOrEmpty(id))
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                PostViewModel post = _postService.GetPost(id);
+                return View(post);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return BadRequest();
+            }
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(string id, [Bind("Id")] DeletePostDto deletePostDto)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                string userId = await _tokenManager.GetUserIdFromAccessToken();
+
+                await _postService.DeletePost(id, userId, deletePostDto);
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return BadRequest();
+            }
         }
     }
 }

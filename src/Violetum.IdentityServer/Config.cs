@@ -39,7 +39,6 @@ namespace Violetum.IdentityServer
                     AllowedScopes = new List<string>
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
-                        "Violetum.API",
                     },
 
                     AllowOfflineAccess = true,

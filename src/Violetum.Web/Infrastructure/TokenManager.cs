@@ -1,7 +1,9 @@
-﻿using System.Net.Http;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http;
 using System.Threading.Tasks;
 using IdentityModel.Client;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
@@ -24,6 +26,13 @@ namespace Violetum.Web.Infrastructure
                 .GetDiscoveryDocumentAsync("http://localhost:5000/")
                 .GetAwaiter()
                 .GetResult();
+        }
+
+        public async Task<string> GetUserIdFromAccessToken()
+        {
+            string accessToken = await _httpContext.GetTokenAsync("access_token");
+            JwtSecurityToken jwtToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
+            return jwtToken.Subject;
         }
 
         public async Task<UserTokens> GetUserTokens()
@@ -51,7 +60,8 @@ namespace Violetum.Web.Infrastructure
         {
             UserTokens userTokens = await GetUserTokens();
 
-            AuthenticateResult authInfo = await _httpContext.AuthenticateAsync("Cookie");
+            AuthenticateResult authInfo =
+                await _httpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
             authInfo.Properties.UpdateTokenValue("access_token", userTokens.AccessToken);
             authInfo.Properties.UpdateTokenValue("refresh_token", userTokens.RefreshToken);

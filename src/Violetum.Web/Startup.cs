@@ -2,12 +2,15 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Violetum.Domain.Entities;
 using Violetum.Infrastructure;
 
 namespace Violetum.Web
@@ -33,12 +36,15 @@ namespace Violetum.Web
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
+            services.AddIdentityCore<User>().AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
             services.AddAuthentication(options =>
                 {
-                    options.DefaultScheme = "Cookie";
+                    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = "oidc";
                 })
-                .AddCookie("Cookie")
+                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddOpenIdConnect("oidc", options =>
                 {
                     options.Authority = "http://localhost:5000";
@@ -58,7 +64,6 @@ namespace Violetum.Web
 
                     options.Scope.Clear();
                     options.Scope.Add("openid");
-                    options.Scope.Add("Violetum.API");
                     options.Scope.Add("offline_access");
                 });
 
@@ -95,11 +100,7 @@ namespace Violetum.Web
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints
-                    .MapDefaultControllerRoute();
-                // .MapControllerRoute(
-                // name: "default",
-                // pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }

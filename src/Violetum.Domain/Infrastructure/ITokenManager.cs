@@ -5,6 +5,7 @@ namespace Violetum.Domain.Infrastructure
 {
     public interface ITokenManager
     {
+        Task<string> GetUserIdFromAccessToken();
         Task<UserTokens> GetUserTokens();
         Task RefreshAccessToken();
     }

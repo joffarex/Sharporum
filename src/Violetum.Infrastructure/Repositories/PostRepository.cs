@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Violetum.Domain.Entities;
@@ -28,10 +27,11 @@ namespace Violetum.Infrastructure.Repositories
                 .FirstOrDefault();
         }
 
-        public IEnumerable<TResult> GetPosts<TResult>(Expression<Func<Post, bool>> condition,
+        public IEnumerable<TResult> GetPosts<TResult>(Func<Post, bool> condition,
             Func<Post, TResult> selector, Paginator paginator)
         {
             return _context.Posts.Include(x => x.Category)
+                .AsEnumerable()
                 .Where(condition)
                 .Select(selector)
                 .Skip(paginator.Offset)
