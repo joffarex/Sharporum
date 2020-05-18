@@ -44,10 +44,14 @@
                 @Html.DisplayFor(modelItem => post.UpdatedAt)
             </td>
             <td>
-                <!-- TODO: disable/enable buttons for users -->
-                <a asp-action="Edit" asp-route-id="@post.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@post.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@post.Id">Delete</a>
+                <a asp-action="Details" asp-route-id="@post.Id" class="btn btn-sm btn-success">Details</a>
+                @{
+                    if ((ViewData["UserId"] != null) && ((string) ViewData["UserId"] == post.Author.Id))
+                    {
+                        <a asp-action="Edit" asp-route-id="@post.Id" class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@post.Id" class="btn btn-sm btn-danger">Delete</a>
+                    }
+                }
             </td>
         </tr>
     }

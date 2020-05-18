@@ -22,7 +22,7 @@ namespace Violetum.Web.Controllers
             _tokenManager = tokenManager;
         }
 
-        public IActionResult Details(string id)
+        public async Task<IActionResult> Details(string id)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -32,6 +32,9 @@ namespace Violetum.Web.Controllers
             try
             {
                 PostViewModel post = _postService.GetPost(id);
+
+                string userId = await _tokenManager.GetUserIdFromAccessToken();
+                ViewData["UserId"] = userId;
                 return View(post);
             }
             catch (Exception e)
@@ -46,6 +49,9 @@ namespace Violetum.Web.Controllers
         {
             IEnumerable<PostViewModel> posts = await _postService.GetPosts(searchParams, paginator);
 
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            ViewData["UserId"] = userId;
+
             return View(posts);
         }
 
@@ -53,7 +59,6 @@ namespace Violetum.Web.Controllers
         public async Task<IActionResult> Create()
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
-
             ViewData["UserId"] = userId;
             // TODO: populate model with categories
             return View();

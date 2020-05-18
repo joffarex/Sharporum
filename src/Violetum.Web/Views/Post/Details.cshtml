@@ -43,6 +43,11 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    @{
+        if ((ViewData["UserId"] != null) && ((string) ViewData["UserId"] == Model.Author.Id))
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-warning">Edit</a>
+        }
+    }
+    <a asp-action="Index" class="btn btn-sm btn-success">Back to List</a>
 </div>

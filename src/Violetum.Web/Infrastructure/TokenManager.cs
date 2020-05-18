@@ -31,6 +31,12 @@ namespace Violetum.Web.Infrastructure
         public async Task<string> GetUserIdFromAccessToken()
         {
             string accessToken = await _httpContext.GetTokenAsync("access_token");
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return null;
+            }
+
             JwtSecurityToken jwtToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
             return jwtToken.Subject;
         }

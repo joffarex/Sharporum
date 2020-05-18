@@ -30,7 +30,9 @@ namespace Violetum.Infrastructure.Repositories
         public IEnumerable<TResult> GetPosts<TResult>(Func<Post, bool> condition,
             Func<Post, TResult> selector, Paginator paginator)
         {
-            return _context.Posts.Include(x => x.Category)
+            return _context.Posts
+                .Include(x => x.Category)
+                .Include(x => x.Author)
                 .AsEnumerable()
                 .Where(condition)
                 .Select(selector)
