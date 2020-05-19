@@ -3,7 +3,6 @@
 @{
     ViewData["Title"] = Model.Post.Title;
     var commentsCount = Model.Comments.Count().ToString();
-    var showEditForm = false;
 }
 
 <h3>@Model.Post.Title Details</h3>
@@ -55,7 +54,7 @@
     <div class="row">
         <div class="col-sm-8">
             <h5>Add Comment</h5>
-            <form asp-action="Create" asp-controller="Comment" method="post">
+            <form asp-action="Create" asp-controller="Comments" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
                     <label asp-for="CommentDto.Content" class="control-label"></label>
@@ -80,11 +79,11 @@
                             @{
                                 if ((ViewData["UserId"] != null) && ((string) ViewData["UserId"] == comment.Author.Id))
                                 {
-                                    <a asp-action="Edit" asp-controller="Comment" asp-route-id="@comment.Id" class="btn btn-sm btn-warning mr-2">
+                                    <a asp-action="Edit" asp-controller="Comments" asp-route-id="@comment.Id" class="btn btn-sm btn-warning mr-2">
                                         Edit
                                     </a>
 
-                                    <form asp-action="Delete" asp-controller="Comment" asp-route-id="@comment.Id" asp-route-postId="@Model.Post.Id">
+                                    <form asp-action="Delete" asp-controller="Comments" asp-route-id="@comment.Id" asp-route-postId="@Model.Post.Id">
                                         <input type="submit" class="btn btn-sm btn-danger" value="Delete">
                                     </form>
                                 }

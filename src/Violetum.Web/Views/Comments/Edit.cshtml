@@ -9,7 +9,7 @@
 <hr/>
 <div class="row">
     <div class="col-md-8">
-        <form asp-action="Edit" asp-controller="Comment" method="post">
+        <form asp-action="Edit" asp-controller="Comments" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id"/>
             <div class="form-group">
@@ -26,7 +26,7 @@
 </div>
 
 <div>
-    <a asp-action="Details" asp-controller="Post" asp-route-id="@Model.Post.Id">Back to Post</a>
+    <a asp-action="Details" asp-controller="Posts" asp-route-id="@Model.Post.Id">Back to Post</a>
 </div>
 
 @section Scripts {

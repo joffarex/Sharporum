@@ -9,12 +9,12 @@ using Violetum.Domain.Infrastructure;
 
 namespace Violetum.Web.Controllers
 {
-    public class CommentController : Controller
+    public class CommentsController : Controller
     {
         private readonly ICommentService _commentService;
         private readonly ITokenManager _tokenManager;
 
-        public CommentController(ICommentService commentService, ITokenManager tokenManager)
+        public CommentsController(ICommentService commentService, ITokenManager tokenManager)
         {
             _commentService = commentService;
             _tokenManager = tokenManager;
@@ -31,7 +31,7 @@ namespace Violetum.Web.Controllers
                 {
                     CommentViewModel comment = await _commentService.CreateComment(commentDto);
 
-                    return RedirectToAction("Details", "Post", new {Id = commentDto.PostId});
+                    return RedirectToAction("Details", "Posts", new {Id = commentDto.PostId});
                 }
 
                 return BadRequest();
@@ -79,7 +79,7 @@ namespace Violetum.Web.Controllers
 
                 CommentViewModel comment = await _commentService.UpdateComment(id, userId, updateCommentDto);
 
-                return RedirectToAction("Details", "Post", new {comment.Post.Id});
+                return RedirectToAction("Details", "Posts", new {comment.Post.Id});
             }
             catch (Exception e)
             {
@@ -105,7 +105,7 @@ namespace Violetum.Web.Controllers
 
                 await _commentService.DeleteComment(id, userId, deleteCommentDto);
 
-                return RedirectToAction("Details", "Post", new {id = postId});
+                return RedirectToAction("Details", "Posts", new {id = postId});
             }
             catch (Exception e)
             {

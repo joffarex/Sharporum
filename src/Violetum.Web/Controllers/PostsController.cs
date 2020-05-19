@@ -12,13 +12,13 @@ using Violetum.Web.Models;
 
 namespace Violetum.Web.Controllers
 {
-    public class PostController : Controller
+    public class PostsController : Controller
     {
         private readonly ICommentService _commentService;
         private readonly IPostService _postService;
         private readonly ITokenManager _tokenManager;
 
-        public PostController(IPostService postService, ICommentService commentService, ITokenManager tokenManager)
+        public PostsController(IPostService postService, ICommentService commentService, ITokenManager tokenManager)
         {
             _postService = postService;
             _commentService = commentService;
