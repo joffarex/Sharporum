@@ -6,11 +6,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Violetum.Domain\Violetum.Domain.csproj"/>
+        <ProjectReference Include="..\Violetum.Domain\Violetum.Domain.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AutoMapper" Version="9.0.0"/>
+        <PackageReference Include="AutoMapper" Version="9.0.0" />
     </ItemGroup>
 
 </Project>

@@ -1,53 +1,105 @@
-﻿@model PostViewModel
+﻿@model PostPageViewModel
 
 @{
-    ViewData["Title"] = Model.Title;
+    ViewData["Title"] = Model.Post.Title;
+    var commentsCount = Model.Comments.Count().ToString();
+    var showEditForm = false;
 }
 
-<h3>@Model.Title Details</h3>
-
+<h3>@Model.Post.Title Details</h3>
+<div class="row mb-4">
+    @{
+        if ((ViewData["UserId"] != null) && ((string) ViewData["UserId"] == Model.Post.Author.Id))
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Post.Id" class="btn btn-sm btn-warning mr-2">Edit</a>
+        }
+    }
+    <a asp-action="Index" class="btn btn-sm btn-success">Back to List</a>
+</div>
 <div>
     <h4>Post</h4>
     <hr/>
     <dl class="row">
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Id)
+            @Html.DisplayNameFor(model => model.Post.Id)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Id)
+            @Html.DisplayFor(model => model.Post.Id)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
+            @Html.DisplayNameFor(model => model.Post.Title)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Title)
+            @Html.DisplayFor(model => model.Post.Title)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Author.UserName)
+            @Html.DisplayNameFor(model => model.Post.Author.UserName)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Author.UserName)
+            @Html.DisplayFor(model => model.Post.Author.UserName)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Category.Name)
+            @Html.DisplayNameFor(model => model.Post.Category.Name)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Category.Name)
+            @Html.DisplayFor(model => model.Post.Category.Name)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Content)
+            @Html.DisplayNameFor(model => model.Post.Content)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Content)
+            @Html.DisplayFor(model => model.Post.Content)
         </dd>
     </dl>
-</div>
-<div>
-    @{
-        if ((ViewData["UserId"] != null) && ((string) ViewData["UserId"] == Model.Author.Id))
-        {
-            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-warning">Edit</a>
-        }
-    }
-    <a asp-action="Index" class="btn btn-sm btn-success">Back to List</a>
+
+    <div class="row">
+        <div class="col-sm-8">
+            <h5>Add Comment</h5>
+            <form asp-action="Create" asp-controller="Comment" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="CommentDto.Content" class="control-label"></label>
+                    <input asp-for="CommentDto.Content" class="form-control"/>
+                    <span asp-validation-for="CommentDto.Content" class="text-danger"></span>
+                </div>
+                <input type="hidden" asp-for="CommentDto.AuthorId" class="form-control" value="@ViewData["UserId"]"/>
+                <input type="hidden" asp-for="CommentDto.PostId" class="form-control" value="@Model.Post.Id"/>
+
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary"/>
+                </div>
+            </form>
+
+            <h3>@commentsCount Comment</h3>
+            @{
+                foreach (CommentViewModel comment in Model.Comments)
+                {
+                    <div class="card-body">
+                        <div class="text-muted h7 mb-2">
+                            <i class="fa fa-clock-o"></i> @comment.CreatedAt
+                            @{
+                                if ((ViewData["UserId"] != null) && ((string) ViewData["UserId"] == comment.Author.Id))
+                                {
+                                    <a asp-action="Edit" asp-controller="Comment" asp-route-id="@comment.Id" class="btn btn-sm btn-warning mr-2">
+                                        Edit
+                                    </a>
+
+                                    <form asp-action="Delete" asp-controller="Comment" asp-route-id="@comment.Id" asp-route-postId="@Model.Post.Id">
+                                        <input type="submit" class="btn btn-sm btn-danger" value="Delete">
+                                    </form>
+                                }
+                            }
+                        </div>
+                        <a class="card-link" href="#">
+                            <h5 class="card-title">@comment.Author.UserName</h5>
+                        </a>
+
+                        <p class="card-text">
+                            @comment.Content
+                        </p>
+                    </div>
+                }
+            }
+        </div>
+    </div>
 </div>

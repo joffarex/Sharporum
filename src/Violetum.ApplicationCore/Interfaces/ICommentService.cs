@@ -8,6 +8,7 @@ namespace Violetum.ApplicationCore.Interfaces
 {
     public interface ICommentService
     {
+        CommentViewModel GetComment(string commentId);
         Task<IEnumerable<CommentViewModel>> GetComments(SearchParams searchParams, Paginator paginator);
         Task<CommentViewModel> CreateComment(CommentDto commentDto);
         Task<CommentViewModel> UpdateComment(string commentId, string userId, UpdateCommentDto updateCommentDto);

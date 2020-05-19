@@ -8,21 +8,24 @@ using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
+using Violetum.Web.Models;
 
 namespace Violetum.Web.Controllers
 {
     public class PostController : Controller
     {
+        private readonly ICommentService _commentService;
         private readonly IPostService _postService;
         private readonly ITokenManager _tokenManager;
 
-        public PostController(IPostService postService, ITokenManager tokenManager)
+        public PostController(IPostService postService, ICommentService commentService, ITokenManager tokenManager)
         {
             _postService = postService;
+            _commentService = commentService;
             _tokenManager = tokenManager;
         }
 
-        public async Task<IActionResult> Details(string id)
+        public async Task<IActionResult> Details(string id, [Bind("CurrentPage,Limit")] Paginator paginator)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -35,7 +38,19 @@ namespace Violetum.Web.Controllers
 
                 string userId = await _tokenManager.GetUserIdFromAccessToken();
                 ViewData["UserId"] = userId;
-                return View(post);
+
+                IEnumerable<CommentViewModel> comments = await _commentService.GetComments(new SearchParams
+                {
+                    PostId = post.Id,
+                }, paginator);
+
+                var postPageViewModel = new PostPageViewModel
+                {
+                    Post = post,
+                    Comments = comments,
+                };
+
+                return View(postPageViewModel);
             }
             catch (Exception e)
             {

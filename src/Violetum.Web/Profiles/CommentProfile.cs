@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Violetum.ApplicationCore.Dtos.Comment;
 using Violetum.ApplicationCore.ViewModels;
 using Violetum.Domain.Entities;
 
@@ -9,6 +10,7 @@ namespace Violetum.Web.Profiles
         public CommentProfile()
         {
             CreateMap<Comment, CommentViewModel>();
+            CreateMap<CommentDto, Comment>();
         }
     }
 }

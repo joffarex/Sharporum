@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Violetum.Domain.Entities;
@@ -28,10 +27,17 @@ namespace Violetum.Infrastructure.Repositories
                 .FirstOrDefault();
         }
 
-        public IEnumerable<TResult> GetComments<TResult>(Expression<Func<Comment, bool>> condition,
+        public IEnumerable<TResult> GetComments<TResult>(Func<Comment, bool> condition,
             Func<Comment, TResult> selector, Paginator paginator)
         {
-            return GetEntities(condition, selector, paginator);
+            return _context.Comments
+                .Include(x => x.Author)
+                .AsEnumerable()
+                .Where(condition)
+                .Select(selector)
+                .Skip(paginator.Offset)
+                .Take(paginator.Limit)
+                .ToList();
         }
 
         public Task<int> CreateComment(Comment comment)

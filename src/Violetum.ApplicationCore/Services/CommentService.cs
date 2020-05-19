@@ -28,11 +28,23 @@ namespace Violetum.ApplicationCore.Services
             _mapper = mapper;
         }
 
+        public CommentViewModel GetComment(string commentId)
+        {
+            CommentViewModel comment =
+                _commentRepository.GetCommentById(commentId, x => _mapper.Map<CommentViewModel>(x));
+            if (comment == null)
+            {
+                throw new Exception("Comment not found");
+            }
+
+            return comment;
+        }
+
         public async Task<IEnumerable<CommentViewModel>> GetComments(SearchParams searchParams, Paginator paginator)
         {
             await ValidateSearchParams(searchParams);
 
-            return _commentRepository.GetComments(x => Predicate(searchParams.UserId, x),
+            return _commentRepository.GetComments(x => Predicate(searchParams.UserId, searchParams.PostId, x),
                 x => _mapper.Map<CommentViewModel>(x), paginator);
         }
 
@@ -80,18 +92,35 @@ namespace Violetum.ApplicationCore.Services
 
         private async Task ValidateSearchParams(SearchParams searchParams)
         {
-            User user = await _userManager.FindByIdAsync(searchParams.UserId);
-            if (user == null)
+            if (!string.IsNullOrEmpty(searchParams.UserId))
             {
-                throw new Exception("User not found");
+                User user = await _userManager.FindByIdAsync(searchParams.UserId);
+                if (user == null)
+                {
+                    throw new Exception("User not found");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(searchParams.PostId))
+            {
+                Post post = _postRepository.GetPostById(searchParams.PostId, x => x);
+                if (post == null)
+                {
+                    throw new Exception("Post not found");
+                }
             }
         }
 
-        private static bool Predicate(string userId, Comment c)
+        private static bool Predicate(string userId, string postId, Comment c)
         {
             if (!string.IsNullOrEmpty(userId))
             {
                 return c.AuthorId == userId;
+            }
+
+            if (!string.IsNullOrEmpty(postId))
+            {
+                return c.PostId == postId;
             }
 
             return true;

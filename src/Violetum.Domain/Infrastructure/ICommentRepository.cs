@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Violetum.Domain.Entities;
 
@@ -10,7 +9,7 @@ namespace Violetum.Domain.Infrastructure
     {
         TResult GetCommentById<TResult>(string commentId, Func<Comment, TResult> selector);
 
-        IEnumerable<TResult> GetComments<TResult>(Expression<Func<Comment, bool>> condition,
+        IEnumerable<TResult> GetComments<TResult>(Func<Comment, bool> condition,
             Func<Comment, TResult> selector,
             Paginator paginator);
 
