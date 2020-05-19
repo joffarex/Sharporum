@@ -17,12 +17,27 @@ namespace Violetum.IdentityServer.Controllers
             _userManager = userManager;
         }
 
+        [HttpGet("Account/{id}")]
+        public async Task<IActionResult> GetAccount(string id)
+        {
+            UserViewModel vm = await GetUserWithClaims(id);
+
+            return Ok(vm);
+        }
+
         public async Task<IActionResult> UserInfo(string id)
+        {
+            UserViewModel vm = await GetUserWithClaims(id);
+
+            return View(vm);
+        }
+
+        private async Task<UserViewModel> GetUserWithClaims(string id)
         {
             User user = await _userManager.FindByIdAsync(id);
             IList<Claim> userClaims = await _userManager.GetClaimsAsync(user);
 
-            var vm = new UserViewModel
+            return new UserViewModel
             {
                 Id = user.Id,
                 Username = user.UserName,
@@ -35,8 +50,6 @@ namespace Violetum.IdentityServer.Controllers
                 Birthdate = GetClaimByType(userClaims, "birthdate"),
                 Website = GetClaimByType(userClaims, "website"),
             };
-
-            return View(vm);
         }
 
         private static string GetClaimByType(IEnumerable<Claim> claims, string type)

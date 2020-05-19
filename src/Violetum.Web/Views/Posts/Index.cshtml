@@ -32,7 +32,9 @@
                 @Html.DisplayFor(modelItem => post.Title)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => post.Author.UserName)
+                <a asp-controller="Profile" asp-action="Index" asp-route-id="@post.Author.Id">
+                    @Html.DisplayFor(modelItem => post.Author.UserName)
+                </a>
             </td>
             <td>
                 @Html.DisplayFor(modelItem => post.Category.Name)

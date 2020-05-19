@@ -25,6 +25,7 @@ namespace Violetum.Web.Controllers
             _tokenManager = tokenManager;
         }
 
+        [HttpGet("Posts/{id}")]
         public async Task<IActionResult> Details(string id, [Bind("CurrentPage,Limit")] Paginator paginator)
         {
             if (string.IsNullOrEmpty(id))
