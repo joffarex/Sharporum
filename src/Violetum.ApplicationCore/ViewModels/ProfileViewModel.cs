@@ -1,4 +1,4 @@
-﻿namespace Violetum.Web.Models
+﻿namespace Violetum.ApplicationCore.ViewModels
 {
     public class ProfileViewModel
     {

@@ -26,6 +26,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 @this.AddTransient(service);
             }
 
+            @this.AddTransient<IProfileService, ProfileService>();
             @this.AddTransient<ICategoryService, CategoryService>();
             @this.AddTransient<IPostService, PostService>();
             @this.AddTransient<ICommentService, CommentService>();

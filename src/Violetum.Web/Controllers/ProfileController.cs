@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using Violetum.ApplicationCore.Dtos.Profile;
 using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels;
 using Violetum.Domain.Entities;
@@ -14,16 +14,16 @@ namespace Violetum.Web.Controllers
 {
     public class ProfileController : Controller
     {
-        private readonly HttpClient _httpClient;
         private readonly IPostService _postService;
+        private readonly IProfileService _profileService;
         private readonly ITokenManager _tokenManager;
 
-        public ProfileController(IHttpClientFactory httpClientFactory, ITokenManager tokenManager,
+        public ProfileController(IProfileService profileService, ITokenManager tokenManager,
             IPostService postService)
         {
+            _profileService = profileService;
             _tokenManager = tokenManager;
             _postService = postService;
-            _httpClient = httpClientFactory.CreateClient();
         }
 
         [HttpGet("Profile/{id}")]
@@ -36,7 +36,7 @@ namespace Violetum.Web.Controllers
 
             try
             {
-                ProfileViewModel profile = await GetProfileFromIdentityServer(id);
+                ProfileViewModel profile = await _profileService.GetProfile(id);
                 if (profile == null)
                 {
                     return BadRequest();
@@ -63,18 +63,48 @@ namespace Violetum.Web.Controllers
             }
         }
 
-        private async Task<ProfileViewModel> GetProfileFromIdentityServer(string id)
+        [Authorize]
+        [HttpGet("Profile/Edit")]
+        public async Task<IActionResult> Edit()
         {
-            HttpResponseMessage response = await _httpClient.GetAsync($"http://localhost:5000/Account/{id}");
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                string content = await response.Content.ReadAsStringAsync();
+                string userId = await _tokenManager.GetUserIdFromAccessToken();
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return BadRequest();
+                }
 
-                return JsonConvert.DeserializeObject<ProfileViewModel>(content);
+                ProfileViewModel profile = await _profileService.GetProfile(userId);
+                return View(profile);
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return BadRequest();
+            }
+        }
 
-            return null;
+        [Authorize]
+        [HttpPost("Profile/Edit")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(
+            [Bind("Id,Name,GivenName,FamilyName,Picture,Gender,Birthdate,Website")]
+            UpdateProfileDto updateProfileDto)
+        {
+            try
+            {
+                string userId = await _tokenManager.GetUserIdFromAccessToken();
+
+                ProfileViewModel profile = await _profileService.UpdateProfile(userId, updateProfileDto);
+
+                return RedirectToAction(nameof(Index), new {profile.Id});
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return BadRequest();
+            }
         }
 
         private async Task<IEnumerable<PostViewModel>> GetUserPosts(SearchParams searchParams, Paginator paginator)

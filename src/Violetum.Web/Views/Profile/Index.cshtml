@@ -23,10 +23,17 @@
             </ul>
             <div class="card-body">
                 <a href="@Model.Profile.Website" class="card-link">Website</a>
+                @{
+                    if ((ViewData["UserId"] != null) && ((string) ViewData["UserId"] == Model.Profile.Id))
+                    {
+                        <a asp-action="Edit" asp-controller="Profile" class="btn btn-warning">Edit Profile</a>
+                    }
+                }
             </div>
         </div>
     </div>
     <div class="col-md-8">
+        <h3>Posts</h3>
         @foreach (PostViewModel post in Model.Posts)
         {
             <div class="card">
