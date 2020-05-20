@@ -8,10 +8,11 @@ namespace Violetum.ApplicationCore.Interfaces
 {
     public interface ICategoryService
     {
+        CategoryViewModel GetCategoryById(string id);
         CategoryViewModel GetCategoryByName(string categoryName);
         Task<IEnumerable<CategoryViewModel>> GetCategories(SearchParams searchParams, Paginator paginator);
         Task<CategoryViewModel> CreateCategory(CategoryDto categoryDto);
-        Task<CategoryViewModel> UpdateCategory(string categoryName, string userId, UpdateCategoryDto updateCategoryDto);
-        Task<bool> DeleteCategory(string categoryName, string userId, DeleteCategoryDto deleteCategoryDto);
+        Task<CategoryViewModel> UpdateCategory(string id, string userId, UpdateCategoryDto updateCategoryDto);
+        Task<bool> DeleteCategory(string id, string userId, DeleteCategoryDto deleteCategoryDto);
     }
 }

@@ -40,10 +40,12 @@
             </a>
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Post.Category.Name)
+            Category @Html.DisplayNameFor(model => model.Post.Category.Name)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Post.Category.Name)
+            <a asp-controller="Category" asp-action="Details" asp-route-name="@Model.Post.Category.Name">
+                @Html.DisplayFor(model => model.Post.Category.Name)
+            </a>
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Post.Content)

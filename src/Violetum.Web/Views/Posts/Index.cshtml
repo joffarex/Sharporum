@@ -37,7 +37,9 @@
                 </a>
             </td>
             <td>
-                @Html.DisplayFor(modelItem => post.Category.Name)
+                <a asp-controller="Category" asp-action="Details" asp-route-name="@post.Category.Name">
+                    @Html.DisplayFor(modelItem => post.Category.Name)
+                </a>
             </td>
             <td>
                 @Html.DisplayFor(modelItem => post.CreatedAt)

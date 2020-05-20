@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Violetum.ApplicationCore.Dtos.Post;
+using Violetum.ApplicationCore.Dtos.Category;
 using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels;
 using Violetum.Domain.Entities;
@@ -12,46 +13,47 @@ using Violetum.Web.Models;
 
 namespace Violetum.Web.Controllers
 {
-    public class PostsController : Controller
+    public class CategoryController : Controller
     {
-        private readonly ICommentService _commentService;
+        private readonly ICategoryService _categoryService;
         private readonly IPostService _postService;
         private readonly ITokenManager _tokenManager;
 
-        public PostsController(IPostService postService, ICommentService commentService, ITokenManager tokenManager)
+        public CategoryController(ICategoryService categoryService, IPostService postService,
+            ITokenManager tokenManager)
         {
+            _categoryService = categoryService;
             _postService = postService;
-            _commentService = commentService;
             _tokenManager = tokenManager;
         }
 
-        [HttpGet("Posts/{id}")]
-        public async Task<IActionResult> Details(string id, [Bind("CurrentPage,Limit")] Paginator paginator)
+        [HttpGet("Category/{name}")]
+        public async Task<IActionResult> Details(string name, [Bind("CurrentPage,Limit")] Paginator paginator)
         {
-            if (string.IsNullOrEmpty(id))
+            if (string.IsNullOrEmpty(name))
             {
                 return NotFound();
             }
 
             try
             {
-                PostViewModel post = _postService.GetPost(id);
+                CategoryViewModel category = _categoryService.GetCategoryByName(name);
 
                 string userId = await _tokenManager.GetUserIdFromAccessToken();
                 ViewData["UserId"] = userId;
 
-                IEnumerable<CommentViewModel> comments = await _commentService.GetComments(new SearchParams
+                IEnumerable<PostViewModel> posts = await _postService.GetPosts(new SearchParams
                 {
-                    PostId = post.Id,
+                    CategoryName = category.Name,
                 }, paginator);
 
-                var postPageViewModel = new PostPageViewModel
+                var categoryPageViewModel = new CategoryPageViewModel
                 {
-                    Post = post,
-                    Comments = comments,
+                    Category = category,
+                    Posts = posts,
                 };
 
-                return View(postPageViewModel);
+                return View(categoryPageViewModel);
             }
             catch (Exception e)
             {
@@ -63,45 +65,39 @@ namespace Violetum.Web.Controllers
         public async Task<IActionResult> Index([Bind("UserId,CategoryName")] SearchParams searchParams,
             [Bind("CurrentPage,Limit")] Paginator paginator)
         {
-            IEnumerable<PostViewModel> posts = await _postService.GetPosts(searchParams, paginator);
+            IEnumerable<CategoryViewModel> categories = await _categoryService.GetCategories(searchParams, paginator);
 
             string userId = await _tokenManager.GetUserIdFromAccessToken();
             ViewData["UserId"] = userId;
 
-            return View(posts);
+            return View(categories);
         }
 
         [Authorize]
-        public async Task<IActionResult> Create([FromQuery] string categoryId)
+        public async Task<IActionResult> Create()
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
             ViewData["UserId"] = userId;
             // TODO: populate model with categories
-
-            if (string.IsNullOrEmpty(categoryId))
-            {
-                return View(new PostDto {CategoryId = categoryId});
-            }
-
             return View();
         }
 
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Title,Content, CategoryId, AuthorId")]
-            PostDto postDto)
+        public async Task<IActionResult> Create([Bind("Name,Description,Image,AuthorId")]
+            CategoryDto categoryDto)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    PostViewModel post = await _postService.CreatePost(postDto);
+                    CategoryViewModel category = await _categoryService.CreateCategory(categoryDto);
 
-                    return RedirectToAction(nameof(Details), new {post.Id});
+                    return RedirectToAction(nameof(Details), new {category.Name});
                 }
 
-                return View(postDto);
+                return View(categoryDto);
             }
             catch (Exception e)
             {
@@ -120,8 +116,8 @@ namespace Violetum.Web.Controllers
 
             try
             {
-                PostViewModel post = _postService.GetPost(id);
-                return View(post);
+                CategoryViewModel category = _categoryService.GetCategoryById(id);
+                return View(category);
             }
             catch (Exception e)
             {
@@ -133,7 +129,8 @@ namespace Violetum.Web.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Id,Title,Content")] UpdatePostDto updatePostDto)
+        public async Task<IActionResult> Edit(string id,
+            [Bind("Id,Name,Description,Image")] UpdateCategoryDto updateCategoryDto)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -144,9 +141,9 @@ namespace Violetum.Web.Controllers
             {
                 string userId = await _tokenManager.GetUserIdFromAccessToken();
 
-                PostViewModel post = await _postService.UpdatePost(id, userId, updatePostDto);
+                CategoryViewModel category = await _categoryService.UpdateCategory(id, userId, updateCategoryDto);
 
-                return RedirectToAction(nameof(Details), new {post.Id});
+                return RedirectToAction(nameof(Details), new {category.Name});
             }
             catch (Exception e)
             {
@@ -156,7 +153,7 @@ namespace Violetum.Web.Controllers
         }
 
         [Authorize]
-        public IActionResult Delete(string id)
+        public async Task<IActionResult> Delete(string id)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -165,8 +162,20 @@ namespace Violetum.Web.Controllers
 
             try
             {
-                PostViewModel post = _postService.GetPost(id);
-                return View(post);
+                CategoryViewModel category = _categoryService.GetCategoryById(id);
+
+
+                IEnumerable<PostViewModel> posts = await _postService.GetPosts(new SearchParams
+                {
+                    CategoryName = category.Name,
+                }, new Paginator());
+
+                if (posts.Any())
+                {
+                    throw new Exception("Can not delete category which contains posts");
+                }
+
+                return View(category);
             }
             catch (Exception e)
             {
@@ -178,7 +187,8 @@ namespace Violetum.Web.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id, [Bind("Id")] DeletePostDto deletePostDto)
+        public async Task<IActionResult> DeleteConfirmed(string id,
+            [Bind("Id,Name")] DeleteCategoryDto deleteCategoryDto)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -189,7 +199,7 @@ namespace Violetum.Web.Controllers
             {
                 string userId = await _tokenManager.GetUserIdFromAccessToken();
 
-                await _postService.DeletePost(id, userId, deletePostDto);
+                await _categoryService.DeleteCategory(id, userId, deleteCategoryDto);
 
                 return RedirectToAction(nameof(Index));
             }

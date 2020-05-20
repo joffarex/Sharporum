@@ -1,0 +1,65 @@
+﻿@model IEnumerable<CategoryViewModel>
+
+@{
+    ViewData["Title"] = "Categories";
+}
+
+<h2>Categories</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+    <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Author</th>
+        <th>Description</th>
+        <th>Image</th>
+        <th>CreatedAt</th>
+        <th>UpdatedAt</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (CategoryViewModel category in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => category.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => category.Name)
+            </td>
+            <td>
+                <a asp-controller="Profile" asp-action="Index" asp-route-id="@category.Author.Id">
+                    @Html.DisplayFor(modelItem => category.Author.UserName)
+                </a>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => category.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => category.Image)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => category.CreatedAt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => category.UpdatedAt)
+            </td>
+            <td>
+                <a asp-action="Details" asp-route-name="@category.Name" class="btn btn-sm btn-success">Details</a>
+                @{
+                    if ((ViewData["UserId"] != null) && ((string) ViewData["UserId"] == category.Author.Id))
+                    {
+                        <a asp-action="Edit" asp-route-id="@category.Id" class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@category.Id" class="btn btn-sm btn-danger">Delete</a>
+                    }
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

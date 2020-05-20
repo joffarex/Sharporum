@@ -13,7 +13,7 @@ namespace Violetum.Domain.Infrastructure
         TResult GetCategory<TResult>(Expression<Func<Category, bool>> condition,
             Func<Category, TResult> selector);
 
-        IEnumerable<TResult> GetCategories<TResult>(Expression<Func<Category, bool>> condition,
+        IEnumerable<TResult> GetCategories<TResult>(Func<Category, bool> condition,
             Func<Category, TResult> selector,
             Paginator paginator);
 

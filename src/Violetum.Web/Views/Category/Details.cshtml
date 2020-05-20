@@ -1,0 +1,88 @@
+﻿@model CategoryPageViewModel
+
+@{
+    ViewData["Title"] = Model.Category.Name;
+    var postsCount = Model.Posts.Count().ToString();
+}
+
+<h3>@Model.Category.Name Details</h3>
+<div class="row mb-4">
+    @{
+        if ((ViewData["UserId"] != null) && ((string) ViewData["UserId"] == Model.Category.Author.Id))
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Category.Id" class="btn btn-sm btn-warning mr-2">Edit</a>
+        }
+    }
+    <a asp-action="Index" class="btn btn-sm btn-success">Back to List</a>
+</div>
+<div>
+    <h4>Category</h4>
+    <hr/>
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Category.Id)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Category.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Category.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Category.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Category.Author.UserName)
+        </dt>
+        <dd class="col-sm-10">
+            <a asp-controller="Profile" asp-action="Index" asp-route-id="@Model.Category.Author.Id">
+                @Html.DisplayFor(model => model.Category.Author.UserName)
+            </a>
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Category.Image)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Category.Image)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Category.Description)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Category.Description)
+        </dd>
+    </dl>
+
+    <div class="row">
+        <div class="col-sm-8">
+            <a asp-controller="Posts" asp-action="Create" asp-route-categoryId="@Model.Category.Id">Add Post</a>
+
+            <h3>@postsCount Post</h3>
+            @{
+                foreach (PostViewModel post in Model.Posts)
+                {
+                    <div class="card-body">
+                        <div class="text-muted h7 mb-2">
+                            <i class="fa fa-clock-o"></i> @post.CreatedAt
+                            <a asp-action="Details" asp-route-id="@post.Id" asp-controller="Posts" class="btn btn-sm btn-success">Details</a>
+                            @{
+                                if ((ViewData["UserId"] != null) && ((string) ViewData["UserId"] == post.Author.Id))
+                                {
+                                    <a asp-action="Edit" asp-route-id="@post.Id" asp-controller="Posts" class="btn btn-sm btn-warning">Edit</a>
+                                    <a asp-action="Delete" asp-route-id="@post.Id" asp-controller="Posts" class="btn btn-sm btn-danger">Delete</a>
+                                }
+                            }
+                        </div>
+                        <a class="card-link" href="#">
+                            <a class="card-title" asp-controller="Profile" asp-action="Index" asp-route-id="@post.Author.Id">@post.Author.UserName</a>
+                        </a>
+
+                        <p class="card-text">
+                            @post.Title
+                        </p>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>

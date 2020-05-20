@@ -25,6 +25,18 @@ namespace Violetum.ApplicationCore.Services
             _mapper = mapper;
         }
 
+        public CategoryViewModel GetCategoryById(string id)
+        {
+            CategoryViewModel category =
+                _categoryRepository.GetCategory(x => x.Id == id, x => _mapper.Map<CategoryViewModel>(x));
+            if (category == null)
+            {
+                throw new Exception("Category not found");
+            }
+
+            return category;
+        }
+
         public CategoryViewModel GetCategoryByName(string categoryName)
         {
             CategoryViewModel category =
@@ -61,10 +73,10 @@ namespace Violetum.ApplicationCore.Services
             return _mapper.Map<CategoryViewModel>(category);
         }
 
-        public async Task<CategoryViewModel> UpdateCategory(string categoryName, string userId,
+        public async Task<CategoryViewModel> UpdateCategory(string id, string userId,
             UpdateCategoryDto updateCategoryDto)
         {
-            Category category = ValidateCategoryActionData(categoryName, userId, updateCategoryDto.Id);
+            Category category = ValidateCategoryActionData(id, userId, updateCategoryDto.Id);
 
             category.Name = updateCategoryDto.Name;
             category.Description = updateCategoryDto.Description;
@@ -80,19 +92,22 @@ namespace Violetum.ApplicationCore.Services
             return _mapper.Map<CategoryViewModel>(category);
         }
 
-        public async Task<bool> DeleteCategory(string categoryName, string userId, DeleteCategoryDto deleteCategoryDto)
+        public async Task<bool> DeleteCategory(string id, string userId, DeleteCategoryDto deleteCategoryDto)
         {
-            Category category = ValidateCategoryActionData(categoryName, userId, deleteCategoryDto.Id);
+            Category category = ValidateCategoryActionData(id, userId, deleteCategoryDto.Id);
 
             return await _categoryRepository.DeleteCategory(category) > 0;
         }
 
         private async Task ValidateSearchParams(SearchParams searchParams)
         {
-            User user = await _userManager.FindByIdAsync(searchParams.UserId);
-            if (user == null)
+            if (!string.IsNullOrEmpty(searchParams.UserId))
             {
-                throw new Exception("User not found");
+                User user = await _userManager.FindByIdAsync(searchParams.UserId);
+                if (user == null)
+                {
+                    throw new Exception("User not found");
+                }
             }
         }
 
@@ -135,11 +150,11 @@ namespace Violetum.ApplicationCore.Services
             };
         }
 
-        private Category ValidateCategoryActionData(string categoryName, string userId,
+        private Category ValidateCategoryActionData(string id, string userId,
             string dtoCategoryId)
         {
             Category category =
-                _categoryRepository.GetCategory(x => (x.Name == categoryName) && (x.Id == dtoCategoryId), x => x);
+                _categoryRepository.GetCategory(x => (x.Id == id) && (x.Id == dtoCategoryId), x => x);
             if (category == null)
             {
                 throw new Exception("Post not found");

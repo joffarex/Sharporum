@@ -35,10 +35,17 @@ namespace Violetum.Infrastructure.Repositories
                 .FirstOrDefault();
         }
 
-        public IEnumerable<TResult> GetCategories<TResult>(Expression<Func<Category, bool>> condition,
+        public IEnumerable<TResult> GetCategories<TResult>(Func<Category, bool> condition,
             Func<Category, TResult> selector, Paginator paginator)
         {
-            return GetEntities(condition, selector, paginator);
+            return _context.Categories
+                .Include(x => x.Author)
+                .AsEnumerable()
+                .Where(condition)
+                .Select(selector)
+                .Skip(paginator.Offset)
+                .Take(paginator.Limit)
+                .ToList();
         }
 
         public Task<int> CreateCategory(Category category)

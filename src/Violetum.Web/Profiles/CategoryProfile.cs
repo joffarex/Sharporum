@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Violetum.ApplicationCore.Dtos.Category;
 using Violetum.ApplicationCore.ViewModels;
 using Violetum.Domain.Entities;
 
@@ -10,6 +11,7 @@ namespace Violetum.Web.Profiles
         {
             CreateMap<Category, CategoryViewModel>();
             CreateMap<Category, PostCategoryViewModel>();
+            CreateMap<CategoryDto, Category>();
         }
     }
 }
