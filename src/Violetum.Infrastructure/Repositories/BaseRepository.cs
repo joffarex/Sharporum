@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Threading.Tasks;
+using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
 
@@ -29,7 +31,7 @@ namespace Violetum.Infrastructure.Repositories
         {
             if (entity == null)
             {
-                throw new Exception($"Can not add empty {nameof(TEntity)}");
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest, $"Can not add empty {nameof(TEntity)}");
             }
 
             _context.Set<TEntity>().Add(entity);
@@ -41,7 +43,7 @@ namespace Violetum.Infrastructure.Repositories
         {
             if (entity == null)
             {
-                throw new Exception($"Can not update empty {nameof(TEntity)}");
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest, $"Can not update empty {nameof(TEntity)}");
             }
 
             _context.Set<TEntity>().Update(entity);
@@ -53,7 +55,7 @@ namespace Violetum.Infrastructure.Repositories
         {
             if (entity == null)
             {
-                throw new Exception($"Can not delete empty {nameof(TEntity)}");
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest, $"Can not delete empty {nameof(TEntity)}");
             }
 
             _context.Set<TEntity>().Remove(entity);

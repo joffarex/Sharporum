@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,60 +28,32 @@ namespace Violetum.Web.Controllers
         [HttpGet("Profile/{id}")]
         public async Task<IActionResult> Index(string id)
         {
-            if (string.IsNullOrEmpty(id))
+            ProfileViewModel profile = await _profileService.GetProfile(id);
+
+            IEnumerable<PostViewModel> posts = await _postService.GetPosts(new SearchParams
             {
-                return NotFound();
-            }
+                UserId = profile.Id,
+            }, new Paginator());
 
-            try
+
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            ViewData["UserId"] = userId;
+
+            return View(new ProfilePageViewModel
             {
-                ProfileViewModel profile = await _profileService.GetProfile(id);
-                if (profile == null)
-                {
-                    return BadRequest();
-                }
-
-                IEnumerable<PostViewModel> posts = await GetUserPosts(new SearchParams
-                {
-                    UserId = profile.Id,
-                }, new Paginator());
-
-                string userId = await _tokenManager.GetUserIdFromAccessToken();
-                ViewData["UserId"] = userId;
-
-                return View(new ProfilePageViewModel
-                {
-                    Profile = profile,
-                    Posts = posts,
-                });
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return BadRequest();
-            }
+                Profile = profile,
+                Posts = posts,
+            });
         }
 
         [Authorize]
         [HttpGet("Profile/Edit")]
         public async Task<IActionResult> Edit()
         {
-            try
-            {
-                string userId = await _tokenManager.GetUserIdFromAccessToken();
-                if (string.IsNullOrEmpty(userId))
-                {
-                    return BadRequest();
-                }
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
 
-                ProfileViewModel profile = await _profileService.GetProfile(userId);
-                return View(profile);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return BadRequest();
-            }
+            ProfileViewModel profile = await _profileService.GetProfile(userId);
+            return View(profile);
         }
 
         [Authorize]
@@ -92,24 +63,13 @@ namespace Violetum.Web.Controllers
             [Bind("Id,Name,GivenName,FamilyName,Picture,Gender,Birthdate,Website")]
             UpdateProfileDto updateProfileDto)
         {
-            try
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
+
+            ProfileViewModel profile = await _profileService.UpdateProfile(userId, updateProfileDto);
+            return RedirectToAction(nameof(Index), new
             {
-                string userId = await _tokenManager.GetUserIdFromAccessToken();
-
-                ProfileViewModel profile = await _profileService.UpdateProfile(userId, updateProfileDto);
-
-                return RedirectToAction(nameof(Index), new {profile.Id});
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return BadRequest();
-            }
-        }
-
-        private async Task<IEnumerable<PostViewModel>> GetUserPosts(SearchParams searchParams, Paginator paginator)
-        {
-            return await _postService.GetPosts(searchParams, paginator);
+                profile.Id,
+            });
         }
     }
 }

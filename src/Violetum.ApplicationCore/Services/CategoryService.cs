@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Violetum.ApplicationCore.Dtos.Category;
 using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels;
+using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
 
@@ -31,7 +32,7 @@ namespace Violetum.ApplicationCore.Services
                 _categoryRepository.GetCategory(x => x.Id == id, x => _mapper.Map<CategoryViewModel>(x));
             if (category == null)
             {
-                throw new Exception("Category not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Category)} not found");
             }
 
             return category;
@@ -43,7 +44,7 @@ namespace Violetum.ApplicationCore.Services
                 _categoryRepository.GetCategory(x => x.Name == categoryName, x => _mapper.Map<CategoryViewModel>(x));
             if (category == null)
             {
-                throw new Exception("Category not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Category)} not found");
             }
 
             return category;
@@ -64,11 +65,7 @@ namespace Violetum.ApplicationCore.Services
             var category = _mapper.Map<Category>(categoryDto);
             category.Author = validatedData.User;
 
-            bool result = await _categoryRepository.CreateCategory(category) > 0;
-            if (!result)
-            {
-                throw new Exception("Create category fialed");
-            }
+            await _categoryRepository.CreateCategory(category);
 
             return _mapper.Map<CategoryViewModel>(category);
         }
@@ -82,12 +79,7 @@ namespace Violetum.ApplicationCore.Services
             category.Description = updateCategoryDto.Description;
             category.Image = updateCategoryDto.Image;
 
-            bool result = await _categoryRepository.UpdateCategory(category) > 0;
-
-            if (!result)
-            {
-                throw new Exception("update post failed");
-            }
+            await _categoryRepository.UpdateCategory(category);
 
             return _mapper.Map<CategoryViewModel>(category);
         }
@@ -106,7 +98,7 @@ namespace Violetum.ApplicationCore.Services
                 User user = await _userManager.FindByIdAsync(searchParams.UserId);
                 if (user == null)
                 {
-                    throw new Exception("User not found");
+                    throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(User)} not found");
                 }
             }
         }
@@ -135,13 +127,13 @@ namespace Violetum.ApplicationCore.Services
         {
             if (categoryDto == null)
             {
-                throw new ArgumentNullException(nameof(categoryDto));
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest);
             }
 
             User user = await _userManager.FindByIdAsync(categoryDto.AuthorId);
             if (user == null)
             {
-                throw new Exception("User not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(User)} not found");
             }
 
             return new CategoryDtoValidationDatas
@@ -157,12 +149,12 @@ namespace Violetum.ApplicationCore.Services
                 _categoryRepository.GetCategory(x => (x.Id == id) && (x.Id == dtoCategoryId), x => x);
             if (category == null)
             {
-                throw new Exception("Post not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Category)} not found");
             }
 
             if (category.AuthorId != userId)
             {
-                throw new Exception("Unauthorized user");
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized);
             }
 
             return category;

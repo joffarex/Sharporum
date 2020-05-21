@@ -1,11 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Net;
+using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Violetum.ApplicationCore.Dtos.Comment;
 using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels;
+using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
 
@@ -34,7 +36,7 @@ namespace Violetum.ApplicationCore.Services
                 _commentRepository.GetCommentById(commentId, x => _mapper.Map<CommentViewModel>(x));
             if (comment == null)
             {
-                throw new Exception("Comment not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Comment)} not found");
             }
 
             return comment;
@@ -56,12 +58,7 @@ namespace Violetum.ApplicationCore.Services
             comment.Author = validatedData.User;
             comment.Post = validatedData.Post;
 
-            bool result = await _commentRepository.CreateComment(comment) > 0;
-
-            if (!result)
-            {
-                throw new Exception("Create comment failed");
-            }
+            await _commentRepository.CreateComment(comment);
 
             return _mapper.Map<CommentViewModel>(comment);
         }
@@ -73,12 +70,7 @@ namespace Violetum.ApplicationCore.Services
 
             comment.Content = updateCommentDto.Content;
 
-            bool result = await _commentRepository.UpdateComment(comment) > 0;
-
-            if (!result)
-            {
-                throw new Exception("update post failed");
-            }
+            await _commentRepository.UpdateComment(comment);
 
             return _mapper.Map<CommentViewModel>(comment);
         }
@@ -97,7 +89,7 @@ namespace Violetum.ApplicationCore.Services
                 User user = await _userManager.FindByIdAsync(searchParams.UserId);
                 if (user == null)
                 {
-                    throw new Exception("User not found");
+                    throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(User)} not found");
                 }
             }
 
@@ -106,7 +98,7 @@ namespace Violetum.ApplicationCore.Services
                 Post post = _postRepository.GetPostById(searchParams.PostId, x => x);
                 if (post == null)
                 {
-                    throw new Exception("Post not found");
+                    throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Post)} not found");
                 }
             }
         }
@@ -130,19 +122,19 @@ namespace Violetum.ApplicationCore.Services
         {
             if (commentDto == null)
             {
-                throw new ArgumentNullException(nameof(commentDto));
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest);
             }
 
             User user = await _userManager.FindByIdAsync(commentDto.AuthorId);
             if (user == null)
             {
-                throw new Exception("User not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(User)} not found");
             }
 
             Post post = _postRepository.GetPostById(commentDto.PostId, x => x);
             if (post == null)
             {
-                throw new Exception("Post not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Post)} not found");
             }
 
             return new CommentDtoValidationData
@@ -156,18 +148,19 @@ namespace Violetum.ApplicationCore.Services
         {
             if (commentId != dtoCommentId)
             {
-                throw new Exception("Comment data validation failed");
+                throw new HttpStatusCodeException(HttpStatusCode.UnprocessableEntity,
+                    $"{MethodBase.GetCurrentMethod().Name} failed");
             }
 
             Comment comment = _commentRepository.GetCommentById(commentId, x => x);
             if (comment == null)
             {
-                throw new Exception("Comment not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Comment)} not found");
             }
 
             if (comment.AuthorId != userId)
             {
-                throw new Exception("Unauthorized user");
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized);
             }
 
             return comment;

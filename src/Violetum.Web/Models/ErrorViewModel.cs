@@ -1,5 +1,3 @@
-using System;
-
 namespace Violetum.Web.Models
 {
     public class ErrorViewModel
@@ -7,5 +5,7 @@ namespace Violetum.Web.Models
         public string RequestId { get; set; }
 
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+
+        public string StatusCode { get; set; }
     }
 }

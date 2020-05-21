@@ -1,10 +1,12 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using IdentityModel.Client;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
+using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
 
@@ -34,11 +36,17 @@ namespace Violetum.Web.Infrastructure
 
             if (string.IsNullOrEmpty(accessToken))
             {
-                return null;
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized);
             }
 
             JwtSecurityToken jwtToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
-            return jwtToken.Subject;
+            string userId = jwtToken.Subject;
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "Invalid token");
+            }
+
+            return userId;
         }
 
         public async Task<UserTokens> GetUserTokens()

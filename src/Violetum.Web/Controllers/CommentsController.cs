@@ -1,10 +1,11 @@
-﻿using System;
+﻿using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.ApplicationCore.Dtos.Comment;
 using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels;
+using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Infrastructure;
 
 namespace Violetum.Web.Controllers
@@ -25,42 +26,27 @@ namespace Violetum.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Content, PostId, AuthorId")] CommentDto commentDto)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                if (ModelState.IsValid)
-                {
-                    CommentViewModel comment = await _commentService.CreateComment(commentDto);
-
-                    return RedirectToAction("Details", "Posts", new {Id = commentDto.PostId});
-                }
-
-                return BadRequest();
+                return RedirectToAction("Details", "Posts", new {Id = commentDto.PostId});
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return BadRequest();
-            }
+
+            CommentViewModel comment = await _commentService.CreateComment(commentDto);
+
+            return RedirectToAction("Details", "Posts", new {comment.Post.Id});
         }
 
         [Authorize]
-        public IActionResult Edit(string id)
+        public async Task<IActionResult> Edit(string id)
         {
-            if (string.IsNullOrEmpty(id))
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            CommentViewModel comment = _commentService.GetComment(id);
+            if (comment.Author.Id != userId)
             {
-                return NotFound();
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized);
             }
 
-            try
-            {
-                CommentViewModel comment = _commentService.GetComment(id);
-                return View(comment);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return BadRequest();
-            }
+            return View(comment);
         }
 
         [Authorize]
@@ -68,24 +54,11 @@ namespace Violetum.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, [Bind("Id,Content")] UpdateCommentDto updateCommentDto)
         {
-            if (string.IsNullOrEmpty(id))
-            {
-                return NotFound();
-            }
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
 
-            try
-            {
-                string userId = await _tokenManager.GetUserIdFromAccessToken();
+            CommentViewModel comment = await _commentService.UpdateComment(id, userId, updateCommentDto);
 
-                CommentViewModel comment = await _commentService.UpdateComment(id, userId, updateCommentDto);
-
-                return RedirectToAction("Details", "Posts", new {comment.Post.Id});
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return BadRequest();
-            }
+            return RedirectToAction("Details", "Posts", new {comment.Post.Id});
         }
 
         [Authorize]
@@ -94,24 +67,11 @@ namespace Violetum.Web.Controllers
         public async Task<IActionResult> Delete(string id, string postId,
             [Bind("Id")] DeleteCommentDto deleteCommentDto)
         {
-            if (string.IsNullOrEmpty(id))
-            {
-                return NotFound();
-            }
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
 
-            try
-            {
-                string userId = await _tokenManager.GetUserIdFromAccessToken();
+            await _commentService.DeleteComment(id, userId, deleteCommentDto);
 
-                await _commentService.DeleteComment(id, userId, deleteCommentDto);
-
-                return RedirectToAction("Details", "Posts", new {id = postId});
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return BadRequest();
-            }
+            return RedirectToAction("Details", "Posts", new {id = postId});
         }
     }
 }

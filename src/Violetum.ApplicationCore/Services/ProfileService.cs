@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Violetum.ApplicationCore.Dtos.Profile;
 using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels;
+using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Entities;
 
 namespace Violetum.ApplicationCore.Services
@@ -28,6 +29,11 @@ namespace Violetum.ApplicationCore.Services
         {
             User user = await _userManager.FindByIdAsync(userId);
             IList<Claim> userClaims = await _userManager.GetClaimsAsync(user);
+            if (user == null)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(User)} not found");
+            }
+
 
             return MapUserWithClaimsToProfile(user, userClaims);
         }
@@ -38,12 +44,12 @@ namespace Violetum.ApplicationCore.Services
             User user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                throw new Exception("User not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(User)} not found");
             }
 
             IList<Claim> claims = await _userManager.GetClaimsAsync(user);
 
-            var removeResult = new IdentityResult();
+            IdentityResult removeResult;
             var removeSuccess = true;
             if (claims.Count() > 0)
             {
@@ -53,7 +59,8 @@ namespace Violetum.ApplicationCore.Services
 
             if (!removeSuccess)
             {
-                throw new Exception("Something went wrong during removing profile claims");
+                throw new HttpStatusCodeException(HttpStatusCode.InternalServerError,
+                    "Something went wrong during removing profile claims");
             }
 
             List<Claim> updatedClaims = PopulateClaimsList(updateProfileDto);
@@ -67,7 +74,8 @@ namespace Violetum.ApplicationCore.Services
 
             // Recover old claims
             await _userManager.AddClaimsAsync(user, claims);
-            throw new Exception("Something went wrong during updating profile claims");
+            throw new HttpStatusCodeException(HttpStatusCode.InternalServerError,
+                "Something went wrong during updating profile claims");
         }
 
         private static string GetClaimByType(IEnumerable<Claim> claims, string type)
