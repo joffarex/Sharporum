@@ -275,6 +275,35 @@ namespace Violetum.Infrastructure.Migrations
                 b.ToTable("Posts");
             });
 
+            modelBuilder.Entity("Violetum.Domain.Entities.PostVote", b =>
+            {
+                b.Property<string>("Id")
+                    .HasColumnType("nvarchar(450)");
+
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<int>("Direction")
+                    .HasColumnType("int");
+
+                b.Property<string>("PostId")
+                    .HasColumnType("nvarchar(450)");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<string>("UserId")
+                    .HasColumnType("nvarchar(450)");
+
+                b.HasKey("Id");
+
+                b.HasIndex("PostId");
+
+                b.HasIndex("UserId");
+
+                b.ToTable("PostVotes");
+            });
+
             modelBuilder.Entity("Violetum.Domain.Entities.User", b =>
             {
                 b.Property<string>("Id")
@@ -429,6 +458,17 @@ namespace Violetum.Infrastructure.Migrations
                 b.HasOne("Violetum.Domain.Entities.Category", "Category")
                     .WithMany()
                     .HasForeignKey("CategoryId");
+            });
+
+            modelBuilder.Entity("Violetum.Domain.Entities.PostVote", b =>
+            {
+                b.HasOne("Violetum.Domain.Entities.Post", "Post")
+                    .WithMany()
+                    .HasForeignKey("PostId");
+
+                b.HasOne("Violetum.Domain.Entities.User", "User")
+                    .WithMany()
+                    .HasForeignKey("UserId");
             });
 #pragma warning restore 612, 618
         }

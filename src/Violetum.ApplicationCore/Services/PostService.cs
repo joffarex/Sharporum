@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -33,7 +34,7 @@ namespace Violetum.ApplicationCore.Services
 
         public PostViewModel GetPost(string postId)
         {
-            PostViewModel post = _postRepository.GetPostById(postId, x => _mapper.Map<PostViewModel>(x));
+            PostViewModel post = _postRepository.GetPostById(postId, x => AttachVotesToPostViewModel(x));
             if (post == null)
             {
                 throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Post)}:{postId} not found");
@@ -48,7 +49,7 @@ namespace Violetum.ApplicationCore.Services
 
             return _postRepository
                 .GetPosts(x => Predicate(searchParams.UserId, searchParams.CategoryName, x),
-                    x => _mapper.Map<PostViewModel>(x), paginator);
+                    x => AttachVotesToPostViewModel(x), paginator);
         }
 
         public async Task<PostViewModel> CreatePost(PostDto postDto)
@@ -83,6 +84,95 @@ namespace Violetum.ApplicationCore.Services
             await _postRepository.DeletePost(post);
         }
 
+        public async Task VotePost(string postId, string userId, PostVoteDto postVoteDto)
+        {
+            try
+            {
+                PostVoteDtoValidationData validatedData = await ValidatePostVoteActionData(postId, userId, postVoteDto);
+
+                PostVote postVote = _postRepository.GetPostVote(postId, userId, x => x);
+
+                if (postVote != null)
+                {
+                    if (postVote.Direction == postVoteDto.Direction)
+                    {
+                        postVote.Direction = 0;
+                    }
+                    else
+                    {
+                        postVote.Direction = postVoteDto.Direction;
+                    }
+
+                    await _postRepository.UpdatePostVote(postVote);
+                }
+                else
+                {
+                    var newPostVote = new PostVote
+                    {
+                        PostId = postVoteDto.PostId,
+                        UserId = postVoteDto.UserId,
+                        Direction = postVoteDto.Direction,
+                    };
+
+                    newPostVote.User = validatedData.User;
+                    newPostVote.Post = validatedData.Post;
+
+                    await _postRepository.VotePost(newPostVote);
+                }
+            }
+            catch (ValidationException e)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.UnprocessableEntity, e.Message);
+            }
+        }
+
+        public int GetPostVoteSum(string postId)
+        {
+            Post post = _postRepository.GetPostById(postId, x => x);
+            if (post == null)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
+                    $"{nameof(Post)}:{postId} not found");
+            }
+
+            return _postRepository.GetPostVoteSum(post.Id);
+        }
+
+        private PostViewModel AttachVotesToPostViewModel(Post x)
+        {
+            var postViewModel = _mapper.Map<PostViewModel>(x);
+            postViewModel.VoteCount = GetPostVoteSum(x.Id);
+            return postViewModel;
+        }
+
+        private async Task<PostVoteDtoValidationData> ValidatePostVoteActionData(string postId, string userId,
+            PostVoteDto postVoteDto)
+        {
+            if (postVoteDto == null)
+            {
+                throw new ArgumentNullException(nameof(postVoteDto));
+            }
+
+            User user = await _userManager.FindByIdAsync(postVoteDto.UserId);
+            if (user == null)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
+                    $"{nameof(User)}:{postVoteDto.UserId} not found");
+            }
+
+            Post post = _postRepository.GetPostById(postVoteDto.PostId, x => x);
+            if (post == null)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
+                    $"{nameof(Post)}:{postVoteDto.PostId} not found");
+            }
+
+            return new PostVoteDtoValidationData
+            {
+                User = user,
+                Post = post,
+            };
+        }
 
         private async Task ValidateSearchParams(SearchParams searchParams)
         {
@@ -182,5 +272,11 @@ namespace Violetum.ApplicationCore.Services
     {
         public User User { get; set; }
         public Category Category { get; set; }
+    }
+
+    public class PostVoteDtoValidationData
+    {
+        public User User { get; set; }
+        public Post Post { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Violetum.ApplicationCore.Dtos.Comment;
+using Violetum.ApplicationCore.Dtos.Post;
 using Violetum.ApplicationCore.ViewModels;
 
 namespace Violetum.Web.Models
@@ -9,5 +10,6 @@ namespace Violetum.Web.Models
         public PostViewModel Post { get; set; }
         public IEnumerable<CommentViewModel> Comments { get; set; }
         public CommentDto CommentDto { get; set; }
+        public PostVoteDto PostVoteDto { get; set; }
     }
 }

@@ -15,5 +15,10 @@ namespace Violetum.Domain.Infrastructure
         Task<int> CreatePost(Post post);
         Task<int> UpdatePost(Post post);
         Task<int> DeletePost(Post post);
+
+        TResult GetPostVote<TResult>(string postId, string userId, Func<PostVote, TResult> selector);
+        int GetPostVoteSum(string postId);
+        Task<int> VotePost(PostVote postVote);
+        Task<int> UpdatePostVote(PostVote postVote);
     }
 }

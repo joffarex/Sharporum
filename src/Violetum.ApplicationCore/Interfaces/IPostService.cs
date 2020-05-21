@@ -13,5 +13,7 @@ namespace Violetum.ApplicationCore.Interfaces
         Task<PostViewModel> CreatePost(PostDto postDto);
         Task<PostViewModel> UpdatePost(string postId, string userId, UpdatePostDto updatePostDto);
         Task DeletePost(string postId, string userId, DeletePostDto deletePostDto);
+        Task VotePost(string postId, string userId, PostVoteDto postVoteDto);
+        int GetPostVoteSum(string postId);
     }
 }

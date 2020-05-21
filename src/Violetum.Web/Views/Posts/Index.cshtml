@@ -14,6 +14,7 @@
     <tr>
         <th>Id</th>
         <th>Title</th>
+        <th>Votes</th>
         <th>Author</th>
         <th>Category</th>
         <th>CreatedAt</th>
@@ -30,6 +31,9 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => post.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => post.VoteCount)
             </td>
             <td>
                 <a asp-controller="Profile" asp-action="Index" asp-route-id="@post.Author.Id">

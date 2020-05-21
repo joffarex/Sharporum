@@ -159,5 +159,18 @@ namespace Violetum.Web.Controllers
                 throw new HttpStatusCodeException(HttpStatusCode.BadRequest, e.Message);
             }
         }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VotePost(string postId,
+            [Bind("PostId,UserId,Direction")] PostVoteDto postVoteDto)
+        {
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
+
+            await _postService.VotePost(postId, userId, postVoteDto);
+
+            return RedirectToAction(nameof(Details), new {Id = postVoteDto.PostId});
+        }
     }
 }

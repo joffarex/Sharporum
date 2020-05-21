@@ -20,6 +20,30 @@
     <hr/>
     <dl class="row">
         <dt class="col-sm-2">
+            Votes
+        </dt>
+        <dd class="col-sm-10">
+            <div class="list-inline">
+                <form asp-action="VotePost" asp-controller="Posts" asp-route-postId="@Model.Post.Id" method="post" class="list-inline-item">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="PostVoteDto.Direction" value="1"/>
+                    <input type="hidden" asp-for="PostVoteDto.UserId" value="@ViewData["UserId"]"/>
+                    <input type="hidden" asp-for="PostVoteDto.PostId" value="@Model.Post.Id"/>
+
+                    <input type="submit" value="Upvote" class="btn btn-primary"/>
+                </form>
+                <span class="list-inline-item">@Html.DisplayFor(model => model.Post.VoteCount)</span>
+                <form asp-action="VotePost" asp-controller="Posts" asp-route-postId="@Model.Post.Id" method="post" class="list-inline-item">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="PostVoteDto.Direction" value="-1"/>
+                    <input type="hidden" asp-for="PostVoteDto.UserId" value="@ViewData["UserId"]"/>
+                    <input type="hidden" asp-for="PostVoteDto.PostId" value="@Model.Post.Id"/>
+
+                    <input type="submit" value="Downvote" class="btn btn-primary"/>
+                </form>
+            </div>
+        </dd>
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Post.Id)
         </dt>
         <dd class="col-sm-10">
