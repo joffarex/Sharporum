@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Violetum.ApplicationCore.Dtos.Comment;
 using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels;
@@ -31,9 +32,16 @@ namespace Violetum.Web.Controllers
                 return RedirectToAction("Details", "Posts", new {Id = commentDto.PostId});
             }
 
-            CommentViewModel comment = await _commentService.CreateComment(commentDto);
+            try
+            {
+                CommentViewModel comment = await _commentService.CreateComment(commentDto);
 
-            return RedirectToAction("Details", "Posts", new {comment.Post.Id});
+                return RedirectToAction("Details", "Posts", new {comment.Post.Id});
+            }
+            catch (DbUpdateException e)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest, e.Message);
+            }
         }
 
         [Authorize]
@@ -55,10 +63,16 @@ namespace Violetum.Web.Controllers
         public async Task<IActionResult> Edit(string id, [Bind("Id,Content")] UpdateCommentDto updateCommentDto)
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
+            try
+            {
+                CommentViewModel comment = await _commentService.UpdateComment(id, userId, updateCommentDto);
 
-            CommentViewModel comment = await _commentService.UpdateComment(id, userId, updateCommentDto);
-
-            return RedirectToAction("Details", "Posts", new {comment.Post.Id});
+                return RedirectToAction("Details", "Posts", new {comment.Post.Id});
+            }
+            catch (DbUpdateException e)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest, e.Message);
+            }
         }
 
         [Authorize]
@@ -69,9 +83,16 @@ namespace Violetum.Web.Controllers
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
 
-            await _commentService.DeleteComment(id, userId, deleteCommentDto);
+            try
+            {
+                await _commentService.DeleteComment(id, userId, deleteCommentDto);
 
-            return RedirectToAction("Details", "Posts", new {id = postId});
+                return RedirectToAction("Details", "Posts", new {id = postId});
+            }
+            catch (DbUpdateException e)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest, e.Message);
+            }
         }
     }
 }

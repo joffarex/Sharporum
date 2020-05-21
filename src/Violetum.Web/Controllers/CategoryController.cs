@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Violetum.ApplicationCore.Dtos.Category;
 using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels;
@@ -81,9 +82,16 @@ namespace Violetum.Web.Controllers
                 return View(categoryDto);
             }
 
-            CategoryViewModel category = await _categoryService.CreateCategory(categoryDto);
+            try
+            {
+                CategoryViewModel category = await _categoryService.CreateCategory(categoryDto);
 
-            return RedirectToAction(nameof(Details), new {category.Name});
+                return RedirectToAction(nameof(Details), new {category.Name});
+            }
+            catch (DbUpdateException e)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest, e.Message);
+            }
         }
 
         [Authorize]
@@ -108,9 +116,16 @@ namespace Violetum.Web.Controllers
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
 
-            CategoryViewModel category = await _categoryService.UpdateCategory(id, userId, updateCategoryDto);
+            try
+            {
+                CategoryViewModel category = await _categoryService.UpdateCategory(id, userId, updateCategoryDto);
 
-            return RedirectToAction(nameof(Details), new {category.Name});
+                return RedirectToAction(nameof(Details), new {category.Name});
+            }
+            catch (DbUpdateException e)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest, e.Message);
+            }
         }
 
         [Authorize]
@@ -148,9 +163,16 @@ namespace Violetum.Web.Controllers
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
 
-            await _categoryService.DeleteCategory(id, userId, deleteCategoryDto);
+            try
+            {
+                await _categoryService.DeleteCategory(id, userId, deleteCategoryDto);
 
-            return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException e)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest, e.Message);
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Violetum.ApplicationCore.Dtos.Post;
 using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels;
@@ -85,9 +86,16 @@ namespace Violetum.Web.Controllers
                 return View(postDto);
             }
 
-            PostViewModel post = await _postService.CreatePost(postDto);
+            try
+            {
+                PostViewModel post = await _postService.CreatePost(postDto);
 
-            return RedirectToAction(nameof(Details), new {post.Id});
+                return RedirectToAction(nameof(Details), new {post.Id});
+            }
+            catch (DbUpdateException e)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest, e.Message);
+            }
         }
 
         [Authorize]
@@ -109,10 +117,16 @@ namespace Violetum.Web.Controllers
         public async Task<IActionResult> Edit(string id, [Bind("Id,Title,Content")] UpdatePostDto updatePostDto)
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
+            try
+            {
+                PostViewModel post = await _postService.UpdatePost(id, userId, updatePostDto);
 
-            PostViewModel post = await _postService.UpdatePost(id, userId, updatePostDto);
-
-            return RedirectToAction(nameof(Details), new {post.Id});
+                return RedirectToAction(nameof(Details), new {post.Id});
+            }
+            catch (DbUpdateException e)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest, e.Message);
+            }
         }
 
         [Authorize]
@@ -134,10 +148,16 @@ namespace Violetum.Web.Controllers
         public async Task<IActionResult> DeleteConfirmed(string id, [Bind("Id")] DeletePostDto deletePostDto)
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
+            try
+            {
+                await _postService.DeletePost(id, userId, deletePostDto);
 
-            await _postService.DeletePost(id, userId, deletePostDto);
-
-            return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException e)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest, e.Message);
+            }
         }
     }
 }

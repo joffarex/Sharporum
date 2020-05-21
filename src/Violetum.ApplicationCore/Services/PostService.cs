@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -108,7 +109,7 @@ namespace Violetum.ApplicationCore.Services
         {
             if (postDto == null)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.BadRequest);
+                throw new ArgumentNullException(nameof(postDto));
             }
 
             User user = await _userManager.FindByIdAsync(postDto.AuthorId);

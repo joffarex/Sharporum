@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -127,7 +128,7 @@ namespace Violetum.ApplicationCore.Services
         {
             if (categoryDto == null)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.BadRequest);
+                throw new ArgumentNullException(nameof(categoryDto));
             }
 
             User user = await _userManager.FindByIdAsync(categoryDto.AuthorId);
