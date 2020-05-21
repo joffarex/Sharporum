@@ -1,0 +1,12 @@
+﻿@model UserFollowingViewModel
+
+<h3>@Model.UserId is following these users</h3>
+
+@foreach (FollowingViewModel follower in Model.Followings)
+{
+    <div class="card">
+        <h5 class="card-header">
+            <a asp-action="Index" asp-controller="Profile" asp-route-id="@follower.UserToFollow.Id">@follower.UserToFollow.UserName</a>
+        </h5>
+    </div>
+}

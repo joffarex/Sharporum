@@ -54,15 +54,23 @@
         </Content>
         <Content Update="Views\Category\Create.cshtml">
           <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-          <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         </Content>
         <Content Update="Views\Category\Delete.cshtml">
-          <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-          <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         </Content>
         <Content Update="Views\Category\Details.cshtml">
-          <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-          <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
+        <Content Update="Views\Profile\Followers.cshtml">
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
+        <Content Update="Views\Profile\Following.cshtml">
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         </Content>
     </ItemGroup>
 

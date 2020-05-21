@@ -217,6 +217,32 @@ namespace Violetum.Infrastructure.Migrations
                 b.ToTable("Comments");
             });
 
+            modelBuilder.Entity("Violetum.Domain.Entities.Follower", b =>
+            {
+                b.Property<string>("Id")
+                    .HasColumnType("nvarchar(450)");
+
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<string>("FollowerUserId")
+                    .HasColumnType("nvarchar(450)");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<string>("UserToFollowId")
+                    .HasColumnType("nvarchar(450)");
+
+                b.HasKey("Id");
+
+                b.HasIndex("FollowerUserId");
+
+                b.HasIndex("UserToFollowId");
+
+                b.ToTable("Followers");
+            });
+
             modelBuilder.Entity("Violetum.Domain.Entities.Post", b =>
             {
                 b.Property<string>("Id")
@@ -381,6 +407,17 @@ namespace Violetum.Infrastructure.Migrations
                 b.HasOne("Violetum.Domain.Entities.Post", "Post")
                     .WithMany()
                     .HasForeignKey("PostId");
+            });
+
+            modelBuilder.Entity("Violetum.Domain.Entities.Follower", b =>
+            {
+                b.HasOne("Violetum.Domain.Entities.User", "FollowerUser")
+                    .WithMany()
+                    .HasForeignKey("FollowerUserId");
+
+                b.HasOne("Violetum.Domain.Entities.User", "UserToFollow")
+                    .WithMany()
+                    .HasForeignKey("UserToFollowId");
             });
 
             modelBuilder.Entity("Violetum.Domain.Entities.Post", b =>

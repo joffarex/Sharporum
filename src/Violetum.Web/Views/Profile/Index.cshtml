@@ -20,13 +20,39 @@
                 </li>
                 <li class="list-group-item"><em>Info:</em> @Model.Profile.Birthdate | @Model.Profile.Gender</li>
                 <li class="list-group-item">@Model.Profile.Id</li>
+                <li class="list-group-item">
+                    <a href="@Model.Profile.Website" class="card-link">Website</a>
+                    <a asp-action="Followers" asp-route-id="@Model.Profile.Id" class="btn btn-sm btn-info ml-2">Followers</a>
+                    <a asp-action="Following" asp-route-id="@Model.Profile.Id" class="btn btn-sm btn-info ml-1">Following</a>
+                </li>
             </ul>
             <div class="card-body">
-                <a href="@Model.Profile.Website" class="card-link">Website</a>
                 @{
-                    if ((ViewData["UserId"] != null) && ((string) ViewData["UserId"] == Model.Profile.Id))
+                    if (ViewData["UserId"] != null)
                     {
-                        <a asp-action="Edit" asp-controller="Profile" class="btn btn-warning">Edit Profile</a>
+                        if ((string) ViewData["UserId"] == Model.Profile.Id)
+                        {
+                            <a asp-action="Edit" asp-controller="Profile" class="btn btn-warning">Edit Profile</a>
+                        }
+                        else
+                        {
+                            if (Model.IsAuthenticatedUserFollower)
+                            {
+                                <form asp-action="Unfollow" asp-controller="Profile" asp-route-id="@Model.Profile.Id">
+                                    <input type="hidden" asp-for="FollowerDto.UserToFollowId" value="@Model.Profile.Id">
+                                    <input type="hidden" asp-for="FollowerDto.FollowerUserId" value="@ViewData["UserId"]">
+                                    <input type="submit" class="btn btn-sm btn-success" value="Unfollow">
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-action="Follow" asp-controller="Profile" asp-route-id="@Model.Profile.Id">
+                                    <input type="hidden" asp-for="FollowerDto.UserToFollowId" value="@Model.Profile.Id">
+                                    <input type="hidden" asp-for="FollowerDto.FollowerUserId" value="@ViewData["UserId"]">
+                                    <input type="submit" class="btn btn-sm btn-success" value="Follow">
+                                </form>
+                            }
+                        }
                     }
                 }
             </div>

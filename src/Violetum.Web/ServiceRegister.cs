@@ -30,11 +30,13 @@ namespace Microsoft.Extensions.DependencyInjection
             @this.AddTransient<ICategoryService, CategoryService>();
             @this.AddTransient<IPostService, PostService>();
             @this.AddTransient<ICommentService, CommentService>();
+            @this.AddTransient<IFollowerService, FollowerService>();
 
             @this.AddTransient<ITokenManager, TokenManager>();
             @this.AddTransient<IPostRepository, PostRepository>();
             @this.AddTransient<ICategoryRepository, CategoryRepository>();
             @this.AddTransient<ICommentRepository, CommentRepository>();
+            @this.AddTransient<IFollowerRepository, FollowerRepository>();
             return @this;
         }
     }
