@@ -37,7 +37,7 @@ namespace Violetum.ApplicationCore.Services
                 _commentRepository.GetCommentById(commentId, x => _mapper.Map<CommentViewModel>(x));
             if (comment == null)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Comment)} not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Comment)}:{commentId} not found");
             }
 
             return comment;
@@ -90,7 +90,8 @@ namespace Violetum.ApplicationCore.Services
                 User user = await _userManager.FindByIdAsync(searchParams.UserId);
                 if (user == null)
                 {
-                    throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(User)} not found");
+                    throw new HttpStatusCodeException(HttpStatusCode.NotFound,
+                        $"{nameof(User)}:{searchParams.UserId} not found");
                 }
             }
 
@@ -99,7 +100,8 @@ namespace Violetum.ApplicationCore.Services
                 Post post = _postRepository.GetPostById(searchParams.PostId, x => x);
                 if (post == null)
                 {
-                    throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Post)} not found");
+                    throw new HttpStatusCodeException(HttpStatusCode.NotFound,
+                        $"{nameof(Post)}:{searchParams.PostId} not found");
                 }
             }
         }
@@ -129,13 +131,15 @@ namespace Violetum.ApplicationCore.Services
             User user = await _userManager.FindByIdAsync(commentDto.AuthorId);
             if (user == null)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(User)} not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
+                    $"{nameof(User)}:{commentDto.AuthorId} not found");
             }
 
             Post post = _postRepository.GetPostById(commentDto.PostId, x => x);
             if (post == null)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Post)} not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
+                    $"{nameof(Post)}:{commentDto.PostId} not found");
             }
 
             return new CommentDtoValidationData
@@ -156,12 +160,12 @@ namespace Violetum.ApplicationCore.Services
             Comment comment = _commentRepository.GetCommentById(commentId, x => x);
             if (comment == null)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Comment)} not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Comment)}:{commentId} not found");
             }
 
             if (comment.AuthorId != userId)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized);
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");
             }
 
             return comment;

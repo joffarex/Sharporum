@@ -43,14 +43,23 @@ namespace Violetum.Web.Middlewares
             {
                 result = new ErrorDetails {Message = exception.Message, StatusCode = (int) exception.StatusCode};
                 context.Response.StatusCode = (int) exception.StatusCode;
+                switch (exception.StatusCode)
+                {
+                    case HttpStatusCode.NotFound:
+                        _logger.LogInformation(result.Message);
+                        break;
+                    default:
+                        _logger.LogError(exception, result.Message);
+                        break;
+                }
             }
             else
             {
                 result = new ErrorDetails {Message = "Runtime Error", StatusCode = (int) HttpStatusCode.BadRequest};
                 context.Response.StatusCode = (int) HttpStatusCode.BadRequest;
+                _logger.LogError(result.Message);
             }
 
-            _logger.LogError(exception, result.Message);
             return Task.CompletedTask;
         }
 

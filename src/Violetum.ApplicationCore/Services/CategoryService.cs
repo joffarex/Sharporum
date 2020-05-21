@@ -27,13 +27,14 @@ namespace Violetum.ApplicationCore.Services
             _mapper = mapper;
         }
 
-        public CategoryViewModel GetCategoryById(string id)
+        public CategoryViewModel GetCategoryById(string categoryId)
         {
             CategoryViewModel category =
-                _categoryRepository.GetCategory(x => x.Id == id, x => _mapper.Map<CategoryViewModel>(x));
+                _categoryRepository.GetCategory(x => x.Id == categoryId, x => _mapper.Map<CategoryViewModel>(x));
             if (category == null)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Category)} not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
+                    $"{nameof(Category)}:{categoryId} not found");
             }
 
             return category;
@@ -45,7 +46,8 @@ namespace Violetum.ApplicationCore.Services
                 _categoryRepository.GetCategory(x => x.Name == categoryName, x => _mapper.Map<CategoryViewModel>(x));
             if (category == null)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Category)} not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
+                    $"{nameof(Category)}:{categoryName} not found");
             }
 
             return category;
@@ -71,10 +73,10 @@ namespace Violetum.ApplicationCore.Services
             return _mapper.Map<CategoryViewModel>(category);
         }
 
-        public async Task<CategoryViewModel> UpdateCategory(string id, string userId,
+        public async Task<CategoryViewModel> UpdateCategory(string categoryId, string userId,
             UpdateCategoryDto updateCategoryDto)
         {
-            Category category = ValidateCategoryActionData(id, userId, updateCategoryDto.Id);
+            Category category = ValidateCategoryActionData(categoryId, userId, updateCategoryDto.Id);
 
             category.Name = updateCategoryDto.Name;
             category.Description = updateCategoryDto.Description;
@@ -85,9 +87,9 @@ namespace Violetum.ApplicationCore.Services
             return _mapper.Map<CategoryViewModel>(category);
         }
 
-        public async Task<bool> DeleteCategory(string id, string userId, DeleteCategoryDto deleteCategoryDto)
+        public async Task<bool> DeleteCategory(string categoryId, string userId, DeleteCategoryDto deleteCategoryDto)
         {
-            Category category = ValidateCategoryActionData(id, userId, deleteCategoryDto.Id);
+            Category category = ValidateCategoryActionData(categoryId, userId, deleteCategoryDto.Id);
 
             return await _categoryRepository.DeleteCategory(category) > 0;
         }
@@ -99,7 +101,8 @@ namespace Violetum.ApplicationCore.Services
                 User user = await _userManager.FindByIdAsync(searchParams.UserId);
                 if (user == null)
                 {
-                    throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(User)} not found");
+                    throw new HttpStatusCodeException(HttpStatusCode.NotFound,
+                        $"{nameof(User)}:{searchParams.UserId} not found");
                 }
             }
         }
@@ -134,7 +137,8 @@ namespace Violetum.ApplicationCore.Services
             User user = await _userManager.FindByIdAsync(categoryDto.AuthorId);
             if (user == null)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(User)} not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
+                    $"{nameof(User)}:{categoryDto.AuthorId} not found");
             }
 
             return new CategoryDtoValidationDatas
@@ -143,19 +147,20 @@ namespace Violetum.ApplicationCore.Services
             };
         }
 
-        private Category ValidateCategoryActionData(string id, string userId,
+        private Category ValidateCategoryActionData(string categoryId, string userId,
             string dtoCategoryId)
         {
             Category category =
-                _categoryRepository.GetCategory(x => (x.Id == id) && (x.Id == dtoCategoryId), x => x);
+                _categoryRepository.GetCategory(x => (x.Id == categoryId) && (x.Id == dtoCategoryId), x => x);
             if (category == null)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Category)} not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
+                    $"{nameof(Category)}:{categoryId} not found");
             }
 
             if (category.AuthorId != userId)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized);
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");
             }
 
             return category;

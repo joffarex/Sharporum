@@ -31,7 +31,7 @@ namespace Violetum.ApplicationCore.Services
             IList<Claim> userClaims = await _userManager.GetClaimsAsync(user);
             if (user == null)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(User)} not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(User)}:{userId} not found");
             }
 
 
@@ -44,7 +44,7 @@ namespace Violetum.ApplicationCore.Services
             User user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(User)} not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(User)}:{userId} not found");
             }
 
             IList<Claim> claims = await _userManager.GetClaimsAsync(user);

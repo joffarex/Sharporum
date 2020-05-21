@@ -36,7 +36,7 @@ namespace Violetum.ApplicationCore.Services
             PostViewModel post = _postRepository.GetPostById(postId, x => _mapper.Map<PostViewModel>(x));
             if (post == null)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Post)} not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Post)}:{postId} not found");
             }
 
             return post;
@@ -91,7 +91,8 @@ namespace Violetum.ApplicationCore.Services
                 Category category = _categoryRepository.GetCategory(x => x.Name == searchParams.CategoryName);
                 if (category == null)
                 {
-                    throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Category)} not found");
+                    throw new HttpStatusCodeException(HttpStatusCode.NotFound,
+                        $"{nameof(Category)}:{searchParams.CategoryName} not found");
                 }
             }
 
@@ -100,7 +101,8 @@ namespace Violetum.ApplicationCore.Services
                 User user = await _userManager.FindByIdAsync(searchParams.UserId);
                 if (user == null)
                 {
-                    throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(User)} not found");
+                    throw new HttpStatusCodeException(HttpStatusCode.NotFound,
+                        $"{nameof(User)}:{searchParams.UserId} not found");
                 }
             }
         }
@@ -115,13 +117,15 @@ namespace Violetum.ApplicationCore.Services
             User user = await _userManager.FindByIdAsync(postDto.AuthorId);
             if (user == null)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(User)} not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
+                    $"{nameof(User)}:{postDto.AuthorId} not found");
             }
 
             Category category = _categoryRepository.GetCategory(x => x.Id == postDto.CategoryId);
             if (category == null)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Category)} not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
+                    $"{nameof(Category)}:{postDto.CategoryId} not found");
             }
 
             return new PostDtoValidationData
@@ -142,12 +146,12 @@ namespace Violetum.ApplicationCore.Services
             Post post = _postRepository.GetPostById(postId, x => x);
             if (post == null)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Post)} not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Post)}:{postId} not found");
             }
 
             if (post.AuthorId != userId)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized);
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");
             }
 
             return post;
