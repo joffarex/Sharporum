@@ -21,6 +21,7 @@ namespace Violetum.Infrastructure
         public DbSet<Category> Categories { get; set; }
         public DbSet<Follower> Followers { get; set; }
         public DbSet<PostVote> PostVotes { get; set; }
+        public DbSet<CommentVote> CommentVotes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

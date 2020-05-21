@@ -54,5 +54,36 @@ namespace Violetum.Infrastructure.Repositories
         {
             return DeleteEntity(comment);
         }
+
+        public TResult GetCommentVote<TResult>(string commentId, string userId, Func<CommentVote, TResult> selector)
+        {
+            return _context.CommentVotes
+                .Where(x => (x.CommentId == commentId) && (x.UserId == userId))
+                .Select(selector)
+                .FirstOrDefault();
+        }
+
+        public int GetCommentVoteSum(string commentId)
+        {
+            var voteSum = _context.CommentVotes
+                .Where(x => x.CommentId == commentId)
+                .GroupBy(x => x.CommentId)
+                .Select(x => new
+                {
+                    Sum = x.Sum(y => y.Direction),
+                }).FirstOrDefault();
+
+            return voteSum == null ? 0 : voteSum.Sum;
+        }
+
+        public Task<int> VoteComment(CommentVote commentVote)
+        {
+            return CreateEntity(commentVote);
+        }
+
+        public Task<int> UpdateCommentVote(CommentVote commentVote)
+        {
+            return UpdateEntity(commentVote);
+        }
     }
 }

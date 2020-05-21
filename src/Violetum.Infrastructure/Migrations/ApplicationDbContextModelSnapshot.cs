@@ -217,6 +217,35 @@ namespace Violetum.Infrastructure.Migrations
                 b.ToTable("Comments");
             });
 
+            modelBuilder.Entity("Violetum.Domain.Entities.CommentVote", b =>
+            {
+                b.Property<string>("Id")
+                    .HasColumnType("nvarchar(450)");
+
+                b.Property<string>("CommentId")
+                    .HasColumnType("nvarchar(450)");
+
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<int>("Direction")
+                    .HasColumnType("int");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<string>("UserId")
+                    .HasColumnType("nvarchar(450)");
+
+                b.HasKey("Id");
+
+                b.HasIndex("CommentId");
+
+                b.HasIndex("UserId");
+
+                b.ToTable("CommentVotes");
+            });
+
             modelBuilder.Entity("Violetum.Domain.Entities.Follower", b =>
             {
                 b.Property<string>("Id")
@@ -436,6 +465,17 @@ namespace Violetum.Infrastructure.Migrations
                 b.HasOne("Violetum.Domain.Entities.Post", "Post")
                     .WithMany()
                     .HasForeignKey("PostId");
+            });
+
+            modelBuilder.Entity("Violetum.Domain.Entities.CommentVote", b =>
+            {
+                b.HasOne("Violetum.Domain.Entities.Comment", "Comment")
+                    .WithMany()
+                    .HasForeignKey("CommentId");
+
+                b.HasOne("Violetum.Domain.Entities.User", "User")
+                    .WithMany()
+                    .HasForeignKey("UserId");
             });
 
             modelBuilder.Entity("Violetum.Domain.Entities.Follower", b =>

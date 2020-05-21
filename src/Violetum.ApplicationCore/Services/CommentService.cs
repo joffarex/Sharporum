@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Violetum.ApplicationCore.Dtos.Comment;
+using Violetum.ApplicationCore.Dtos.Post;
 using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels;
 using Violetum.Domain.CustomExceptions;
@@ -34,7 +36,7 @@ namespace Violetum.ApplicationCore.Services
         public CommentViewModel GetComment(string commentId)
         {
             CommentViewModel comment =
-                _commentRepository.GetCommentById(commentId, x => _mapper.Map<CommentViewModel>(x));
+                _commentRepository.GetCommentById(commentId, x => AttachVotesToCommentViewModel(x));
             if (comment == null)
             {
                 throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Comment)}:{commentId} not found");
@@ -48,7 +50,7 @@ namespace Violetum.ApplicationCore.Services
             await ValidateSearchParams(searchParams);
 
             return _commentRepository.GetComments(x => Predicate(searchParams.UserId, searchParams.PostId, x),
-                x => _mapper.Map<CommentViewModel>(x), paginator);
+                x => AttachVotesToCommentViewModel(x), paginator);
         }
 
         public async Task<CommentViewModel> CreateComment(CommentDto commentDto)
@@ -81,6 +83,97 @@ namespace Violetum.ApplicationCore.Services
             Comment comment = ValidateCommentActionData(commentId, userId, deleteCommentDto.Id);
 
             return await _commentRepository.DeleteComment(comment) > 0;
+        }
+
+        public async Task VoteComment(string commentId, string userId, CommentVoteDto commentVoteDto)
+        {
+            try
+            {
+                CommentVoteDtoValidationData validatedData =
+                    await ValidateCommentVoteActionData(commentId, userId, commentVoteDto);
+
+                CommentVote commentVote = _commentRepository.GetCommentVote(commentId, userId, x => x);
+
+                if (commentVote != null)
+                {
+                    if (commentVote.Direction == commentVoteDto.Direction)
+                    {
+                        commentVote.Direction = 0;
+                    }
+                    else
+                    {
+                        commentVote.Direction = commentVoteDto.Direction;
+                    }
+
+                    await _commentRepository.UpdateCommentVote(commentVote);
+                }
+                else
+                {
+                    var newCommentVote = new CommentVote
+                    {
+                        CommentId = commentVoteDto.CommentId,
+                        UserId = commentVoteDto.UserId,
+                        Direction = commentVoteDto.Direction,
+                    };
+
+                    newCommentVote.User = validatedData.User;
+                    newCommentVote.Comment = validatedData.Comment;
+
+                    await _commentRepository.VoteComment(newCommentVote);
+                }
+            }
+            catch (ValidationException e)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.UnprocessableEntity, e.Message);
+            }
+        }
+
+        public int GetCommentVoteSum(string commentId)
+        {
+            Comment comment = _commentRepository.GetCommentById(commentId, x => x);
+            if (comment == null)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
+                    $"{nameof(Comment)}:{commentId} not found");
+            }
+
+            return _commentRepository.GetCommentVoteSum(comment.Id);
+        }
+
+        private CommentViewModel AttachVotesToCommentViewModel(Comment x)
+        {
+            var commentViewModel = _mapper.Map<CommentViewModel>(x);
+            commentViewModel.VoteCount = GetCommentVoteSum(x.Id);
+            return commentViewModel;
+        }
+
+        private async Task<CommentVoteDtoValidationData> ValidateCommentVoteActionData(string commentId, string userId,
+            CommentVoteDto commentVoteDto)
+        {
+            if (commentVoteDto == null)
+            {
+                throw new ArgumentNullException(nameof(commentVoteDto));
+            }
+
+            User user = await _userManager.FindByIdAsync(commentVoteDto.UserId);
+            if (user == null)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
+                    $"{nameof(User)}:{commentVoteDto.UserId} not found");
+            }
+
+            Comment comment = _commentRepository.GetCommentById(commentVoteDto.CommentId, x => x);
+            if (comment == null)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
+                    $"{nameof(Comment)}:{commentVoteDto.CommentId} not found");
+            }
+
+            return new CommentVoteDtoValidationData
+            {
+                User = user,
+                Comment = comment,
+            };
         }
 
         private async Task ValidateSearchParams(SearchParams searchParams)
@@ -176,5 +269,11 @@ namespace Violetum.ApplicationCore.Services
     {
         public User User { get; set; }
         public Post Post { get; set; }
+    }
+
+    public class CommentVoteDtoValidationData
+    {
+        public User User { get; set; }
+        public Comment Comment { get; set; }
     }
 }

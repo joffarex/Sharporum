@@ -123,6 +123,30 @@
 
                         <p class="card-text">
                             @comment.Content
+                            <div>
+                                Votes
+                                <div class="list-inline">
+                                    <form asp-action="VoteComment" asp-controller="Comments" asp-route-commentId="@comment.Id" method="post" class="list-inline-item">
+                                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                        <input type="hidden" asp-for="CommentVoteDto.Direction" value="1"/>
+                                        <input type="hidden" asp-for="CommentVoteDto.UserId" value="@ViewData["UserId"]"/>
+                                        <input type="hidden" asp-for="CommentVoteDto.CommentId" value="@comment.Id"/>
+                                        <input type="hidden" asp-for="CommentVoteDto.PostId" value="@comment.Post.Id"/>
+
+                                        <input type="submit" value="Upvote" class="btn btn-sm btn-primary"/>
+                                    </form>
+                                    <span class="list-inline-item">@Html.DisplayFor(model => comment.VoteCount)</span>
+                                    <form asp-action="VoteComment" asp-controller="Comments" asp-route-commentId="@comment.Id" method="post" class="list-inline-item">
+                                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                        <input type="hidden" asp-for="CommentVoteDto.Direction" value="-1"/>
+                                        <input type="hidden" asp-for="CommentVoteDto.UserId" value="@ViewData["UserId"]"/>
+                                        <input type="hidden" asp-for="CommentVoteDto.CommentId" value="@comment.Id"/>
+                                        <input type="hidden" asp-for="CommentVoteDto.PostId" value="@comment.Post.Id"/>
+
+                                        <input type="submit" value="Downvote" class="btn btn-sm btn-primary"/>
+                                    </form>
+                                </div>
+                            </div>
                         </p>
                     </div>
                 }

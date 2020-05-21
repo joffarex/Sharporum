@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Violetum.ApplicationCore.Dtos.Comment;
+using Violetum.ApplicationCore.Dtos.Post;
 using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels;
 using Violetum.Domain.CustomExceptions;
@@ -93,6 +94,20 @@ namespace Violetum.Web.Controllers
             {
                 throw new HttpStatusCodeException(HttpStatusCode.BadRequest, e.Message);
             }
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VoteComment(string commentId,
+            [Bind("CommentId,PostId,UserId,Direction")]
+            CommentVoteDto commentVoteDto)
+        {
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
+
+            await _commentService.VoteComment(commentId, userId, commentVoteDto);
+
+            return RedirectToAction("Details", "Posts", new {Id = commentVoteDto.PostId});
         }
     }
 }

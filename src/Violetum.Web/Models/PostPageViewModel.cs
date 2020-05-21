@@ -11,5 +11,6 @@ namespace Violetum.Web.Models
         public IEnumerable<CommentViewModel> Comments { get; set; }
         public CommentDto CommentDto { get; set; }
         public PostVoteDto PostVoteDto { get; set; }
+        public CommentVoteDto CommentVoteDto { get; set; }
     }
 }

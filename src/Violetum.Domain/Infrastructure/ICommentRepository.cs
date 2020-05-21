@@ -16,5 +16,10 @@ namespace Violetum.Domain.Infrastructure
         Task<int> CreateComment(Comment comment);
         Task<int> UpdateComment(Comment comment);
         Task<int> DeleteComment(Comment comment);
+
+        TResult GetCommentVote<TResult>(string commentId, string userId, Func<CommentVote, TResult> selector);
+        int GetCommentVoteSum(string commentId);
+        Task<int> VoteComment(CommentVote commentVote);
+        Task<int> UpdateCommentVote(CommentVote commentVote);
     }
 }
