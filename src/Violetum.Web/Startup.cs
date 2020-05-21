@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
 using Violetum.Domain.Entities;
 using Violetum.Infrastructure;
 using Violetum.Web.Middlewares;
@@ -74,6 +75,8 @@ namespace Violetum.Web
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddApplicationServices();
+
+            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "Violetum", Version = "v1"}); });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -84,6 +87,10 @@ namespace Violetum.Web
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Violetum V1"); });
 
             app.UseRouting();
 
