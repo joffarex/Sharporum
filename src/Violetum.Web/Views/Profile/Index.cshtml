@@ -60,6 +60,19 @@
     </div>
     <div class="col-md-8">
         <h3>Posts</h3>
+        <div>
+            Sort By:
+            <a asp-action="Index" asp-route-postPage="@ViewData["CurrentPageParm"]" asp-route-postSortBy="VoteCount" asp-route-postDir="desc">
+                Upvotes
+            </a>
+            <a asp-action="Index" asp-route-postPage="@ViewData["CurrentPageParm"]" asp-route-postSortBy="VoteCount" asp-route-postDir="asc">
+                Downvotes
+            </a>
+            |
+            <a asp-action="Index" asp-route-postPage="@ViewData["CurrentPageParm"]" asp-route-postSortBy="CreatedAt" asp-route-postDir="asc">ASC</a>
+            <a asp-action="Index" asp-route-postPage="@ViewData["CurrentPageParm"]" asp-route-postSortBy="CreatedAt" asp-route-postDir="desc">DESC</a>
+            CreatedAt
+        </div>
         @foreach (PostViewModel post in Model.Posts)
         {
             <div class="card">
@@ -72,6 +85,9 @@
                 </h5>
                 <div class="card-body">
                     <p class="card-text mb-5">@post.Content</p>
+                    <small style="display: block">
+                        <strong>Votes:</strong> <em>@post.VoteCount.ToString()</em>
+                    </small>
                     <small style="display: block">
                         <strong>Creation Date:</strong> <em>@post.CreatedAt</em>
                     </small>
@@ -91,5 +107,30 @@
                 </div>
             </div>
         }
+
+        @{
+            var currentPage = (int) ViewData["CurrentPageParm"];
+
+            bool hasPreviousPage = currentPage > 1;
+            bool hasNextPage = currentPage < (int) ViewData["totalPages"];
+
+            string prevDisabled = !hasPreviousPage ? "disabled" : "";
+            string nextDisabled = !hasNextPage ? "disabled" : "";
+        }
+
+        <a asp-action="Index"
+           asp-route-postPage="@(currentPage - 1)"
+           asp-route-postSortBy="@ViewData["SortByparm"]"
+           asp-route-postDir="@ViewData["OrderByDirParm"]"
+           class="btn btn-default @prevDisabled">
+            Prev Page
+        </a>
+        <a asp-action="Index"
+           asp-route-postPage="@(currentPage + 1)"
+           asp-route-postSortBy="@ViewData["SortByparm"]"
+           asp-route-postDir="@ViewData["OrderByDirParm"]"
+           class="btn btn-default @nextDisabled">
+            Next Page
+        </a>
     </div>
 </div>

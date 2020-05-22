@@ -9,8 +9,10 @@ namespace Violetum.Domain.Infrastructure
     {
         TResult GetPostById<TResult>(string postId, Func<Post, TResult> selector);
 
-        IEnumerable<TResult> GetPosts<TResult>(Func<Post, bool> condition, Func<Post, TResult> selector,
-            Paginator paginator);
+        IEnumerable<TResult> GetPosts<TResult, TKey>(Func<Post, bool> condition, Func<Post, TResult> selector,
+            Func<TResult, TKey> keySelector, SearchParams searchParams);
+
+        int GetTotalPostsCount<TResult, TKey>(Func<Post, bool> condition, Func<TResult, TKey> keySelector);
 
         Task<int> CreatePost(Post post);
         Task<int> UpdatePost(Post post);

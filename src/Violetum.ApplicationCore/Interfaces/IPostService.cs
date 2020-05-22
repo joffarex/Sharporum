@@ -9,7 +9,9 @@ namespace Violetum.ApplicationCore.Interfaces
     public interface IPostService
     {
         PostViewModel GetPost(string postId);
-        Task<IEnumerable<PostViewModel>> GetPosts(SearchParams searchParams, Paginator paginator);
+        Task<IEnumerable<PostViewModel>> GetPosts(SearchParams searchParams);
+        Task<int> GetTotalPostsCount(SearchParams searchParams);
+
         Task<PostViewModel> CreatePost(PostDto postDto);
         Task<PostViewModel> UpdatePost(string postId, string userId, UpdatePostDto updatePostDto);
         Task DeletePost(string postId, string userId, DeletePostDto deletePostDto);

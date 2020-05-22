@@ -14,10 +14,21 @@
     <tr>
         <th>Id</th>
         <th>Title</th>
-        <th>Votes</th>
+        <th>
+            <a asp-action="Index" asp-route-page="@ViewData["CurrentPageParm"]" asp-route-sortBy="VoteCount" asp-route-dir="desc">
+                Upvotes
+            </a>
+            <a asp-action="Index" asp-route-page="@ViewData["CurrentPageParm"]" asp-route-sortBy="VoteCount" asp-route-dir="asc">
+                Downvotes
+            </a>
+        </th>
         <th>Author</th>
         <th>Category</th>
-        <th>CreatedAt</th>
+        <th>
+            <a asp-action="Index" asp-route-page="@ViewData["CurrentPageParm"]" asp-route-sortBy="CreatedAt" asp-route-dir="asc">ASC</a>
+            <a asp-action="Index" asp-route-page="@ViewData["CurrentPageParm"]" asp-route-sortBy="CreatedAt" asp-route-dir="desc">DESC</a>
+            CreatedAt
+        </th>
         <th>UpdatedAt</th>
         <th></th>
     </tr>
@@ -65,3 +76,28 @@
     }
     </tbody>
 </table>
+
+@{
+    var currentPage = (int) ViewData["CurrentPageParm"];
+
+    bool hasPreviousPage = currentPage > 1;
+    bool hasNextPage = currentPage < (int) ViewData["totalPages"];
+
+    string prevDisabled = !hasPreviousPage ? "disabled" : "";
+    string nextDisabled = !hasNextPage ? "disabled" : "";
+}
+
+<a asp-action="Index"
+   asp-route-page="@(currentPage - 1)"
+   asp-route-sortBy="@ViewData["SortByparm"]"
+   asp-route-dir="@ViewData["OrderByDirParm"]"
+   class="btn btn-default @prevDisabled">
+    Prev Page
+</a>
+<a asp-action="Index"
+   asp-route-page="@(currentPage + 1)"
+   asp-route-sortBy="@ViewData["SortByparm"]"
+   asp-route-dir="@ViewData["OrderByDirParm"]"
+   class="btn btn-default @nextDisabled">
+    Next Page
+</a>

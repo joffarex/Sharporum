@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -30,17 +31,30 @@ namespace Violetum.Web.Controllers
         }
 
         [HttpGet("Category/{name}")]
-        public async Task<IActionResult> Details(string name, [Bind("CurrentPage,Limit")] Paginator paginator)
+        public async Task<IActionResult> Details(string name, string postSortBy, string postDir, int postPage)
         {
+            ViewData["SortByparm"] = string.IsNullOrEmpty(postSortBy) ? "CreatedAt" : postSortBy;
+            ViewData["OrderByDirParm"] = string.IsNullOrEmpty(postDir) ? "desc" : postDir;
+            ViewData["CurrentPageParm"] = postPage != 0 ? postPage : 1;
+
             CategoryViewModel category = _categoryService.GetCategoryByName(name);
 
             string userId = await _tokenManager.GetUserIdFromAccessToken();
             ViewData["UserId"] = userId;
 
-            IEnumerable<PostViewModel> posts = await _postService.GetPosts(new SearchParams
+            var searchParams = new SearchParams
             {
+                SortBy = (string) ViewData["SortByparm"],
+                OrderByDir = (string) ViewData["OrderByDirParm"],
+                CurrentPage = (int) ViewData["CurrentPageParm"],
                 CategoryName = category.Name,
-            }, paginator);
+            };
+
+            IEnumerable<PostViewModel> posts = await _postService.GetPosts(searchParams);
+
+            var totalPages =
+                (int) Math.Ceiling(await _postService.GetTotalPostsCount(searchParams) / (double) searchParams.Limit);
+            ViewData["totalPages"] = totalPages;
 
             var categoryPageViewModel = new CategoryPageViewModel
             {
@@ -143,7 +157,7 @@ namespace Violetum.Web.Controllers
             IEnumerable<PostViewModel> posts = await _postService.GetPosts(new SearchParams
             {
                 CategoryName = category.Name,
-            }, new Paginator());
+            });
 
             if (posts.Any())
             {

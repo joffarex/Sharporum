@@ -27,19 +27,35 @@ namespace Violetum.Infrastructure.Repositories
                 .FirstOrDefault();
         }
 
-        public IEnumerable<TResult> GetPosts<TResult>(Func<Post, bool> condition,
-            Func<Post, TResult> selector, Paginator paginator)
+        public IEnumerable<TResult> GetPosts<TResult, TKey>(Func<Post, bool> condition,
+            Func<Post, TResult> selector, Func<TResult, TKey> keySelector, SearchParams searchParams)
         {
-            return _context.Posts
+            IEnumerable<TResult> query = _context.Posts
                 .Include(x => x.Category)
                 .Include(x => x.Author)
                 .AsEnumerable()
                 .Where(condition)
-                .Select(selector)
-                .Skip(paginator.Offset)
-                .Take(paginator.Limit)
-                .ToList();
+                .Select(selector);
+
+            return searchParams.OrderByDir.ToUpper() == "DESC"
+                ? query.OrderByDescending(keySelector)
+                    .Skip(searchParams.Offset)
+                    .Take(searchParams.Limit)
+                    .ToList()
+                : query.OrderBy(keySelector)
+                    .Skip(searchParams.Offset)
+                    .Take(searchParams.Limit)
+                    .ToList();
         }
+
+        public int GetTotalPostsCount<TResult, TKey>(Func<Post, bool> condition, Func<TResult, TKey> keySelector)
+        {
+            return _context.Posts
+                .AsEnumerable()
+                .Where(condition)
+                .Count();
+        }
+
 
         public Task<int> CreatePost(Post post)
         {

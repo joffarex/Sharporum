@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -43,13 +44,27 @@ namespace Violetum.ApplicationCore.Services
             return post;
         }
 
-        public async Task<IEnumerable<PostViewModel>> GetPosts(SearchParams searchParams, Paginator paginator)
+        public async Task<IEnumerable<PostViewModel>> GetPosts(SearchParams searchParams)
         {
             await ValidateSearchParams(searchParams);
 
-            return _postRepository
-                .GetPosts(x => Predicate(searchParams.UserId, searchParams.CategoryName, x),
-                    x => AttachVotesToPostViewModel(x), paginator);
+            return _postRepository.GetPosts(
+                x => Predicate(searchParams.UserId, searchParams.CategoryName, x),
+                x => AttachVotesToPostViewModel(x),
+                GetOrderByExpression<PostViewModel>(searchParams.SortBy),
+                searchParams
+            );
+        }
+
+        public async Task<int> GetTotalPostsCount(SearchParams searchParams)
+        {
+            await ValidateSearchParams(searchParams);
+
+
+            return _postRepository.GetTotalPostsCount(
+                x => Predicate(searchParams.UserId, searchParams.CategoryName, x),
+                GetOrderByExpression<PostViewModel>(searchParams.SortBy)
+            );
         }
 
         public async Task<PostViewModel> CreatePost(PostDto postDto)
@@ -265,6 +280,23 @@ namespace Violetum.ApplicationCore.Services
             }
 
             return true;
+        }
+
+        private Func<T, object> GetOrderByExpression<T>(string sortColumn)
+        {
+            Func<T, object> orderByExpr = null;
+            if (!string.IsNullOrEmpty(sortColumn))
+            {
+                Type sponsorResultType = typeof(T);
+
+                if (sponsorResultType.GetProperties().Any(prop => prop.Name == sortColumn))
+                {
+                    PropertyInfo pinfo = sponsorResultType.GetProperty(sortColumn);
+                    orderByExpr = data => pinfo.GetValue(data, null);
+                }
+            }
+
+            return orderByExpr;
         }
     }
 

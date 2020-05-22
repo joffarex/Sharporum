@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -49,10 +50,23 @@ namespace Violetum.Web.Controllers
             return View(postPageViewModel);
         }
 
-        public async Task<IActionResult> Index([Bind("UserId,CategoryName")] SearchParams searchParams,
-            [Bind("CurrentPage,Limit")] Paginator paginator)
+        public async Task<IActionResult> Index(string sortBy, string dir, int page)
         {
-            IEnumerable<PostViewModel> posts = await _postService.GetPosts(searchParams, paginator);
+            ViewData["SortByparm"] = string.IsNullOrEmpty(sortBy) ? "CreatedAt" : sortBy;
+            ViewData["OrderByDirParm"] = string.IsNullOrEmpty(dir) ? "desc" : dir;
+            ViewData["CurrentPageParm"] = page != 0 ? page : 1;
+
+            var searchParams = new SearchParams
+            {
+                SortBy = (string) ViewData["SortByparm"],
+                OrderByDir = (string) ViewData["OrderByDirParm"],
+                CurrentPage = (int) ViewData["CurrentPageParm"],
+            };
+
+            IEnumerable<PostViewModel> posts = await _postService.GetPosts(searchParams);
+            var totalPages =
+                (int) Math.Ceiling(await _postService.GetTotalPostsCount(searchParams) / (double) searchParams.Limit);
+            ViewData["totalPages"] = totalPages;
 
             string userId = await _tokenManager.GetUserIdFromAccessToken();
             ViewData["UserId"] = userId;

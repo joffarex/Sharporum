@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -32,15 +33,27 @@ namespace Violetum.Web.Controllers
         }
 
         [HttpGet("Profile/{id}")]
-        public async Task<IActionResult> Index(string id)
+        public async Task<IActionResult> Index(string id, string postSortBy, string postDir, int postPage)
         {
+            ViewData["SortByparm"] = string.IsNullOrEmpty(postSortBy) ? "CreatedAt" : postSortBy;
+            ViewData["OrderByDirParm"] = string.IsNullOrEmpty(postDir) ? "desc" : postDir;
+            ViewData["CurrentPageParm"] = postPage != 0 ? postPage : 1;
+
             ProfileViewModel profile = await _profileService.GetProfile(id);
 
-            IEnumerable<PostViewModel> posts = await _postService.GetPosts(new SearchParams
+            var searchParams = new SearchParams
             {
+                SortBy = (string) ViewData["SortByparm"],
+                OrderByDir = (string) ViewData["OrderByDirParm"],
+                CurrentPage = (int) ViewData["CurrentPageParm"],
                 UserId = profile.Id,
-            }, new Paginator());
+            };
 
+            IEnumerable<PostViewModel> posts = await _postService.GetPosts(searchParams);
+
+            var totalPages =
+                (int) Math.Ceiling(await _postService.GetTotalPostsCount(searchParams) / (double) searchParams.Limit);
+            ViewData["totalPages"] = totalPages;
 
             string userId = await _tokenManager.GetUserIdFromAccessToken();
             ViewData["UserId"] = userId;
