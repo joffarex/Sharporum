@@ -33,7 +33,7 @@ namespace Violetum.Web.Controllers
         [HttpGet("Category/{name}")]
         public async Task<IActionResult> Details(string name, string postSortBy, string postDir, int postPage)
         {
-            ViewData["SortByparm"] = string.IsNullOrEmpty(postSortBy) ? "CreatedAt" : postSortBy;
+            ViewData["SortByParm"] = string.IsNullOrEmpty(postSortBy) ? "CreatedAt" : postSortBy;
             ViewData["OrderByDirParm"] = string.IsNullOrEmpty(postDir) ? "desc" : postDir;
             ViewData["CurrentPageParm"] = postPage != 0 ? postPage : 1;
 
@@ -44,16 +44,18 @@ namespace Violetum.Web.Controllers
 
             var searchParams = new SearchParams
             {
-                SortBy = (string) ViewData["SortByparm"],
+                SortBy = (string) ViewData["SortByParm"],
                 OrderByDir = (string) ViewData["OrderByDirParm"],
                 CurrentPage = (int) ViewData["CurrentPageParm"],
                 CategoryName = category.Name,
             };
 
             IEnumerable<PostViewModel> posts = await _postService.GetPosts(searchParams);
+            int totalPosts = await _postService.GetTotalPostsCount(searchParams);
+            ViewData["TotalPosts"] = totalPosts;
 
             var totalPages =
-                (int) Math.Ceiling(await _postService.GetTotalPostsCount(searchParams) / (double) searchParams.Limit);
+                (int) Math.Ceiling(totalPosts / (double) searchParams.Limit);
             ViewData["totalPages"] = totalPages;
 
             var categoryPageViewModel = new CategoryPageViewModel

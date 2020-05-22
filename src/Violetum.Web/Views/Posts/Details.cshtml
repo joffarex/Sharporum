@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = Model.Post.Title;
-    var commentsCount = Model.Comments.Count().ToString();
+    var commentsCount = ((int) ViewData["TotalComments"]).ToString();
 }
 
 <h3>@Model.Post.Title Details</h3>
@@ -98,6 +98,19 @@
             </form>
 
             <h3>@commentsCount Comment</h3>
+            <div>
+                Sort By:
+                <a asp-action="Details" asp-route-commentPage="@ViewData["CurrentPageParm"]" asp-route-commentSortBy="VoteCount" asp-route-commentDir="desc">
+                    Upvotes
+                </a>
+                <a asp-action="Details" asp-route-commentPage="@ViewData["CurrentPageParm"]" asp-route-commentSortBy="VoteCount" asp-route-commentDir="asc">
+                    Downvotes
+                </a>
+                |
+                <a asp-action="Details" asp-route-commentPage="@ViewData["CurrentPageParm"]" asp-route-commentSortBy="CreatedAt" asp-route-commentDir="asc">ASC</a>
+                <a asp-action="Details" asp-route-commentPage="@ViewData["CurrentPageParm"]" asp-route-commentSortBy="CreatedAt" asp-route-commentDir="desc">DESC</a>
+                CreatedAt
+            </div>
             @{
                 foreach (CommentViewModel comment in Model.Comments)
                 {
@@ -151,6 +164,30 @@
                     </div>
                 }
             }
+            @{
+                var currentPage = (int) ViewData["CurrentPageParm"];
+
+                bool hasPreviousPage = currentPage > 1;
+                bool hasNextPage = currentPage < (int) ViewData["totalPages"];
+
+                string prevDisabled = !hasPreviousPage ? "disabled" : "";
+                string nextDisabled = !hasNextPage ? "disabled" : "";
+            }
+
+            <a asp-action="Details"
+               asp-route-commentPage="@(currentPage - 1)"
+               asp-route-commentSortBy="@ViewData["SortByParm"]"
+               asp-route-commentDir="@ViewData["OrderByDirParm"]"
+               class="btn btn-default @prevDisabled">
+                Prev Page
+            </a>
+            <a asp-action="Details"
+               asp-route-commentPage="@(currentPage + 1)"
+               asp-route-commentSortBy="@ViewData["SortByParm"]"
+               asp-route-commentDir="@ViewData["OrderByDirParm"]"
+               class="btn btn-default @nextDisabled">
+                Next Page
+            </a>
         </div>
     </div>
 </div>

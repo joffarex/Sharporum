@@ -120,14 +120,14 @@
 
         <a asp-action="Index"
            asp-route-postPage="@(currentPage - 1)"
-           asp-route-postSortBy="@ViewData["SortByparm"]"
+           asp-route-postSortBy="@ViewData["SortByParm"]"
            asp-route-postDir="@ViewData["OrderByDirParm"]"
            class="btn btn-default @prevDisabled">
             Prev Page
         </a>
         <a asp-action="Index"
            asp-route-postPage="@(currentPage + 1)"
-           asp-route-postSortBy="@ViewData["SortByparm"]"
+           asp-route-postSortBy="@ViewData["SortByParm"]"
            asp-route-postDir="@ViewData["OrderByDirParm"]"
            class="btn btn-default @nextDisabled">
             Next Page

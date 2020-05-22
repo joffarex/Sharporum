@@ -9,9 +9,10 @@ namespace Violetum.Domain.Infrastructure
     {
         TResult GetCommentById<TResult>(string commentId, Func<Comment, TResult> selector);
 
-        IEnumerable<TResult> GetComments<TResult>(Func<Comment, bool> condition,
-            Func<Comment, TResult> selector,
-            Paginator paginator);
+        IEnumerable<TResult> GetComments<TResult, TKey>(Func<Comment, bool> condition,
+            Func<Comment, TResult> selector, Func<TResult, TKey> keySelector, SearchParams searchParams);
+
+        int GetTotalCommentsCount<TResult, TKey>(Func<Comment, bool> condition, Func<TResult, TKey> keySelector);
 
         Task<int> CreateComment(Comment comment);
         Task<int> UpdateComment(Comment comment);

@@ -29,17 +29,32 @@ namespace Violetum.Web.Controllers
         }
 
         [HttpGet("Posts/{id}")]
-        public async Task<IActionResult> Details(string id, [Bind("CurrentPage,Limit")] Paginator paginator)
+        public async Task<IActionResult> Details(string id, string commentSortBy, string commentDir, int commentPage)
         {
+            ViewData["SortByParm"] = string.IsNullOrEmpty(commentSortBy) ? "CreatedAt" : commentSortBy;
+            ViewData["OrderByDirParm"] = string.IsNullOrEmpty(commentDir) ? "desc" : commentDir;
+            ViewData["CurrentPageParm"] = commentPage != 0 ? commentPage : 1;
+
             PostViewModel post = _postService.GetPost(id);
 
             string userId = await _tokenManager.GetUserIdFromAccessToken();
             ViewData["UserId"] = userId;
 
-            IEnumerable<CommentViewModel> comments = await _commentService.GetComments(new SearchParams
+            var searchParams = new SearchParams
             {
+                SortBy = (string) ViewData["SortByParm"],
+                OrderByDir = (string) ViewData["OrderByDirParm"],
+                CurrentPage = (int) ViewData["CurrentPageParm"],
                 PostId = post.Id,
-            }, paginator);
+            };
+
+            IEnumerable<CommentViewModel> comments = await _commentService.GetComments(searchParams);
+
+            int totalComments = await _commentService.GetTotalCommentsCount(searchParams);
+            ViewData["TotalComments"] = totalComments;
+            var totalPages =
+                (int) Math.Ceiling(totalComments / (double) searchParams.Limit);
+            ViewData["totalPages"] = totalPages;
 
             var postPageViewModel = new PostPageViewModel
             {
@@ -52,20 +67,23 @@ namespace Violetum.Web.Controllers
 
         public async Task<IActionResult> Index(string sortBy, string dir, int page)
         {
-            ViewData["SortByparm"] = string.IsNullOrEmpty(sortBy) ? "CreatedAt" : sortBy;
+            ViewData["SortByParm"] = string.IsNullOrEmpty(sortBy) ? "CreatedAt" : sortBy;
             ViewData["OrderByDirParm"] = string.IsNullOrEmpty(dir) ? "desc" : dir;
             ViewData["CurrentPageParm"] = page != 0 ? page : 1;
 
             var searchParams = new SearchParams
             {
-                SortBy = (string) ViewData["SortByparm"],
+                SortBy = (string) ViewData["SortByParm"],
                 OrderByDir = (string) ViewData["OrderByDirParm"],
                 CurrentPage = (int) ViewData["CurrentPageParm"],
             };
 
             IEnumerable<PostViewModel> posts = await _postService.GetPosts(searchParams);
+            int totalPosts = await _postService.GetTotalPostsCount(searchParams);
+            ViewData["TotalPosts"] = totalPosts;
+
             var totalPages =
-                (int) Math.Ceiling(await _postService.GetTotalPostsCount(searchParams) / (double) searchParams.Limit);
+                (int) Math.Ceiling(totalPosts / (double) searchParams.Limit);
             ViewData["totalPages"] = totalPages;
 
             string userId = await _tokenManager.GetUserIdFromAccessToken();

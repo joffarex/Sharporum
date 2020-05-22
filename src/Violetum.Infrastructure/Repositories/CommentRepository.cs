@@ -27,17 +27,32 @@ namespace Violetum.Infrastructure.Repositories
                 .FirstOrDefault();
         }
 
-        public IEnumerable<TResult> GetComments<TResult>(Func<Comment, bool> condition,
-            Func<Comment, TResult> selector, Paginator paginator)
+        public IEnumerable<TResult> GetComments<TResult, TKey>(Func<Comment, bool> condition,
+            Func<Comment, TResult> selector, Func<TResult, TKey> keySelector, SearchParams searchParams)
         {
-            return _context.Comments
+            IEnumerable<TResult> query = _context.Comments
                 .Include(x => x.Author)
                 .AsEnumerable()
                 .Where(condition)
-                .Select(selector)
-                .Skip(paginator.Offset)
-                .Take(paginator.Limit)
-                .ToList();
+                .Select(selector);
+
+            return searchParams.OrderByDir.ToUpper() == "DESC"
+                ? query.OrderByDescending(keySelector)
+                    .Skip(searchParams.Offset)
+                    .Take(searchParams.Limit)
+                    .ToList()
+                : query.OrderBy(keySelector)
+                    .Skip(searchParams.Offset)
+                    .Take(searchParams.Limit)
+                    .ToList();
+        }
+
+        public int GetTotalCommentsCount<TResult, TKey>(Func<Comment, bool> condition, Func<TResult, TKey> keySelector)
+        {
+            return _context.Comments
+                .AsEnumerable()
+                .Where(condition)
+                .Count();
         }
 
         public Task<int> CreateComment(Comment comment)

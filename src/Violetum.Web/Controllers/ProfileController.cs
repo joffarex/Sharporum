@@ -35,7 +35,7 @@ namespace Violetum.Web.Controllers
         [HttpGet("Profile/{id}")]
         public async Task<IActionResult> Index(string id, string postSortBy, string postDir, int postPage)
         {
-            ViewData["SortByparm"] = string.IsNullOrEmpty(postSortBy) ? "CreatedAt" : postSortBy;
+            ViewData["SortByParm"] = string.IsNullOrEmpty(postSortBy) ? "CreatedAt" : postSortBy;
             ViewData["OrderByDirParm"] = string.IsNullOrEmpty(postDir) ? "desc" : postDir;
             ViewData["CurrentPageParm"] = postPage != 0 ? postPage : 1;
 
@@ -43,7 +43,7 @@ namespace Violetum.Web.Controllers
 
             var searchParams = new SearchParams
             {
-                SortBy = (string) ViewData["SortByparm"],
+                SortBy = (string) ViewData["SortByParm"],
                 OrderByDir = (string) ViewData["OrderByDirParm"],
                 CurrentPage = (int) ViewData["CurrentPageParm"],
                 UserId = profile.Id,

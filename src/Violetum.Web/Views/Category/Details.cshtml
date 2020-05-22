@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = Model.Category.Name;
-    var postsCount = Model.Posts.Count().ToString();
+    var postsCount = ((int) ViewData["TotalPosts"]).ToString();
 }
 
 <h3>@Model.Category.Name Details</h3>
@@ -109,14 +109,14 @@
 
             <a asp-action="Details"
                asp-route-postPage="@(currentPage - 1)"
-               asp-route-postSortBy="@ViewData["SortByparm"]"
+               asp-route-postSortBy="@ViewData["SortByParm"]"
                asp-route-postDir="@ViewData["OrderByDirParm"]"
                class="btn btn-default @prevDisabled">
                 Prev Page
             </a>
             <a asp-action="Details"
                asp-route-postPage="@(currentPage + 1)"
-               asp-route-postSortBy="@ViewData["SortByparm"]"
+               asp-route-postSortBy="@ViewData["SortByParm"]"
                asp-route-postDir="@ViewData["OrderByDirParm"]"
                class="btn btn-default @nextDisabled">
                 Next Page

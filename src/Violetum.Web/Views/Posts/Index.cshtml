@@ -2,9 +2,10 @@
 
 @{
     ViewData["Title"] = "Posts";
+    var postsCount = ((int) ViewData["TotalPosts"]).ToString();
 }
 
-<h2>Posts</h2>
+<h2>@postsCount Posts</h2>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -89,14 +90,14 @@
 
 <a asp-action="Index"
    asp-route-page="@(currentPage - 1)"
-   asp-route-sortBy="@ViewData["SortByparm"]"
+   asp-route-sortBy="@ViewData["SortByParm"]"
    asp-route-dir="@ViewData["OrderByDirParm"]"
    class="btn btn-default @prevDisabled">
     Prev Page
 </a>
 <a asp-action="Index"
    asp-route-page="@(currentPage + 1)"
-   asp-route-sortBy="@ViewData["SortByparm"]"
+   asp-route-sortBy="@ViewData["SortByParm"]"
    asp-route-dir="@ViewData["OrderByDirParm"]"
    class="btn btn-default @nextDisabled">
     Next Page
