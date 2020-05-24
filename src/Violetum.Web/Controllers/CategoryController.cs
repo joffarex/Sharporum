@@ -7,11 +7,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Violetum.ApplicationCore.Dtos.Category;
-using Violetum.ApplicationCore.Interfaces;
-using Violetum.ApplicationCore.ViewModels;
+using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.ViewModels.Category;
+using Violetum.ApplicationCore.ViewModels.Post;
 using Violetum.Domain.CustomExceptions;
-using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
+using Violetum.Domain.Models.SearchParams;
 using Violetum.Web.Models;
 
 namespace Violetum.Web.Controllers
@@ -42,7 +43,7 @@ namespace Violetum.Web.Controllers
             string userId = await _tokenManager.GetUserIdFromAccessToken();
             ViewData["UserId"] = userId;
 
-            var searchParams = new SearchParams
+            var searchParams = new PostSearchParams
             {
                 SortBy = (string) ViewData["SortByParm"],
                 OrderByDir = (string) ViewData["OrderByDirParm"],
@@ -67,10 +68,10 @@ namespace Violetum.Web.Controllers
             return View(categoryPageViewModel);
         }
 
-        public async Task<IActionResult> Index([Bind("UserId,CategoryName")] SearchParams searchParams,
-            [Bind("CurrentPage,Limit")] Paginator paginator)
+        public async Task<IActionResult> Index()
         {
-            IEnumerable<CategoryViewModel> categories = await _categoryService.GetCategories(searchParams, paginator);
+            IEnumerable<CategoryViewModel>
+                categories = await _categoryService.GetCategories(new CategorySearchParams());
 
             string userId = await _tokenManager.GetUserIdFromAccessToken();
             ViewData["UserId"] = userId;
@@ -156,7 +157,7 @@ namespace Violetum.Web.Controllers
                 throw new HttpStatusCodeException(HttpStatusCode.Unauthorized);
             }
 
-            IEnumerable<PostViewModel> posts = await _postService.GetPosts(new SearchParams
+            IEnumerable<PostViewModel> posts = await _postService.GetPosts(new PostSearchParams
             {
                 CategoryName = category.Name,
             });
@@ -174,14 +175,13 @@ namespace Violetum.Web.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id,
-            [Bind("Id,Name")] DeleteCategoryDto deleteCategoryDto)
+        public async Task<IActionResult> DeleteConfirmed(string id)
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
 
             try
             {
-                await _categoryService.DeleteCategory(id, userId, deleteCategoryDto);
+                await _categoryService.DeleteCategory(id, userId);
 
                 return RedirectToAction(nameof(Index));
             }

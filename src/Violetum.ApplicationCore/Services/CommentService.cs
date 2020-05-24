@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Violetum.ApplicationCore.Dtos.Comment;
-using Violetum.ApplicationCore.Dtos.Post;
-using Violetum.ApplicationCore.Interfaces;
-using Violetum.ApplicationCore.ViewModels;
+using Violetum.ApplicationCore.Helpers;
+using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.Interfaces.Validators;
+using Violetum.ApplicationCore.ViewModels.Comment;
 using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
+using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.ApplicationCore.Services
 {
@@ -21,60 +20,73 @@ namespace Violetum.ApplicationCore.Services
     public class CommentService : ICommentService
     {
         private readonly ICommentRepository _commentRepository;
+        private readonly ICommentValidators _commentValidators;
         private readonly IMapper _mapper;
         private readonly IPostRepository _postRepository;
+        private readonly IPostValidators _postValidators;
         private readonly UserManager<User> _userManager;
+        private readonly IUserValidators _userValidators;
+        private readonly IVoteRepository _voteRepository;
 
         public CommentService(ICommentRepository commentRepository, UserManager<User> userManager,
-            IPostRepository postRepository, IMapper mapper)
+            IPostRepository postRepository, IVoteRepository voteRepository, IMapper mapper,
+            ICommentValidators commentValidators, IUserValidators userValidators, IPostValidators postValidators)
         {
             _commentRepository = commentRepository;
             _userManager = userManager;
             _postRepository = postRepository;
+            _voteRepository = voteRepository;
             _mapper = mapper;
+            _commentValidators = commentValidators;
+            _userValidators = userValidators;
+            _postValidators = postValidators;
         }
 
         public CommentViewModel GetComment(string commentId)
         {
-            CommentViewModel comment =
-                _commentRepository.GetCommentById(commentId, x => AttachVotesToCommentViewModel(x));
-            if (comment == null)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Comment)}:{commentId} not found");
-            }
-
-            return comment;
+            return _commentValidators.GetReturnedCommentOrThrow(commentId, x => AttachVotesToCommentViewModel(x));
         }
 
-        public async Task<IEnumerable<CommentViewModel>> GetComments(SearchParams searchParams)
+        public async Task<IEnumerable<CommentViewModel>> GetComments(CommentSearchParams searchParams)
         {
-            await ValidateSearchParams(searchParams);
+            if (!string.IsNullOrEmpty(searchParams.UserId))
+            {
+                await _userValidators.GetReturnedUserOrThrow(searchParams.UserId);
+            }
 
             return _commentRepository.GetComments(
-                x => Predicate(searchParams.UserId, searchParams.PostId, x),
+                x => CommentHelpers.WhereConditionPredicate(searchParams.UserId, searchParams.PostId, x),
                 x => AttachVotesToCommentViewModel(x),
-                GetOrderByExpression<CommentViewModel>(searchParams.SortBy),
+                BaseHelpers.GetOrderByExpression<CommentViewModel>(searchParams.SortBy),
                 searchParams
             );
         }
 
-        public async Task<int> GetTotalCommentsCount(SearchParams searchParams)
+        public async Task<int> GetTotalCommentsCount(CommentSearchParams searchParams)
         {
-            await ValidateSearchParams(searchParams);
+            if (!string.IsNullOrEmpty(searchParams.UserId))
+            {
+                await _userValidators.GetReturnedUserOrThrow(searchParams.UserId);
+            }
+
+            if (!string.IsNullOrEmpty(searchParams.PostId))
+            {
+                _postValidators.GetReturnedPostOrThrow(searchParams.PostId, x => x);
+            }
 
             return _commentRepository.GetTotalCommentsCount(
-                x => Predicate(searchParams.UserId, searchParams.PostId, x),
-                GetOrderByExpression<CommentViewModel>(searchParams.SortBy)
+                x => CommentHelpers.WhereConditionPredicate(searchParams.UserId, searchParams.PostId, x)
             );
         }
 
         public async Task<CommentViewModel> CreateComment(CommentDto commentDto)
         {
-            CommentDtoValidationData validatedData = await ValidateCommentDto(commentDto);
+            User user = await _userValidators.GetReturnedUserOrThrow(commentDto.AuthorId);
+            Post post = _postValidators.GetReturnedPostOrThrow(commentDto.PostId, x => x);
 
             var comment = _mapper.Map<Comment>(commentDto);
-            comment.Author = validatedData.User;
-            comment.Post = validatedData.Post;
+            comment.Author = user;
+            comment.Post = post;
 
             await _commentRepository.CreateComment(comment);
 
@@ -84,7 +96,11 @@ namespace Violetum.ApplicationCore.Services
         public async Task<CommentViewModel> UpdateComment(string commentId, string userId,
             UpdateCommentDto updateCommentDto)
         {
-            Comment comment = ValidateCommentActionData(commentId, userId, updateCommentDto.Id);
+            Comment comment = _commentValidators.GetReturnedCommentOrThrow(commentId, x => x);
+            if (comment.AuthorId != userId)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");
+            }
 
             comment.Content = updateCommentDto.Content;
 
@@ -93,9 +109,13 @@ namespace Violetum.ApplicationCore.Services
             return _mapper.Map<CommentViewModel>(comment);
         }
 
-        public async Task<bool> DeleteComment(string commentId, string userId, DeleteCommentDto deleteCommentDto)
+        public async Task<bool> DeleteComment(string commentId, string userId)
         {
-            Comment comment = ValidateCommentActionData(commentId, userId, deleteCommentDto.Id);
+            Comment comment = _commentValidators.GetReturnedCommentOrThrow(commentId, x => x);
+            if (comment.AuthorId != userId)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");
+            }
 
             return await _commentRepository.DeleteComment(comment) > 0;
         }
@@ -104,10 +124,12 @@ namespace Violetum.ApplicationCore.Services
         {
             try
             {
-                CommentVoteDtoValidationData validatedData =
-                    await ValidateCommentVoteActionData(commentId, userId, commentVoteDto);
+                User user = await _userValidators.GetReturnedUserOrThrow(userId);
+                Comment comment = _commentValidators.GetReturnedCommentOrThrow(commentId, x => x);
 
-                CommentVote commentVote = _commentRepository.GetCommentVote(commentId, userId, x => x);
+                var commentVote =
+                    _voteRepository.GetEntityVote<CommentVote>(
+                        x => (x.CommentId == comment.Id) && (x.UserId == user.Id), x => x);
 
                 if (commentVote != null)
                 {
@@ -120,21 +142,21 @@ namespace Violetum.ApplicationCore.Services
                         commentVote.Direction = commentVoteDto.Direction;
                     }
 
-                    await _commentRepository.UpdateCommentVote(commentVote);
+                    await _voteRepository.UpdateEntityVote(commentVote);
                 }
                 else
                 {
                     var newCommentVote = new CommentVote
                     {
-                        CommentId = commentVoteDto.CommentId,
-                        UserId = commentVoteDto.UserId,
+                        CommentId = comment.Id,
+                        UserId = user.Id,
                         Direction = commentVoteDto.Direction,
                     };
 
-                    newCommentVote.User = validatedData.User;
-                    newCommentVote.Comment = validatedData.Comment;
+                    newCommentVote.User = user;
+                    newCommentVote.Comment = comment;
 
-                    await _commentRepository.VoteComment(newCommentVote);
+                    await _voteRepository.VoteEntity(newCommentVote);
                 }
             }
             catch (ValidationException e)
@@ -143,169 +165,11 @@ namespace Violetum.ApplicationCore.Services
             }
         }
 
-        public int GetCommentVoteSum(string commentId)
-        {
-            Comment comment = _commentRepository.GetCommentById(commentId, x => x);
-            if (comment == null)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
-                    $"{nameof(Comment)}:{commentId} not found");
-            }
-
-            return _commentRepository.GetCommentVoteSum(comment.Id);
-        }
-
         private CommentViewModel AttachVotesToCommentViewModel(Comment x)
         {
             var commentViewModel = _mapper.Map<CommentViewModel>(x);
-            commentViewModel.VoteCount = GetCommentVoteSum(x.Id);
+            commentViewModel.VoteCount = _commentRepository.GetCommentVoteSum(x.Id);
             return commentViewModel;
         }
-
-        private async Task<CommentVoteDtoValidationData> ValidateCommentVoteActionData(string commentId, string userId,
-            CommentVoteDto commentVoteDto)
-        {
-            if (commentVoteDto == null)
-            {
-                throw new ArgumentNullException(nameof(commentVoteDto));
-            }
-
-            User user = await _userManager.FindByIdAsync(commentVoteDto.UserId);
-            if (user == null)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
-                    $"{nameof(User)}:{commentVoteDto.UserId} not found");
-            }
-
-            Comment comment = _commentRepository.GetCommentById(commentVoteDto.CommentId, x => x);
-            if (comment == null)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
-                    $"{nameof(Comment)}:{commentVoteDto.CommentId} not found");
-            }
-
-            return new CommentVoteDtoValidationData
-            {
-                User = user,
-                Comment = comment,
-            };
-        }
-
-        private async Task ValidateSearchParams(SearchParams searchParams)
-        {
-            if (!string.IsNullOrEmpty(searchParams.UserId))
-            {
-                User user = await _userManager.FindByIdAsync(searchParams.UserId);
-                if (user == null)
-                {
-                    throw new HttpStatusCodeException(HttpStatusCode.NotFound,
-                        $"{nameof(User)}:{searchParams.UserId} not found");
-                }
-            }
-
-            if (!string.IsNullOrEmpty(searchParams.PostId))
-            {
-                Post post = _postRepository.GetPostById(searchParams.PostId, x => x);
-                if (post == null)
-                {
-                    throw new HttpStatusCodeException(HttpStatusCode.NotFound,
-                        $"{nameof(Post)}:{searchParams.PostId} not found");
-                }
-            }
-        }
-
-        private static bool Predicate(string userId, string postId, Comment c)
-        {
-            if (!string.IsNullOrEmpty(userId))
-            {
-                return c.AuthorId == userId;
-            }
-
-            if (!string.IsNullOrEmpty(postId))
-            {
-                return c.PostId == postId;
-            }
-
-            return true;
-        }
-
-        private async Task<CommentDtoValidationData> ValidateCommentDto(CommentDto commentDto)
-        {
-            if (commentDto == null)
-            {
-                throw new ArgumentNullException(nameof(commentDto));
-            }
-
-            User user = await _userManager.FindByIdAsync(commentDto.AuthorId);
-            if (user == null)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
-                    $"{nameof(User)}:{commentDto.AuthorId} not found");
-            }
-
-            Post post = _postRepository.GetPostById(commentDto.PostId, x => x);
-            if (post == null)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
-                    $"{nameof(Post)}:{commentDto.PostId} not found");
-            }
-
-            return new CommentDtoValidationData
-            {
-                User = user,
-                Post = post,
-            };
-        }
-
-        private Comment ValidateCommentActionData(string commentId, string userId, string dtoCommentId)
-        {
-            if (commentId != dtoCommentId)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.UnprocessableEntity,
-                    $"{MethodBase.GetCurrentMethod().Name} failed");
-            }
-
-            Comment comment = _commentRepository.GetCommentById(commentId, x => x);
-            if (comment == null)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Comment)}:{commentId} not found");
-            }
-
-            if (comment.AuthorId != userId)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");
-            }
-
-            return comment;
-        }
-
-        private Func<T, object> GetOrderByExpression<T>(string sortColumn)
-        {
-            Func<T, object> orderByExpr = null;
-            if (!string.IsNullOrEmpty(sortColumn))
-            {
-                Type sponsorResultType = typeof(T);
-
-                if (sponsorResultType.GetProperties().Any(prop => prop.Name == sortColumn))
-                {
-                    PropertyInfo pinfo = sponsorResultType.GetProperty(sortColumn);
-                    orderByExpr = data => pinfo.GetValue(data, null);
-                }
-            }
-
-            return orderByExpr;
-        }
-    }
-
-    public class CommentDtoValidationData
-    {
-        public User User { get; set; }
-        public Post Post { get; set; }
-    }
-
-    public class CommentVoteDtoValidationData
-    {
-        public User User { get; set; }
-        public Comment Comment { get; set; }
     }
 }

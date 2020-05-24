@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
+using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.Infrastructure.Repositories
 {
@@ -16,13 +17,6 @@ namespace Violetum.Infrastructure.Repositories
         public CategoryRepository(ApplicationDbContext context) : base(context)
         {
             _context = context;
-        }
-
-        public Category GetCategory(Expression<Func<Category, bool>> condition)
-        {
-            return _context.Categories
-                .Include(x => x.Author)
-                .FirstOrDefault(condition);
         }
 
         public TResult GetCategory<TResult>(Expression<Func<Category, bool>> condition,
@@ -36,15 +30,15 @@ namespace Violetum.Infrastructure.Repositories
         }
 
         public IEnumerable<TResult> GetCategories<TResult>(Func<Category, bool> condition,
-            Func<Category, TResult> selector, Paginator paginator)
+            Func<Category, TResult> selector, CategorySearchParams searchParams)
         {
             return _context.Categories
                 .Include(x => x.Author)
                 .AsEnumerable()
                 .Where(condition)
                 .Select(selector)
-                .Skip(paginator.Offset)
-                .Take(paginator.Limit)
+                .Skip(searchParams.Offset)
+                .Take(searchParams.Limit)
                 .ToList();
         }
 

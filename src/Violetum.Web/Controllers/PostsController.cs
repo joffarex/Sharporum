@@ -6,11 +6,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Violetum.ApplicationCore.Dtos.Post;
-using Violetum.ApplicationCore.Interfaces;
-using Violetum.ApplicationCore.ViewModels;
+using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.ViewModels.Comment;
+using Violetum.ApplicationCore.ViewModels.Post;
 using Violetum.Domain.CustomExceptions;
-using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
+using Violetum.Domain.Models.SearchParams;
 using Violetum.Web.Models;
 
 namespace Violetum.Web.Controllers
@@ -40,7 +41,7 @@ namespace Violetum.Web.Controllers
             string userId = await _tokenManager.GetUserIdFromAccessToken();
             ViewData["UserId"] = userId;
 
-            var searchParams = new SearchParams
+            var searchParams = new CommentSearchParams
             {
                 SortBy = (string) ViewData["SortByParm"],
                 OrderByDir = (string) ViewData["OrderByDirParm"],
@@ -71,7 +72,7 @@ namespace Violetum.Web.Controllers
             ViewData["OrderByDirParm"] = string.IsNullOrEmpty(dir) ? "desc" : dir;
             ViewData["CurrentPageParm"] = page != 0 ? page : 1;
 
-            var searchParams = new SearchParams
+            var searchParams = new PostSearchParams
             {
                 SortBy = (string) ViewData["SortByParm"],
                 OrderByDir = (string) ViewData["OrderByDirParm"],
@@ -177,12 +178,12 @@ namespace Violetum.Web.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id, [Bind("Id")] DeletePostDto deletePostDto)
+        public async Task<IActionResult> DeleteConfirmed(string id)
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
             try
             {
-                await _postService.DeletePost(id, userId, deletePostDto);
+                await _postService.DeletePost(id, userId);
 
                 return RedirectToAction(nameof(Index));
             }
@@ -196,13 +197,13 @@ namespace Violetum.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> VotePost(string postId,
-            [Bind("PostId,UserId,Direction")] PostVoteDto postVoteDto)
+            [Bind("Direction")] PostVoteDto postVoteDto)
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
 
             await _postService.VotePost(postId, userId, postVoteDto);
 
-            return RedirectToAction(nameof(Details), new {Id = postVoteDto.PostId});
+            return RedirectToAction(nameof(Details), new {Id = postId});
         }
     }
 }

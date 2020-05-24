@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Violetum.Domain.CustomExceptions;
-using Violetum.Domain.Entities;
+using Violetum.Domain.Models;
 
 namespace Violetum.Web.Middlewares
 {

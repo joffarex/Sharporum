@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Violetum.ApplicationCore.Dtos.Follower;
-using Violetum.ApplicationCore.Interfaces;
-using Violetum.ApplicationCore.ViewModels;
-using Violetum.Domain.CustomExceptions;
+using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.Interfaces.Validators;
+using Violetum.ApplicationCore.ViewModels.Follower;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
 
@@ -19,21 +17,20 @@ namespace Violetum.ApplicationCore.Services
         private readonly IFollowerRepository _followerRepository;
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
+        private readonly IUserValidators _userValidators;
 
-        public FollowerService(IFollowerRepository followerRepository, UserManager<User> userManager, IMapper mapper)
+        public FollowerService(IFollowerRepository followerRepository, UserManager<User> userManager, IMapper mapper,
+            IUserValidators userValidators)
         {
             _followerRepository = followerRepository;
             _userManager = userManager;
             _mapper = mapper;
+            _userValidators = userValidators;
         }
 
         public async Task<UserFollowersViewModel> GetUserFollowers(string userId)
         {
-            User user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(User)}:{userId} not found");
-            }
+            User user = await _userValidators.GetReturnedUserOrThrow(userId);
 
             IEnumerable<FollowerViewModel> userFollowers =
                 _followerRepository.GetUserFollowers(userId, x => _mapper.Map<FollowerViewModel>(x));
@@ -47,11 +44,7 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<UserFollowingViewModel> GetUserFollowing(string userId)
         {
-            User user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(User)}:{userId} not found");
-            }
+            User user = await _userValidators.GetReturnedUserOrThrow(userId);
 
             IEnumerable<FollowingViewModel> userFollowings =
                 _followerRepository.GetUserFollowing(userId, x => _mapper.Map<FollowingViewModel>(x));
@@ -70,12 +63,13 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task FollowUser(FollowerDto followerDto)
         {
-            await ValidateFollowerDto(followerDto);
+            User userToFollow = await _userValidators.GetReturnedUserOrThrow(followerDto.UserToFollowId);
+            User followerUser = await _userValidators.GetReturnedUserOrThrow(followerDto.FollowerUserId);
 
             var follower = new Follower
             {
-                UserToFollowId = followerDto.UserToFollowId,
-                FollowerUserId = followerDto.FollowerUserId,
+                UserToFollowId = userToFollow.Id,
+                FollowerUserId = followerUser.Id,
             };
 
             await _followerRepository.FollowUser(follower);
@@ -83,31 +77,10 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task UnfollowUser(FollowerDto followerDto)
         {
-            await ValidateFollowerDto(followerDto);
+            User userToFollow = await _userValidators.GetReturnedUserOrThrow(followerDto.UserToFollowId);
+            User followerUser = await _userValidators.GetReturnedUserOrThrow(followerDto.FollowerUserId);
 
-            await _followerRepository.UnfollowUser(followerDto.UserToFollowId, followerDto.FollowerUserId);
-        }
-
-        private async Task ValidateFollowerDto(FollowerDto followerDto)
-        {
-            if (followerDto == null)
-            {
-                throw new ArgumentNullException(nameof(followerDto));
-            }
-
-            User userToFollow = await _userManager.FindByIdAsync(followerDto.UserToFollowId);
-            if (userToFollow == null)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
-                    $"{nameof(User)}:{followerDto.UserToFollowId} not found");
-            }
-
-            User followerUser = await _userManager.FindByIdAsync(followerDto.FollowerUserId);
-            if (followerUser == null)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
-                    $"{nameof(User)}:{followerDto.FollowerUserId} not found");
-            }
+            await _followerRepository.UnfollowUser(userToFollow.Id, followerUser.Id);
         }
     }
 }

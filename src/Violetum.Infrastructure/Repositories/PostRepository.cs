@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
+using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.Infrastructure.Repositories
 {
@@ -17,18 +18,18 @@ namespace Violetum.Infrastructure.Repositories
             _context = context;
         }
 
-        public TResult GetPostById<TResult>(string postId, Func<Post, TResult> selector)
+        public TResult GetPost<TResult>(Func<Post, bool> condition, Func<Post, TResult> selector)
         {
             return _context.Posts
                 .Include(x => x.Author)
                 .Include(x => x.Category)
-                .Where(x => x.Id == postId)
+                .Where(condition)
                 .Select(selector)
                 .FirstOrDefault();
         }
 
         public IEnumerable<TResult> GetPosts<TResult, TKey>(Func<Post, bool> condition,
-            Func<Post, TResult> selector, Func<TResult, TKey> keySelector, SearchParams searchParams)
+            Func<Post, TResult> selector, Func<TResult, TKey> keySelector, PostSearchParams searchParams)
         {
             IEnumerable<TResult> query = _context.Posts
                 .Include(x => x.Category)
@@ -48,12 +49,9 @@ namespace Violetum.Infrastructure.Repositories
                     .ToList();
         }
 
-        public int GetTotalPostsCount<TResult, TKey>(Func<Post, bool> condition, Func<TResult, TKey> keySelector)
+        public int GetPostCount(Func<Post, bool> condition)
         {
-            return _context.Posts
-                .AsEnumerable()
-                .Where(condition)
-                .Count();
+            return _context.Posts.AsEnumerable().Where(condition).Count();
         }
 
 
@@ -72,13 +70,16 @@ namespace Violetum.Infrastructure.Repositories
             return DeleteEntity(post);
         }
 
-        public TResult GetPostVote<TResult>(string postId, string userId, Func<PostVote, TResult> selector)
+        /*public TResult GetPostVote<TResult>(string postId, string userId, Func<PostVote, TResult> selector)
         {
             return _context.PostVotes
                 .Where(x => (x.PostId == postId) && (x.UserId == userId))
                 .Select(selector)
                 .FirstOrDefault();
+                
+                x => (x.CommentId == commentId) && (x.UserId == userId)
         }
+        */
 
         public int GetPostVoteSum(string postId)
         {
@@ -91,16 +92,6 @@ namespace Violetum.Infrastructure.Repositories
                 }).FirstOrDefault();
 
             return voteSum == null ? 0 : voteSum.Sum;
-        }
-
-        public Task<int> VotePost(PostVote postVote)
-        {
-            return CreateEntity(postVote);
-        }
-
-        public Task<int> UpdatePostVote(PostVote postVote)
-        {
-            return UpdateEntity(postVote);
         }
     }
 }

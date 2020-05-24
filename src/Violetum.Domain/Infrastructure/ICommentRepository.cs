@@ -2,25 +2,23 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Violetum.Domain.Entities;
+using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.Domain.Infrastructure
 {
     public interface ICommentRepository
     {
-        TResult GetCommentById<TResult>(string commentId, Func<Comment, TResult> selector);
+        TResult GetComment<TResult>(Func<Comment, bool> condition, Func<Comment, TResult> selector);
 
         IEnumerable<TResult> GetComments<TResult, TKey>(Func<Comment, bool> condition,
-            Func<Comment, TResult> selector, Func<TResult, TKey> keySelector, SearchParams searchParams);
+            Func<Comment, TResult> selector, Func<TResult, TKey> keySelector, CommentSearchParams searchParams);
 
-        int GetTotalCommentsCount<TResult, TKey>(Func<Comment, bool> condition, Func<TResult, TKey> keySelector);
+        int GetTotalCommentsCount(Func<Comment, bool> condition);
 
         Task<int> CreateComment(Comment comment);
         Task<int> UpdateComment(Comment comment);
         Task<int> DeleteComment(Comment comment);
 
-        TResult GetCommentVote<TResult>(string commentId, string userId, Func<CommentVote, TResult> selector);
         int GetCommentVoteSum(string commentId);
-        Task<int> VoteComment(CommentVote commentVote);
-        Task<int> UpdateCommentVote(CommentVote commentVote);
     }
 }

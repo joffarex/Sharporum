@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Violetum.ApplicationCore;
-using Violetum.ApplicationCore.Interfaces;
+using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.Interfaces.Validators;
 using Violetum.ApplicationCore.Services;
+using Violetum.ApplicationCore.Validators;
 using Violetum.Domain.Infrastructure;
 using Violetum.Infrastructure.Repositories;
 using Violetum.Web.Infrastructure;
@@ -26,6 +28,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 @this.AddTransient(service);
             }
 
+            @this.AddTransient<ICategoryValidators, CategoryValidators>();
+            @this.AddTransient<IPostValidators, PostValidators>();
+            @this.AddTransient<ICommentValidators, CommentValidators>();
+            @this.AddTransient<IUserValidators, UserValidators>();
+
             @this.AddTransient<IProfileService, ProfileService>();
             @this.AddTransient<ICategoryService, CategoryService>();
             @this.AddTransient<IPostService, PostService>();
@@ -33,6 +40,7 @@ namespace Microsoft.Extensions.DependencyInjection
             @this.AddTransient<IFollowerService, FollowerService>();
 
             @this.AddTransient<ITokenManager, TokenManager>();
+            @this.AddTransient<IVoteRepository, VoteRepository>();
             @this.AddTransient<IPostRepository, PostRepository>();
             @this.AddTransient<ICategoryRepository, CategoryRepository>();
             @this.AddTransient<ICommentRepository, CommentRepository>();

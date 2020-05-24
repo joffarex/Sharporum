@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Net;
+﻿using System.Net;
 using System.Threading.Tasks;
 using Violetum.Domain.CustomExceptions;
-using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
 
 namespace Violetum.Infrastructure.Repositories
@@ -17,14 +12,6 @@ namespace Violetum.Infrastructure.Repositories
         public BaseRepository(ApplicationDbContext context)
         {
             _context = context;
-        }
-
-        public IEnumerable<TResult> GetEntities<TEntity, TResult>(Expression<Func<TEntity, bool>> condition,
-            Func<TEntity, TResult> selector, Paginator paginator) where TEntity : class
-        {
-            return _context.Set<TEntity>().Where(condition).Select(selector).Skip(paginator.Offset)
-                .Take(paginator.Limit)
-                .ToList();
         }
 
         public Task<int> CreateEntity<TEntity>(TEntity entity) where TEntity : class

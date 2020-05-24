@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Violetum.ApplicationCore.Dtos.Follower;
 using Violetum.ApplicationCore.Dtos.Profile;
-using Violetum.ApplicationCore.Interfaces;
-using Violetum.ApplicationCore.ViewModels;
+using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.ViewModels.Follower;
+using Violetum.ApplicationCore.ViewModels.Post;
+using Violetum.ApplicationCore.ViewModels.User;
 using Violetum.Domain.CustomExceptions;
-using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
+using Violetum.Domain.Models.SearchParams;
 using Violetum.Web.Models;
 
 namespace Violetum.Web.Controllers
@@ -41,7 +43,7 @@ namespace Violetum.Web.Controllers
 
             ProfileViewModel profile = await _profileService.GetProfile(id);
 
-            var searchParams = new SearchParams
+            var searchParams = new PostSearchParams
             {
                 SortBy = (string) ViewData["SortByParm"],
                 OrderByDir = (string) ViewData["OrderByDirParm"],

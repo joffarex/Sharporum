@@ -1,4 +1,5 @@
-﻿@model PostPageViewModel
+﻿@using Violetum.ApplicationCore.ViewModels.Comment
+@model PostPageViewModel
 
 @{
     ViewData["Title"] = Model.Post.Title;
@@ -27,8 +28,6 @@
                 <form asp-action="VotePost" asp-controller="Posts" asp-route-postId="@Model.Post.Id" method="post" class="list-inline-item">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <input type="hidden" asp-for="PostVoteDto.Direction" value="1"/>
-                    <input type="hidden" asp-for="PostVoteDto.UserId" value="@ViewData["UserId"]"/>
-                    <input type="hidden" asp-for="PostVoteDto.PostId" value="@Model.Post.Id"/>
 
                     <input type="submit" value="Upvote" class="btn btn-primary"/>
                 </form>
@@ -36,8 +35,6 @@
                 <form asp-action="VotePost" asp-controller="Posts" asp-route-postId="@Model.Post.Id" method="post" class="list-inline-item">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <input type="hidden" asp-for="PostVoteDto.Direction" value="-1"/>
-                    <input type="hidden" asp-for="PostVoteDto.UserId" value="@ViewData["UserId"]"/>
-                    <input type="hidden" asp-for="PostVoteDto.PostId" value="@Model.Post.Id"/>
 
                     <input type="submit" value="Downvote" class="btn btn-primary"/>
                 </form>
@@ -142,8 +139,6 @@
                                     <form asp-action="VoteComment" asp-controller="Comments" asp-route-commentId="@comment.Id" method="post" class="list-inline-item">
                                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                                         <input type="hidden" asp-for="CommentVoteDto.Direction" value="1"/>
-                                        <input type="hidden" asp-for="CommentVoteDto.UserId" value="@ViewData["UserId"]"/>
-                                        <input type="hidden" asp-for="CommentVoteDto.CommentId" value="@comment.Id"/>
                                         <input type="hidden" asp-for="CommentVoteDto.PostId" value="@comment.Post.Id"/>
 
                                         <input type="submit" value="Upvote" class="btn btn-sm btn-primary"/>
@@ -152,8 +147,6 @@
                                     <form asp-action="VoteComment" asp-controller="Comments" asp-route-commentId="@comment.Id" method="post" class="list-inline-item">
                                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                                         <input type="hidden" asp-for="CommentVoteDto.Direction" value="-1"/>
-                                        <input type="hidden" asp-for="CommentVoteDto.UserId" value="@ViewData["UserId"]"/>
-                                        <input type="hidden" asp-for="CommentVoteDto.CommentId" value="@comment.Id"/>
                                         <input type="hidden" asp-for="CommentVoteDto.PostId" value="@comment.Post.Id"/>
 
                                         <input type="submit" value="Downvote" class="btn btn-sm btn-primary"/>

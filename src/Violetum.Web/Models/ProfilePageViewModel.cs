@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Violetum.ApplicationCore.Dtos.Follower;
-using Violetum.ApplicationCore.ViewModels;
+using Violetum.ApplicationCore.ViewModels.Post;
+using Violetum.ApplicationCore.ViewModels.User;
 
 namespace Violetum.Web.Models
 {

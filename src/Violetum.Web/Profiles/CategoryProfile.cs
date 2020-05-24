@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Violetum.ApplicationCore.Dtos.Category;
-using Violetum.ApplicationCore.ViewModels;
+using Violetum.ApplicationCore.ViewModels.Category;
+using Violetum.ApplicationCore.ViewModels.Post;
 using Violetum.Domain.Entities;
 
 namespace Violetum.Web.Profiles

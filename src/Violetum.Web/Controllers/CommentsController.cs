@@ -4,9 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Violetum.ApplicationCore.Dtos.Comment;
-using Violetum.ApplicationCore.Dtos.Post;
-using Violetum.ApplicationCore.Interfaces;
-using Violetum.ApplicationCore.ViewModels;
+using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.ViewModels.Comment;
 using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Infrastructure;
 
@@ -79,14 +78,13 @@ namespace Violetum.Web.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(string id, string postId,
-            [Bind("Id")] DeleteCommentDto deleteCommentDto)
+        public async Task<IActionResult> Delete(string id, string postId)
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
 
             try
             {
-                await _commentService.DeleteComment(id, userId, deleteCommentDto);
+                await _commentService.DeleteComment(id, userId);
 
                 return RedirectToAction("Details", "Posts", new {id = postId});
             }
@@ -100,8 +98,7 @@ namespace Violetum.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> VoteComment(string commentId,
-            [Bind("CommentId,PostId,UserId,Direction")]
-            CommentVoteDto commentVoteDto)
+            [Bind("PostId,Direction")] CommentVoteDto commentVoteDto)
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
 

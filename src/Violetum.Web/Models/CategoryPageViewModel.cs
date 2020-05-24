@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using Violetum.ApplicationCore.ViewModels;
+using Violetum.ApplicationCore.ViewModels.Category;
+using Violetum.ApplicationCore.ViewModels.Post;
 
 namespace Violetum.Web.Models
 {

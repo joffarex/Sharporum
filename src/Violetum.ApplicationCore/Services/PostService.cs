@@ -1,79 +1,90 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Identity;
 using Violetum.ApplicationCore.Dtos.Post;
-using Violetum.ApplicationCore.Interfaces;
-using Violetum.ApplicationCore.ViewModels;
+using Violetum.ApplicationCore.Helpers;
+using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.Interfaces.Validators;
+using Violetum.ApplicationCore.ViewModels.Post;
 using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
+using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.ApplicationCore.Services
 {
     [Service]
     public class PostService : IPostService
     {
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly ICategoryValidators _categoryValidators;
         private readonly IMapper _mapper;
         private readonly IPostRepository _postRepository;
-        private readonly UserManager<User> _userManager;
+        private readonly IPostValidators _postValidators;
+        private readonly IUserValidators _userValidators;
+        private readonly IVoteRepository _voteRepository;
 
-        public PostService(IPostRepository postRepository, UserManager<User> userManager,
-            ICategoryRepository categoryRepository, IMapper mapper)
+        public PostService(IPostRepository postRepository, IVoteRepository voteRepository, IMapper mapper,
+            IPostValidators postValidators, ICategoryValidators categoryValidators, IUserValidators userValidators)
         {
             _postRepository = postRepository;
-            _userManager = userManager;
-            _categoryRepository = categoryRepository;
+            _voteRepository = voteRepository;
             _mapper = mapper;
+            _postValidators = postValidators;
+            _categoryValidators = categoryValidators;
+            _userValidators = userValidators;
         }
 
         public PostViewModel GetPost(string postId)
         {
-            PostViewModel post = _postRepository.GetPostById(postId, x => AttachVotesToPostViewModel(x));
-            if (post == null)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Post)}:{postId} not found");
-            }
-
-            return post;
+            return _postValidators.GetReturnedPostOrThrow(postId, x => AttachVotesToPostViewModel(x));
         }
 
-        public async Task<IEnumerable<PostViewModel>> GetPosts(SearchParams searchParams)
+        public async Task<IEnumerable<PostViewModel>> GetPosts(PostSearchParams searchParams)
         {
-            await ValidateSearchParams(searchParams);
+            if (!string.IsNullOrEmpty(searchParams.UserId))
+            {
+                await _userValidators.GetReturnedUserOrThrow(searchParams.UserId);
+            }
+
+            if (!string.IsNullOrEmpty(searchParams.CategoryName))
+            {
+                _categoryValidators.GetReturnedCategoryByNameOrThrow(searchParams.CategoryName, x => x);
+            }
 
             return _postRepository.GetPosts(
-                x => Predicate(searchParams.UserId, searchParams.CategoryName, x),
+                x => PostHelpers.WhereConditionPredicate(searchParams.UserId, searchParams.CategoryName, x),
                 x => AttachVotesToPostViewModel(x),
-                GetOrderByExpression<PostViewModel>(searchParams.SortBy),
+                BaseHelpers.GetOrderByExpression<PostViewModel>(searchParams.SortBy),
                 searchParams
             );
         }
 
-        public async Task<int> GetTotalPostsCount(SearchParams searchParams)
+        public async Task<int> GetTotalPostsCount(PostSearchParams searchParams)
         {
-            await ValidateSearchParams(searchParams);
+            if (!string.IsNullOrEmpty(searchParams.CategoryName))
+            {
+                _categoryValidators.GetReturnedCategoryByNameOrThrow(searchParams.CategoryName, x => x);
+            }
 
+            if (!string.IsNullOrEmpty(searchParams.UserId))
+            {
+                await _userValidators.GetReturnedUserOrThrow(searchParams.UserId);
+            }
 
-            return _postRepository.GetTotalPostsCount(
-                x => Predicate(searchParams.UserId, searchParams.CategoryName, x),
-                GetOrderByExpression<PostViewModel>(searchParams.SortBy)
-            );
+            return _postRepository.GetPostCount(x =>
+                PostHelpers.WhereConditionPredicate(searchParams.UserId, searchParams.CategoryName, x));
         }
 
         public async Task<PostViewModel> CreatePost(PostDto postDto)
         {
-            PostDtoValidationData validatedData = await ValidatePostDto(postDto);
+            User user = await _userValidators.GetReturnedUserOrThrow(postDto.AuthorId);
+            Category category = _categoryValidators.GetReturnedCategoryByIdOrThrow(postDto.CategoryId, x => x);
 
             var post = _mapper.Map<Post>(postDto);
-            post.Author = validatedData.User;
-            post.Category = validatedData.Category;
+            post.Author = user;
+            post.Category = category;
 
             await _postRepository.CreatePost(post);
 
@@ -82,7 +93,12 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<PostViewModel> UpdatePost(string postId, string userId, UpdatePostDto updatePostDto)
         {
-            Post post = ValidatePostActionData(postId, userId, updatePostDto.Id);
+            Post post = _postValidators.GetReturnedPostOrThrow(postId, x => x);
+
+            if (post.AuthorId != userId)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");
+            }
 
             post.Title = updatePostDto.Title;
             post.Content = updatePostDto.Content;
@@ -92,9 +108,14 @@ namespace Violetum.ApplicationCore.Services
             return _mapper.Map<PostViewModel>(post);
         }
 
-        public async Task DeletePost(string postId, string userId, DeletePostDto deletePostDto)
+        public async Task DeletePost(string postId, string userId)
         {
-            Post post = ValidatePostActionData(postId, userId, deletePostDto.Id);
+            Post post = _postValidators.GetReturnedPostOrThrow(postId, x => x);
+
+            if (post.AuthorId != userId)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");
+            }
 
             await _postRepository.DeletePost(post);
         }
@@ -103,9 +124,13 @@ namespace Violetum.ApplicationCore.Services
         {
             try
             {
-                PostVoteDtoValidationData validatedData = await ValidatePostVoteActionData(postId, userId, postVoteDto);
+                User user = await _userValidators.GetReturnedUserOrThrow(userId);
 
-                PostVote postVote = _postRepository.GetPostVote(postId, userId, x => x);
+                Post post = _postValidators.GetReturnedPostOrThrow(postId, x => x);
+
+                var postVote =
+                    _voteRepository.GetEntityVote<PostVote>(
+                        x => (x.PostId == post.Id) && (x.UserId == user.Id), x => x);
 
                 if (postVote != null)
                 {
@@ -118,21 +143,21 @@ namespace Violetum.ApplicationCore.Services
                         postVote.Direction = postVoteDto.Direction;
                     }
 
-                    await _postRepository.UpdatePostVote(postVote);
+                    await _voteRepository.UpdateEntityVote(postVote);
                 }
                 else
                 {
                     var newPostVote = new PostVote
                     {
-                        PostId = postVoteDto.PostId,
-                        UserId = postVoteDto.UserId,
+                        PostId = post.Id,
+                        UserId = user.Id,
                         Direction = postVoteDto.Direction,
                     };
 
-                    newPostVote.User = validatedData.User;
-                    newPostVote.Post = validatedData.Post;
+                    newPostVote.User = user;
+                    newPostVote.Post = post;
 
-                    await _postRepository.VotePost(newPostVote);
+                    await _voteRepository.VoteEntity(newPostVote);
                 }
             }
             catch (ValidationException e)
@@ -143,12 +168,7 @@ namespace Violetum.ApplicationCore.Services
 
         public int GetPostVoteSum(string postId)
         {
-            Post post = _postRepository.GetPostById(postId, x => x);
-            if (post == null)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
-                    $"{nameof(Post)}:{postId} not found");
-            }
+            Post post = _postValidators.GetReturnedPostOrThrow(postId, x => x);
 
             return _postRepository.GetPostVoteSum(post.Id);
         }
@@ -159,156 +179,5 @@ namespace Violetum.ApplicationCore.Services
             postViewModel.VoteCount = GetPostVoteSum(x.Id);
             return postViewModel;
         }
-
-        private async Task<PostVoteDtoValidationData> ValidatePostVoteActionData(string postId, string userId,
-            PostVoteDto postVoteDto)
-        {
-            if (postVoteDto == null)
-            {
-                throw new ArgumentNullException(nameof(postVoteDto));
-            }
-
-            User user = await _userManager.FindByIdAsync(postVoteDto.UserId);
-            if (user == null)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
-                    $"{nameof(User)}:{postVoteDto.UserId} not found");
-            }
-
-            Post post = _postRepository.GetPostById(postVoteDto.PostId, x => x);
-            if (post == null)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
-                    $"{nameof(Post)}:{postVoteDto.PostId} not found");
-            }
-
-            return new PostVoteDtoValidationData
-            {
-                User = user,
-                Post = post,
-            };
-        }
-
-        private async Task ValidateSearchParams(SearchParams searchParams)
-        {
-            if (!string.IsNullOrEmpty(searchParams.CategoryName))
-            {
-                Category category = _categoryRepository.GetCategory(x => x.Name == searchParams.CategoryName);
-                if (category == null)
-                {
-                    throw new HttpStatusCodeException(HttpStatusCode.NotFound,
-                        $"{nameof(Category)}:{searchParams.CategoryName} not found");
-                }
-            }
-
-            if (!string.IsNullOrEmpty(searchParams.UserId))
-            {
-                User user = await _userManager.FindByIdAsync(searchParams.UserId);
-                if (user == null)
-                {
-                    throw new HttpStatusCodeException(HttpStatusCode.NotFound,
-                        $"{nameof(User)}:{searchParams.UserId} not found");
-                }
-            }
-        }
-
-        private async Task<PostDtoValidationData> ValidatePostDto(PostDto postDto)
-        {
-            if (postDto == null)
-            {
-                throw new ArgumentNullException(nameof(postDto));
-            }
-
-            User user = await _userManager.FindByIdAsync(postDto.AuthorId);
-            if (user == null)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
-                    $"{nameof(User)}:{postDto.AuthorId} not found");
-            }
-
-            Category category = _categoryRepository.GetCategory(x => x.Id == postDto.CategoryId);
-            if (category == null)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
-                    $"{nameof(Category)}:{postDto.CategoryId} not found");
-            }
-
-            return new PostDtoValidationData
-            {
-                User = user,
-                Category = category,
-            };
-        }
-
-        private Post ValidatePostActionData(string postId, string userId, string dtoPostId)
-        {
-            if (postId != dtoPostId)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.UnprocessableEntity,
-                    $"{MethodBase.GetCurrentMethod().Name} failed");
-            }
-
-            Post post = _postRepository.GetPostById(postId, x => x);
-            if (post == null)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Post)}:{postId} not found");
-            }
-
-            if (post.AuthorId != userId)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");
-            }
-
-            return post;
-        }
-
-        private static bool Predicate(string userId, string categoryName, Post p)
-        {
-            if (!string.IsNullOrEmpty(userId) && !string.IsNullOrEmpty(categoryName))
-            {
-                return (p.Category.Name == categoryName) && (p.AuthorId == userId);
-            }
-
-            if (!string.IsNullOrEmpty(categoryName))
-            {
-                return p.Category.Name == categoryName;
-            }
-
-            if (!string.IsNullOrEmpty(userId))
-            {
-                return p.AuthorId == userId;
-            }
-
-            return true;
-        }
-
-        private Func<T, object> GetOrderByExpression<T>(string sortColumn)
-        {
-            Func<T, object> orderByExpr = null;
-            if (!string.IsNullOrEmpty(sortColumn))
-            {
-                Type sponsorResultType = typeof(T);
-
-                if (sponsorResultType.GetProperties().Any(prop => prop.Name == sortColumn))
-                {
-                    PropertyInfo pinfo = sponsorResultType.GetProperty(sortColumn);
-                    orderByExpr = data => pinfo.GetValue(data, null);
-                }
-            }
-
-            return orderByExpr;
-        }
-    }
-
-    public class PostDtoValidationData
-    {
-        public User User { get; set; }
-        public Category Category { get; set; }
-    }
-
-    public class PostVoteDtoValidationData
-    {
-        public User User { get; set; }
-        public Post Post { get; set; }
     }
 }

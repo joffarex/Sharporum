@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using Violetum.ApplicationCore.Dtos.Comment;
 using Violetum.ApplicationCore.Dtos.Post;
-using Violetum.ApplicationCore.ViewModels;
+using Violetum.ApplicationCore.ViewModels.Comment;
+using Violetum.ApplicationCore.ViewModels.Post;
 
 namespace Violetum.Web.Models
 {

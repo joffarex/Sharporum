@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Violetum.ApplicationCore.ViewModels;
+using Violetum.ApplicationCore.ViewModels.Follower;
 using Violetum.Domain.Entities;
 
 namespace Violetum.Web.Profiles

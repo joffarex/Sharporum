@@ -1,4 +1,4 @@
-﻿@model CategoryViewModel
+﻿@model Violetum.ApplicationCore.ViewModels.Category.CategoryViewModel
 
 @{
     ViewData["Title"] = $"Delete category - {Model.Name}";
@@ -38,7 +38,6 @@
     </dl>
 
     <form asp-action="DeleteConfirmed" asp-controller="Category" method="post">
-        <input type="hidden" asp-for="Id"/>
         <input type="submit" value="Delete" class="btn btn-danger"/> |
         <a asp-action="Index">Back to Category List</a>
     </form>

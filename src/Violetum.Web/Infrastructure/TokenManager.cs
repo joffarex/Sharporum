@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Violetum.Domain.CustomExceptions;
-using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
+using Violetum.Domain.Models;
 
 namespace Violetum.Web.Infrastructure
 {
@@ -23,7 +23,6 @@ namespace Violetum.Web.Infrastructure
             _httpClientFactory = httpClientFactory;
             _httpContext = httpContextAccessor.HttpContext;
 
-            // TODO: experimental
             _discoveryDocument = _httpClientFactory.CreateClient()
                 .GetDiscoveryDocumentAsync("http://localhost:5000/")
                 .GetAwaiter()

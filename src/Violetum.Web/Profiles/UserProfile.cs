@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Violetum.ApplicationCore.ViewModels;
+using Violetum.ApplicationCore.ViewModels.User;
 using Violetum.Domain.Entities;
 
 namespace Violetum.Web.Profiles
@@ -8,7 +8,7 @@ namespace Violetum.Web.Profiles
     {
         public UserProfile()
         {
-            CreateMap<User, AuthorViewModel>();
+            CreateMap<User, UserViewModel>();
         }
     }
 }
