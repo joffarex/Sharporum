@@ -26,7 +26,7 @@
         <dd class="col-sm-10">
             <div class="list-inline">
                 @{
-                    if (ViewData["UserId"] != null)
+                    if (User.Claims.Any())
                     {
                         <form asp-action="VotePost" asp-controller="Posts" asp-route-postId="@Model.Post.Id" method="post" class="list-inline-item">
                             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -38,7 +38,7 @@
                 }
                 <span class="list-inline-item">@Html.DisplayFor(model => model.Post.VoteCount)</span>
                 @{
-                    if (ViewData["UserId"] != null)
+                    if (User.Claims.Any())
                     {
                         <form asp-action="VotePost" asp-controller="Posts" asp-route-postId="@Model.Post.Id" method="post" class="list-inline-item">
                             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -143,7 +143,7 @@
                                 Votes
                                 <div class="list-inline">
                                     @{
-                                        if (ViewData["UserId"] != null)
+                                        if (User.Claims.Any())
                                         {
                                             <form asp-action="VoteComment" asp-controller="Comments" asp-route-commentId="@comment.Id" method="post" class="list-inline-item">
                                                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -156,7 +156,7 @@
                                     }
                                     <span class="list-inline-item">@Html.DisplayFor(model => comment.VoteCount)</span>
                                     @{
-                                        if (ViewData["UserId"] != null)
+                                        if (User.Claims.Any())
                                         {
                                             <form asp-action="VoteComment" asp-controller="Comments" asp-route-commentId="@comment.Id" method="post" class="list-inline-item">
                                                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
