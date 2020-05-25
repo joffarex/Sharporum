@@ -49,6 +49,14 @@ namespace Violetum.Infrastructure.Repositories
                     .ToList();
         }
 
+        public IEnumerable<string> GetUserFollowings(string userId)
+        {
+            return _context.Followers
+                .Where(x => x.FollowerUserId == userId)
+                .Select(x => x.UserToFollowId)
+                .ToList();
+        }
+
         public int GetPostCount(Func<Post, bool> condition)
         {
             return _context.Posts.AsEnumerable().Where(condition).Count();

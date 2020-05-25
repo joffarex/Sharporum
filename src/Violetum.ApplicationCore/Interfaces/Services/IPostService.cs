@@ -10,7 +10,9 @@ namespace Violetum.ApplicationCore.Interfaces.Services
     {
         PostViewModel GetPost(string postId);
         Task<IEnumerable<PostViewModel>> GetPosts(PostSearchParams searchParams);
+        IEnumerable<PostViewModel> GetNewsFeedPosts(string userId, PostSearchParams searchParams);
         Task<int> GetTotalPostsCount(PostSearchParams searchParams);
+        int GetTotalPostsCountInNewsFeed(string userId, PostSearchParams searchParams);
 
         Task<PostViewModel> CreatePost(PostDto postDto);
         Task<PostViewModel> UpdatePost(string postId, string userId, UpdatePostDto updatePostDto);

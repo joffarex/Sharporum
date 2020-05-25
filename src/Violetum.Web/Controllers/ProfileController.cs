@@ -157,5 +157,40 @@ namespace Violetum.Web.Controllers
                 throw new HttpStatusCodeException(HttpStatusCode.BadRequest, e.Message);
             }
         }
+
+        [Authorize]
+        public async Task<IActionResult> NewsFeed(string sortBy, string dir, int page, string title)
+        {
+            ViewData["SortByParm"] = string.IsNullOrEmpty(sortBy) ? "CreatedAt" : sortBy;
+            ViewData["OrderByDirParm"] = string.IsNullOrEmpty(dir) ? "desc" : dir;
+            ViewData["CurrentPageParm"] = page != 0 ? page : 1;
+            ViewData["PostTitleParm"] = title;
+
+            var searchParams = new PostSearchParams
+            {
+                SortBy = (string) ViewData["SortByParm"],
+                OrderByDir = (string) ViewData["OrderByDirParm"],
+                CurrentPage = (int) ViewData["CurrentPageParm"],
+            };
+
+            if (!string.IsNullOrEmpty(title))
+            {
+                searchParams.PostTitle = title;
+            }
+
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            ViewData["UserId"] = userId;
+
+            IEnumerable<PostViewModel> posts = _postService.GetNewsFeedPosts(userId, searchParams);
+            int totalPosts = _postService.GetTotalPostsCountInNewsFeed(userId, searchParams);
+            ViewData["TotalPosts"] = totalPosts;
+
+            var totalPages =
+                (int) Math.Ceiling(totalPosts / (double) searchParams.Limit);
+            ViewData["totalPages"] = totalPages;
+
+
+            return View(posts);
+        }
     }
 }

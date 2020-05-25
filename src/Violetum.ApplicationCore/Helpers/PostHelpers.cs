@@ -1,4 +1,6 @@
-﻿using Violetum.Domain.Entities;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Violetum.Domain.Entities;
 using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.ApplicationCore.Helpers
@@ -25,6 +27,11 @@ namespace Violetum.ApplicationCore.Helpers
             }
 
             return predicate;
+        }
+
+        public static bool WhereConditionPredicate(PostSearchParams searchParams, Post p, IEnumerable<string> followers)
+        {
+            return WhereConditionPredicate(searchParams, p) && followers.Contains(p.AuthorId);
         }
     }
 }

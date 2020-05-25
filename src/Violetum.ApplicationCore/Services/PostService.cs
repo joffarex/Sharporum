@@ -61,6 +61,23 @@ namespace Violetum.ApplicationCore.Services
             );
         }
 
+        public IEnumerable<PostViewModel> GetNewsFeedPosts(string userId, PostSearchParams searchParams)
+        {
+            if (!string.IsNullOrEmpty(searchParams.CategoryName))
+            {
+                _categoryValidators.GetReturnedCategoryByNameOrThrow(searchParams.CategoryName, x => x);
+            }
+
+            IEnumerable<string> followers = _postRepository.GetUserFollowings(userId);
+
+            return _postRepository.GetPosts(
+                x => PostHelpers.WhereConditionPredicate(searchParams, x, followers),
+                x => AttachVotesToPostViewModel(x),
+                BaseHelpers.GetOrderByExpression<PostViewModel>(searchParams.SortBy),
+                searchParams
+            );
+        }
+
         public async Task<int> GetTotalPostsCount(PostSearchParams searchParams)
         {
             if (!string.IsNullOrEmpty(searchParams.CategoryName))
@@ -75,6 +92,19 @@ namespace Violetum.ApplicationCore.Services
 
             return _postRepository.GetPostCount(x =>
                 PostHelpers.WhereConditionPredicate(searchParams, x));
+        }
+
+        public int GetTotalPostsCountInNewsFeed(string userId, PostSearchParams searchParams)
+        {
+            if (!string.IsNullOrEmpty(searchParams.CategoryName))
+            {
+                _categoryValidators.GetReturnedCategoryByNameOrThrow(searchParams.CategoryName, x => x);
+            }
+
+            IEnumerable<string> followers = _postRepository.GetUserFollowings(userId);
+
+            return _postRepository.GetPostCount(x =>
+                PostHelpers.WhereConditionPredicate(searchParams, x, followers));
         }
 
         public async Task<PostViewModel> CreatePost(PostDto postDto)
