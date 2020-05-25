@@ -35,7 +35,7 @@ namespace Violetum.Web.Infrastructure
 
             if (string.IsNullOrEmpty(accessToken))
             {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized);
+                return null;
             }
 
             JwtSecurityToken jwtToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
