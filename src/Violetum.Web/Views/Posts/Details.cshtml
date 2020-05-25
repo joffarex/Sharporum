@@ -78,21 +78,23 @@
 
     <div class="row">
         <div class="col-sm-8">
-            <h5>Add Comment</h5>
-            <form asp-action="Create" asp-controller="Comments" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="form-group">
-                    <label asp-for="CommentDto.Content" class="control-label"></label>
-                    <input asp-for="CommentDto.Content" class="form-control"/>
-                    <span asp-validation-for="CommentDto.Content" class="text-danger"></span>
-                </div>
-                <input type="hidden" asp-for="CommentDto.AuthorId" class="form-control" value="@ViewData["UserId"]"/>
-                <input type="hidden" asp-for="CommentDto.PostId" class="form-control" value="@Model.Post.Id"/>
-
-                <div class="form-group">
-                    <input type="submit" value="Create" class="btn btn-primary"/>
-                </div>
-            </form>
+            <h5>
+                <a asp-action="Create" asp-controller="Comments" asp-route-postId="@Model.Post.Id">Add Comment</a>
+            </h5>
+            @* <form asp-action="Create" asp-controller="Comments" method="post"> *@
+            @*     <div asp-validation-summary="ModelOnly" class="text-danger"></div> *@
+            @*     <div class="form-group"> *@
+            @*         <label asp-for="CommentDto.Content" class="control-label"></label> *@
+            @*         <input asp-for="CommentDto.Content" class="form-control"/> *@
+            @*         <span asp-validation-for="CommentDto.Content" class="text-danger"></span> *@
+            @*     </div> *@
+            @*     <input type="hidden" asp-for="CommentDto.AuthorId" class="form-control" value="@ViewData["UserId"]"/> *@
+            @*     <input type="hidden" asp-for="CommentDto.PostId" class="form-control" value="@Model.Post.Id"/> *@
+            @* *@
+            @*     <div class="form-group"> *@
+            @*         <input type="submit" value="Create" class="btn btn-primary"/> *@
+            @*     </div> *@
+            @* </form> *@
 
             <h3>@commentsCount Comment</h3>
             <div>
@@ -125,6 +127,7 @@
                                         <input type="submit" class="btn btn-sm btn-danger" value="Delete">
                                     </form>
                                 }
+                                <a asp-action="Create" asp-controller="Comments" asp-route-postId="@Model.Post.Id" asp-route-parentId="@comment.Id">Reply Comment</a>
                             }
                         </div>
                         <a class="card-link" href="#">
@@ -132,6 +135,13 @@
                         </a>
 
                         <p class="card-text">
+                            @{
+                                if (!string.IsNullOrEmpty(comment.ParentId))
+                                {
+                                    <small>reply to @comment.ParentId</small>
+                                    <br/>
+                                }
+                            }
                             @comment.Content
                             <div>
                                 Votes

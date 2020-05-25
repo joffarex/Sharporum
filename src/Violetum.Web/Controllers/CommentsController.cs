@@ -23,9 +23,32 @@ namespace Violetum.Web.Controllers
         }
 
         [Authorize]
-        [HttpPost]
+        [HttpGet("Comment/{postId}/Create")]
+        public async Task<IActionResult> Create(string postId, [FromQuery] string parentId)
+        {
+            if (string.IsNullOrEmpty(postId))
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest);
+            }
+
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            ViewData["UserId"] = userId;
+            // TODO: populate model with categories
+
+            if (!string.IsNullOrEmpty(parentId))
+            {
+                var commentDto = new CommentDto {ParentId = parentId};
+                return View(commentDto);
+            }
+
+            return View();
+        }
+
+        [Authorize]
+        [HttpPost("Comment/{postId}/Create")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Content, PostId, AuthorId")] CommentDto commentDto)
+        public async Task<IActionResult> Create(string postId,
+            [Bind("Content, ParentId, AuthorId")] CommentDto commentDto)
         {
             if (!ModelState.IsValid)
             {
@@ -34,6 +57,7 @@ namespace Violetum.Web.Controllers
 
             try
             {
+                commentDto.PostId = postId;
                 CommentViewModel comment = await _commentService.CreateComment(commentDto);
 
                 return RedirectToAction("Details", "Posts", new {comment.Post.Id});

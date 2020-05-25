@@ -84,6 +84,12 @@ namespace Violetum.ApplicationCore.Services
             User user = await _userValidators.GetReturnedUserOrThrow(commentDto.AuthorId);
             Post post = _postValidators.GetReturnedPostOrThrow(commentDto.PostId, x => x);
 
+            Comment parentComment = _commentValidators.GetReturnedCommentOrThrow(commentDto.ParentId, x => x);
+            if (parentComment.Post.Id != post.Id)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "This operation is not allowed");
+            }
+
             var comment = _mapper.Map<Comment>(commentDto);
             comment.Author = user;
             comment.Post = post;

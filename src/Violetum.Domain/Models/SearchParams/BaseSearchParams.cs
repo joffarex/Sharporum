@@ -6,7 +6,7 @@
         public string OrderByDir { get; set; }
 
         public int CurrentPage { get; set; } = 1;
-        public virtual int Limit { get; } = 2;
+        public virtual int Limit { get; } = 20;
         public int Offset => Limit * (CurrentPage - 1);
     }
 }
