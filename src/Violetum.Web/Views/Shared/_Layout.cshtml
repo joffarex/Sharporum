@@ -32,7 +32,7 @@
                         <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                     </li>
                     @{
-                        if (ViewData["UserId"] != null)
+                        if (User.Claims.Any())
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-light" asp-area="" asp-controller="Profile" asp-action="Index" asp-route-id="@User.Claims.Where(x => x.Type == "sub").Select(x => x.Value).FirstOrDefault()">
@@ -48,7 +48,7 @@
                         <a class="nav-link text-light" asp-area="" asp-controller="Category" asp-action="Index">Categories</a>
                     </li>
                     @{
-                        if (ViewData["UserId"] != null)
+                        if (User.Claims.Any())
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Logout">Logout</a>
