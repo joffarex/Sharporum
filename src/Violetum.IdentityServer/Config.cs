@@ -42,6 +42,7 @@ namespace Violetum.IdentityServer
                     },
 
                     AllowOfflineAccess = true,
+                    AccessTokenLifetime = 60,
                 },
             };
     }
