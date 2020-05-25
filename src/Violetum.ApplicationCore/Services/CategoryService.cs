@@ -51,7 +51,7 @@ namespace Violetum.ApplicationCore.Services
             }
 
             return _categoryRepository.GetCategories(
-                x => CategoryHelpers.WhereConditionPredicate(searchParams.UserId, searchParams.CategoryName, x),
+                x => CategoryHelpers.WhereConditionPredicate(searchParams, x),
                 x => _mapper.Map<CategoryViewModel>(x), searchParams);
         }
 

@@ -66,11 +66,12 @@ namespace Violetum.Web.Controllers
             return View(postPageViewModel);
         }
 
-        public async Task<IActionResult> Index(string sortBy, string dir, int page)
+        public async Task<IActionResult> Index(string sortBy, string dir, int page, string title)
         {
             ViewData["SortByParm"] = string.IsNullOrEmpty(sortBy) ? "CreatedAt" : sortBy;
             ViewData["OrderByDirParm"] = string.IsNullOrEmpty(dir) ? "desc" : dir;
             ViewData["CurrentPageParm"] = page != 0 ? page : 1;
+            ViewData["PostTitleParm"] = title;
 
             var searchParams = new PostSearchParams
             {
@@ -78,6 +79,11 @@ namespace Violetum.Web.Controllers
                 OrderByDir = (string) ViewData["OrderByDirParm"],
                 CurrentPage = (int) ViewData["CurrentPageParm"],
             };
+
+            if (!string.IsNullOrEmpty(title))
+            {
+                searchParams.PostTitle = title;
+            }
 
             IEnumerable<PostViewModel> posts = await _postService.GetPosts(searchParams);
             int totalPosts = await _postService.GetTotalPostsCount(searchParams);

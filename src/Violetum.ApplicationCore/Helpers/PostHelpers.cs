@@ -1,27 +1,30 @@
 ﻿using Violetum.Domain.Entities;
+using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.ApplicationCore.Helpers
 {
     public class PostHelpers
     {
-        public static bool WhereConditionPredicate(string userId, string categoryName, Post p)
+        public static bool WhereConditionPredicate(PostSearchParams searchParams, Post p)
         {
-            if (!string.IsNullOrEmpty(userId) && !string.IsNullOrEmpty(categoryName))
+            var predicate = true;
+
+            if (!string.IsNullOrEmpty(searchParams.CategoryName))
             {
-                return (p.Category.Name == categoryName) && (p.AuthorId == userId);
+                predicate = predicate && (p.Category.Name == searchParams.CategoryName);
             }
 
-            if (!string.IsNullOrEmpty(categoryName))
+            if (!string.IsNullOrEmpty(searchParams.UserId))
             {
-                return p.Category.Name == categoryName;
+                predicate = predicate && (p.AuthorId == searchParams.UserId);
             }
 
-            if (!string.IsNullOrEmpty(userId))
+            if (!string.IsNullOrEmpty(searchParams.PostTitle))
             {
-                return p.AuthorId == userId;
+                predicate = predicate && p.Title.Contains(searchParams.PostTitle);
             }
 
-            return true;
+            return predicate;
         }
     }
 }

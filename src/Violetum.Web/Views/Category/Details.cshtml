@@ -1,5 +1,4 @@
-﻿@using Violetum.ApplicationCore.ViewModels.Post
-@model CategoryPageViewModel
+﻿@model CategoryPageViewModel
 
 @{
     ViewData["Title"] = Model.Category.Name;
@@ -58,6 +57,20 @@
         <div class="col-sm-8">
             <a asp-controller="Posts" asp-action="Create" asp-route-categoryId="@Model.Category.Id">Add Post</a>
 
+            <div class="mt-2">
+                <form
+                    class="form-inline mb-3"
+                    asp-action="Details"
+                    method="get"
+                    asp-route-sortBy="@ViewData["SortByParm"]"
+                    asp-route-dir="@ViewData["OrderByDirParm"]">
+                    <div class="form-group">
+                        <input type="text" name="postTitle" class="form-control">
+                    </div>
+                    <input type="submit" value="Search" class="ml-2 btn btn-primary"/>
+                </form>
+            </div>
+
             <h3>@postsCount Post</h3>
             <div>
                 Sort By:
@@ -93,6 +106,7 @@
 
                         <p class="card-text">
                             @post.Title
+                            <br/>
                             Votes: <strong>@post.VoteCount.ToString()</strong>
                         </p>
                     </div>

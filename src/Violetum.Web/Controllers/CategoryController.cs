@@ -32,11 +32,13 @@ namespace Violetum.Web.Controllers
         }
 
         [HttpGet("Category/{name}")]
-        public async Task<IActionResult> Details(string name, string postSortBy, string postDir, int postPage)
+        public async Task<IActionResult> Details(string name, string postSortBy, string postDir, int postPage,
+            string postTitle)
         {
             ViewData["SortByParm"] = string.IsNullOrEmpty(postSortBy) ? "CreatedAt" : postSortBy;
             ViewData["OrderByDirParm"] = string.IsNullOrEmpty(postDir) ? "desc" : postDir;
             ViewData["CurrentPageParm"] = postPage != 0 ? postPage : 1;
+            ViewData["PostTitleParm"] = postTitle;
 
             CategoryViewModel category = _categoryService.GetCategoryByName(name);
 
@@ -50,6 +52,11 @@ namespace Violetum.Web.Controllers
                 CurrentPage = (int) ViewData["CurrentPageParm"],
                 CategoryName = category.Name,
             };
+
+            if (!string.IsNullOrEmpty(postTitle))
+            {
+                searchParams.PostTitle = postTitle;
+            }
 
             IEnumerable<PostViewModel> posts = await _postService.GetPosts(searchParams);
             int totalPosts = await _postService.GetTotalPostsCount(searchParams);
@@ -68,10 +75,19 @@ namespace Violetum.Web.Controllers
             return View(categoryPageViewModel);
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string name)
         {
+            ViewData["NameParm"] = name;
+
+            var searchParams = new CategorySearchParams();
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                searchParams.CategoryName = name;
+            }
+
             IEnumerable<CategoryViewModel>
-                categories = await _categoryService.GetCategories(new CategorySearchParams());
+                categories = await _categoryService.GetCategories(searchParams);
 
             string userId = await _tokenManager.GetUserIdFromAccessToken();
             ViewData["UserId"] = userId;

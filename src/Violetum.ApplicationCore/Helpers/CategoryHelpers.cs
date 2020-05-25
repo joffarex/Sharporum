@@ -1,27 +1,25 @@
 ﻿using Violetum.Domain.Entities;
+using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.ApplicationCore.Helpers
 {
     public static class CategoryHelpers
     {
-        public static bool WhereConditionPredicate(string userId, string categoryName, Category c)
+        public static bool WhereConditionPredicate(CategorySearchParams searchParams, Category c)
         {
-            if (!string.IsNullOrEmpty(userId) && !string.IsNullOrEmpty(categoryName))
+            var predicate = true;
+
+            if (!string.IsNullOrEmpty(searchParams.CategoryName))
             {
-                return c.Name.Contains(categoryName) && (c.AuthorId == userId);
+                predicate = predicate && c.Name.Contains(searchParams.CategoryName);
             }
 
-            if (!string.IsNullOrEmpty(categoryName))
+            if (!string.IsNullOrEmpty(searchParams.UserId))
             {
-                return c.Name.Contains(categoryName);
+                predicate = predicate && (c.AuthorId == searchParams.UserId);
             }
 
-            if (!string.IsNullOrEmpty(userId))
-            {
-                return c.AuthorId == userId;
-            }
-
-            return true;
+            return predicate;
         }
     }
 }

@@ -54,7 +54,7 @@ namespace Violetum.ApplicationCore.Services
             }
 
             return _postRepository.GetPosts(
-                x => PostHelpers.WhereConditionPredicate(searchParams.UserId, searchParams.CategoryName, x),
+                x => PostHelpers.WhereConditionPredicate(searchParams, x),
                 x => AttachVotesToPostViewModel(x),
                 BaseHelpers.GetOrderByExpression<PostViewModel>(searchParams.SortBy),
                 searchParams
@@ -74,7 +74,7 @@ namespace Violetum.ApplicationCore.Services
             }
 
             return _postRepository.GetPostCount(x =>
-                PostHelpers.WhereConditionPredicate(searchParams.UserId, searchParams.CategoryName, x));
+                PostHelpers.WhereConditionPredicate(searchParams, x));
         }
 
         public async Task<PostViewModel> CreatePost(PostDto postDto)

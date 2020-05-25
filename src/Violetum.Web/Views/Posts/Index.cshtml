@@ -1,5 +1,4 @@
-﻿@using Violetum.ApplicationCore.ViewModels.Post
-@model IEnumerable<Violetum.ApplicationCore.ViewModels.Post.PostViewModel>
+﻿@model IEnumerable<PostViewModel>
 
 @{
     ViewData["Title"] = "Posts";
@@ -11,24 +10,39 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
+<div>
+    <form
+        class="form-inline mb-3"
+        asp-action="Index"
+        method="get"
+        asp-route-sortBy="@ViewData["SortByParm"]"
+        asp-route-dir="@ViewData["OrderByDirParm"]">
+        <div class="form-group">
+            <input type="text" name="title" class="form-control">
+        </div>
+        <input type="submit" value="Search" class="ml-2 btn btn-primary"/>
+    </form>
+</div>
+
 <table class="table">
     <thead>
     <tr>
         <th>Id</th>
         <th>Title</th>
         <th>
-            <a asp-action="Index" asp-route-page="@ViewData["CurrentPageParm"]" asp-route-sortBy="VoteCount" asp-route-dir="desc">
+            <a asp-action="Index" asp-route-page="@ViewData["CurrentPageParm"]" asp-route-title="@ViewData["PostTitleParm"]" asp-route-sortBy="VoteCount" asp-route-dir="desc">
                 Upvotes
             </a>
-            <a asp-action="Index" asp-route-page="@ViewData["CurrentPageParm"]" asp-route-sortBy="VoteCount" asp-route-dir="asc">
+            <a asp-action="Index" asp-route-page="@ViewData["CurrentPageParm"]" asp-route-title="@ViewData["PostTitleParm"]" asp-route-sortBy="VoteCount" asp-route-dir="asc">
                 Downvotes
             </a>
         </th>
         <th>Author</th>
         <th>Category</th>
         <th>
-            <a asp-action="Index" asp-route-page="@ViewData["CurrentPageParm"]" asp-route-sortBy="CreatedAt" asp-route-dir="asc">ASC</a>
-            <a asp-action="Index" asp-route-page="@ViewData["CurrentPageParm"]" asp-route-sortBy="CreatedAt" asp-route-dir="desc">DESC</a>
+            <a asp-action="Index" asp-route-page="@ViewData["CurrentPageParm"]" asp-route-title="@ViewData["PostTitleParm"]" asp-route-sortBy="CreatedAt" asp-route-dir="asc">ASC</a>
+            <a asp-action="Index" asp-route-page="@ViewData["CurrentPageParm"]" asp-route-title="@ViewData["PostTitleParm"]" asp-route-sortBy="CreatedAt" asp-route-dir="desc">DESC</a>
             CreatedAt
         </th>
         <th>UpdatedAt</th>
@@ -91,6 +105,7 @@
 
 <a asp-action="Index"
    asp-route-page="@(currentPage - 1)"
+   asp-route-title="@ViewData["PostTitleParm"]"
    asp-route-sortBy="@ViewData["SortByParm"]"
    asp-route-dir="@ViewData["OrderByDirParm"]"
    class="btn btn-default @prevDisabled">
@@ -98,6 +113,7 @@
 </a>
 <a asp-action="Index"
    asp-route-page="@(currentPage + 1)"
+   asp-route-title="@ViewData["PostTitleParm"]"
    asp-route-sortBy="@ViewData["SortByParm"]"
    asp-route-dir="@ViewData["OrderByDirParm"]"
    class="btn btn-default @nextDisabled">
