@@ -37,11 +37,10 @@ namespace Violetum.Web.Controllers
 
             if (!string.IsNullOrEmpty(parentId))
             {
-                var commentDto = new CommentDto {ParentId = parentId};
-                return View(commentDto);
+                return View(new CommentDto {ParentId = parentId});
             }
 
-            return View();
+            return View(new CommentDto());
         }
 
         [Authorize]

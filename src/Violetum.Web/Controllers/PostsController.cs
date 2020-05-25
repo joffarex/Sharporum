@@ -106,12 +106,12 @@ namespace Violetum.Web.Controllers
             ViewData["UserId"] = userId;
             // TODO: populate model with categories
 
-            if (string.IsNullOrEmpty(categoryId))
+            if (!string.IsNullOrEmpty(categoryId))
             {
                 return View(new PostDto {CategoryId = categoryId});
             }
 
-            return View();
+            return View(new PostDto());
         }
 
         [Authorize]
