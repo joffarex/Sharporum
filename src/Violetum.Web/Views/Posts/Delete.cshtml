@@ -1,4 +1,4 @@
-﻿@model Violetum.ApplicationCore.ViewModels.Post.PostViewModel
+﻿@model PostViewModel
 
 @{
     ViewData["Title"] = $"Delete post - {Model.Id}";
@@ -37,7 +37,7 @@
         </dd>
     </dl>
 
-    <form asp-action="DeleteConfirmed" asp-controller="Posts" method="post">
+    <form asp-action="DeleteConfirmed" asp-controller="Posts" asp-route-id="@Model.Id" method="post">
         <input type="submit" value="Delete" class="btn btn-danger"/> |
         <a asp-action="Index">Back to List</a>
     </form>

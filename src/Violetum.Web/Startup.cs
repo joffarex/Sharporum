@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
+using FluentValidation.AspNetCore;
 using IdentityModel;
 using IdentityModel.Client;
 using Microsoft.AspNetCore.Authentication;
@@ -149,7 +150,10 @@ namespace Violetum.Web
 
             services.AddHttpClient();
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews().AddFluentValidation(fv =>
+            {
+                fv.RunDefaultMvcValidationAfterFluentValidationExecutes = false;
+            });
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

@@ -5,6 +5,22 @@
     var postsCount = ((int) ViewData["TotalPosts"]).ToString();
 }
 
+@{
+    if (TempData["CreateCategorySuccess"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["CreateCategorySuccess"]
+        </div>
+    }
+
+    if (TempData["EditCategorySuccess"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["EditCategorySuccess"]
+        </div>
+    }
+}
+
 <h3>@Model.Category.Name Details</h3>
 <div class="row mb-4">
     @{

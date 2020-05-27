@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
 using Violetum.Domain.Models.SearchParams;
@@ -75,19 +76,15 @@ namespace Violetum.Infrastructure.Repositories
 
         public Task<int> DeletePost(Post post)
         {
+            IIncludableQueryable<Post, IEnumerable<Comment>> comments =
+                _context.Posts.Where(x => x.Id == post.Id).Include(x => x.Comments);
+            _context.Posts.RemoveRange(comments);
+            IIncludableQueryable<Post, IEnumerable<PostVote>> votes = _context.Posts.Where(x => x.Id == post.Id)
+                .Include(x => x.PostVotes);
+            _context.Posts.RemoveRange(votes);
+
             return DeleteEntity(post);
         }
-
-        /*public TResult GetPostVote<TResult>(string postId, string userId, Func<PostVote, TResult> selector)
-        {
-            return _context.PostVotes
-                .Where(x => (x.PostId == postId) && (x.UserId == userId))
-                .Select(selector)
-                .FirstOrDefault();
-                
-                x => (x.CommentId == commentId) && (x.UserId == userId)
-        }
-        */
 
         public int GetPostVoteSum(string postId)
         {

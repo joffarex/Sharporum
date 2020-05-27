@@ -70,6 +70,12 @@ namespace Violetum.ApplicationCore.Services
         public async Task<CategoryViewModel> UpdateCategory(string categoryId, string userId,
             UpdateCategoryDto updateCategoryDto)
         {
+            if (categoryId != updateCategoryDto.Id)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest,
+                    $"{nameof(Comment)}:(catid[{categoryId}]|dtoid[{updateCategoryDto.Id}] update");
+            }
+
             Category category = _categoryValidators.GetReturnedCategoryByIdOrThrow(categoryId, x => x);
 
             if (category.AuthorId != userId)

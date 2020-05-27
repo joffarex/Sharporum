@@ -123,6 +123,12 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<PostViewModel> UpdatePost(string postId, string userId, UpdatePostDto updatePostDto)
         {
+            if (postId != updatePostDto.Id)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest,
+                    $"{nameof(Post)}:(pid[{postId}]|dtoid[{updatePostDto.Id}] update");
+            }
+
             Post post = _postValidators.GetReturnedPostOrThrow(postId, x => x);
 
             if (post.AuthorId != userId)

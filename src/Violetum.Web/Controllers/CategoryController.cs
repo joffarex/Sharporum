@@ -100,8 +100,8 @@ namespace Violetum.Web.Controllers
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
             ViewData["UserId"] = userId;
-            // TODO: populate model with categories
-            return View();
+
+            return View(new CategoryDto());
         }
 
         [Authorize]
@@ -119,6 +119,7 @@ namespace Violetum.Web.Controllers
             {
                 CategoryViewModel category = await _categoryService.CreateCategory(categoryDto);
 
+                TempData["CreateCategorySuccess"] = "Category successfully created";
                 return RedirectToAction(nameof(Details), new {category.Name});
             }
             catch (DbUpdateException e)
@@ -138,7 +139,13 @@ namespace Violetum.Web.Controllers
                 throw new HttpStatusCodeException(HttpStatusCode.Unauthorized);
             }
 
-            return View(category);
+            return View(new UpdateCategoryDto
+            {
+                Id = category.Id,
+                Name = category.Name,
+                Description = category.Description,
+                Image = category.Image,
+            });
         }
 
         [Authorize]
@@ -147,12 +154,18 @@ namespace Violetum.Web.Controllers
         public async Task<IActionResult> Edit(string id,
             [Bind("Id,Name,Description,Image")] UpdateCategoryDto updateCategoryDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Edit));
+            }
+
             string userId = await _tokenManager.GetUserIdFromAccessToken();
 
             try
             {
                 CategoryViewModel category = await _categoryService.UpdateCategory(id, userId, updateCategoryDto);
 
+                TempData["EditCategorySuccess"] = "Category successfully edited";
                 return RedirectToAction(nameof(Details), new {category.Name});
             }
             catch (DbUpdateException e)
@@ -176,16 +189,18 @@ namespace Violetum.Web.Controllers
             IEnumerable<PostViewModel> posts = await _postService.GetPosts(new PostSearchParams
             {
                 CategoryName = category.Name,
+                OrderByDir = "asc",
+                SortBy = "CreatedAt",
             });
 
-            if (posts.Any())
+            if (!posts.Any())
             {
-                // throw new HttpStatusCodeException(HttpStatusCode.BadRequest,
-                //     "Can not delete category which contains posts");
-                return RedirectToAction("Index");
+                return View(category);
             }
 
-            return View(category);
+            TempData["DeleteCategoryFailure"] =
+                $"Can not delete category which contains posts. Category Name - {category.Name}";
+            return RedirectToAction("Index");
         }
 
         [Authorize]
@@ -199,6 +214,7 @@ namespace Violetum.Web.Controllers
             {
                 await _categoryService.DeleteCategory(id, userId);
 
+                TempData["DeleteCategorySuccess"] = "Category successfully deleted";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException e)

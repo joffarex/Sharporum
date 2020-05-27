@@ -28,11 +28,10 @@ namespace Violetum.IdentityServer.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Login(string returnUrl)
+        public IActionResult Login(string returnUrl)
         {
             return View(new LoginViewModel {ReturnUrl = returnUrl});
         }
-
 
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel loginViewModel)

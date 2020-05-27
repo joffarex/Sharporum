@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,17 +22,19 @@ namespace Violetum.Web.Controllers
     public class ProfileController : Controller
     {
         private readonly IFollowerService _followerService;
+        private readonly IMapper _mapper;
         private readonly IPostService _postService;
         private readonly IProfileService _profileService;
         private readonly ITokenManager _tokenManager;
 
         public ProfileController(IProfileService profileService, ITokenManager tokenManager,
-            IPostService postService, IFollowerService followerService)
+            IPostService postService, IFollowerService followerService, IMapper mapper)
         {
             _profileService = profileService;
             _tokenManager = tokenManager;
             _postService = postService;
             _followerService = followerService;
+            _mapper = mapper;
         }
 
         [HttpGet("Profile/{id}")]
@@ -75,18 +78,24 @@ namespace Violetum.Web.Controllers
             string userId = await _tokenManager.GetUserIdFromAccessToken();
 
             ProfileViewModel profile = await _profileService.GetProfile(userId);
-            return View(profile);
+            return View(_mapper.Map<UpdateProfileDto>(profile));
         }
 
         [Authorize]
         [HttpPost("Profile/Edit")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
-            [Bind("Id,Name,GivenName,FamilyName,Picture,Gender,Birthdate,Website")]
+            [Bind("Id,Username,Name,GivenName,FamilyName,Picture,Gender,Birthdate,Website")]
             UpdateProfileDto updateProfileDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Edit));
+            }
+
             string userId = await _tokenManager.GetUserIdFromAccessToken();
 
+            TempData["EditProfileSuccess"] = "Profile successfully edited";
             ProfileViewModel profile = await _profileService.UpdateProfile(userId, updateProfileDto);
             return RedirectToAction(nameof(Index), new
             {

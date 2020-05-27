@@ -106,6 +106,12 @@ namespace Violetum.ApplicationCore.Services
             UpdateCommentDto updateCommentDto)
         {
             Comment comment = _commentValidators.GetReturnedCommentOrThrow(commentId, x => x);
+            if (comment.PostId != updateCommentDto.PostId)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest,
+                    $"{nameof(Comment)}:(cid[{comment.PostId}]|dtoid[{updateCommentDto.PostId}] update");
+            }
+
             if (comment.AuthorId != userId)
             {
                 throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");

@@ -25,9 +25,12 @@
                 <span asp-validation-for="Content" class="text-danger"></span>
             </div>
             <input type="hidden" asp-for="AuthorId" class="form-control" value="@ViewData["UserId"]"/>
-            <div class="form-group">
-                <input type="hidden" asp-for="ParentId" class="form-control"/>
-            </div>
+            <span asp-validation-for="AuthorId" class="text-danger"></span>
+            <input type="hidden" asp-for="ParentId" class="form-control"/>
+            <span asp-validation-for="ParentId" class="text-danger"></span>
+            <input type="hidden" asp-for="PostId" class="form-control" value="@ViewData["PostId"]"/>
+            <span asp-validation-for="PostId" class="text-danger"></span>
+
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary"/>
             </div>

@@ -39,6 +39,12 @@ namespace Violetum.ApplicationCore.Services
         public async Task<ProfileViewModel> UpdateProfile(string userId,
             UpdateProfileDto updateProfileDto)
         {
+            if (userId != updateProfileDto.Id)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest,
+                    $"{nameof(Comment)}:(uid[{userId}]|dtoid[{updateProfileDto.Id}] update");
+            }
+
             User user = await _userValidators.GetReturnedUserOrThrow(userId);
             IList<Claim> claims = await _userManager.GetClaimsAsync(user);
 

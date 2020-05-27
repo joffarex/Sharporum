@@ -33,6 +33,7 @@ namespace Violetum.Web.Controllers
 
             string userId = await _tokenManager.GetUserIdFromAccessToken();
             ViewData["UserId"] = userId;
+            ViewData["PostId"] = postId;
             // TODO: populate model with categories
 
             if (!string.IsNullOrEmpty(parentId))
@@ -47,11 +48,12 @@ namespace Violetum.Web.Controllers
         [HttpPost("Comment/{postId}/Create")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(string postId,
-            [Bind("Content, ParentId, AuthorId")] CommentDto commentDto)
+            [Bind("Content, ParentId, AuthorId, PostId")]
+            CommentDto commentDto)
         {
             if (!ModelState.IsValid)
             {
-                return RedirectToAction("Details", "Posts", new {Id = commentDto.PostId});
+                return RedirectToAction(nameof(Create));
             }
 
             try
@@ -59,6 +61,7 @@ namespace Violetum.Web.Controllers
                 commentDto.PostId = postId;
                 CommentViewModel comment = await _commentService.CreateComment(commentDto);
 
+                TempData["CreateCommentSuccess"] = "Comment successfully created";
                 return RedirectToAction("Details", "Posts", new {comment.Post.Id});
             }
             catch (DbUpdateException e)
@@ -77,19 +80,31 @@ namespace Violetum.Web.Controllers
                 throw new HttpStatusCodeException(HttpStatusCode.Unauthorized);
             }
 
-            return View(comment);
+            return View(new UpdateCommentDto
+            {
+                Id = comment.Id,
+                Content = comment.Content,
+                PostId = comment.Post.Id,
+            });
         }
 
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Id,Content")] UpdateCommentDto updateCommentDto)
+        public async Task<IActionResult> Edit(string id, [Bind("Id,PostId,Content")] UpdateCommentDto updateCommentDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Edit));
+            }
+
             string userId = await _tokenManager.GetUserIdFromAccessToken();
             try
             {
                 CommentViewModel comment = await _commentService.UpdateComment(id, userId, updateCommentDto);
 
+                TempData["EditCommentSuccess"] = "Comment successfully edited";
+                ;
                 return RedirectToAction("Details", "Posts", new {comment.Post.Id});
             }
             catch (DbUpdateException e)
@@ -109,6 +124,8 @@ namespace Violetum.Web.Controllers
             {
                 await _commentService.DeleteComment(id, userId);
 
+                TempData["DeleteCommentSuccess"] = "Comment successfully deleted";
+                ;
                 return RedirectToAction("Details", "Posts", new {id = postId});
             }
             catch (DbUpdateException e)
@@ -123,6 +140,11 @@ namespace Violetum.Web.Controllers
         public async Task<IActionResult> VoteComment(string commentId,
             [Bind("PostId,Direction")] CommentVoteDto commentVoteDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction("Details", "Posts", new {Id = commentVoteDto.PostId});
+            }
+
             string userId = await _tokenManager.GetUserIdFromAccessToken();
 
             await _commentService.VoteComment(commentId, userId, commentVoteDto);

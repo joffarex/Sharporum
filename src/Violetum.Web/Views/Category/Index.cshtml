@@ -5,6 +5,23 @@
     ViewData["Title"] = "Categories";
 }
 
+@{
+    if (TempData["DeleteCategorySuccess"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["DeleteCategorySuccess"]
+        </div>
+    }
+
+    if (TempData["DeleteCategoryFailure"] != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @TempData["DeleteCategoryFailure"]
+        </div>
+    }
+}
+
+
 <h2>Categories</h2>
 
 <p>

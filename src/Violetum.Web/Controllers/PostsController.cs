@@ -129,6 +129,7 @@ namespace Violetum.Web.Controllers
             {
                 PostViewModel post = await _postService.CreatePost(postDto);
 
+                TempData["CreatePostSuccess"] = "Post successfully created";
                 return RedirectToAction(nameof(Details), new {post.Id});
             }
             catch (DbUpdateException e)
@@ -147,7 +148,12 @@ namespace Violetum.Web.Controllers
                 throw new HttpStatusCodeException(HttpStatusCode.Unauthorized);
             }
 
-            return View(post);
+            return View(new UpdatePostDto
+            {
+                Id = post.Id,
+                Title = post.Title,
+                Content = post.Content,
+            });
         }
 
         [Authorize]
@@ -155,11 +161,17 @@ namespace Violetum.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, [Bind("Id,Title,Content")] UpdatePostDto updatePostDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Edit));
+            }
+
             string userId = await _tokenManager.GetUserIdFromAccessToken();
             try
             {
                 PostViewModel post = await _postService.UpdatePost(id, userId, updatePostDto);
 
+                TempData["EditPostSuccess"] = "Post successfully edited";
                 return RedirectToAction(nameof(Details), new {post.Id});
             }
             catch (DbUpdateException e)
@@ -191,6 +203,7 @@ namespace Violetum.Web.Controllers
             {
                 await _postService.DeletePost(id, userId);
 
+                TempData["DeletePostSuccess"] = "Post successfully deleted";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException e)
@@ -205,6 +218,11 @@ namespace Violetum.Web.Controllers
         public async Task<IActionResult> VotePost(string postId,
             [Bind("Direction")] PostVoteDto postVoteDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Details), new {Id = postId});
+            }
+
             string userId = await _tokenManager.GetUserIdFromAccessToken();
 
             await _postService.VotePost(postId, userId, postVoteDto);

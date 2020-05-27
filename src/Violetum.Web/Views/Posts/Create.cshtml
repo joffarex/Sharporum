@@ -27,6 +27,7 @@
                 <span asp-validation-for="CategoryId" class="text-danger"></span>
             </div>
             <input type="hidden" asp-for="AuthorId" class="form-control" value="@ViewData["UserId"]"/>
+            <span asp-validation-for="AuthorId" class="text-danger"></span>
 
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary"/>

@@ -6,6 +6,43 @@
     var commentsCount = ((int) ViewData["TotalComments"]).ToString();
 }
 
+@{
+    if (TempData["CreatePostSuccess"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["CreatePostSuccess"]
+        </div>
+    }
+
+    if (TempData["EditPostSuccess"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["EditPostSuccess"]
+        </div>
+    }
+
+    if (TempData["CreateCommentSuccess"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["CreateCommentSuccess"]
+        </div>
+    }
+
+    if (TempData["EditCommentSuccess"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["EditCommentSuccess"]
+        </div>
+    }
+
+    if (TempData["DeleteCommentSuccess"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["DeleteCommentSuccess"]
+        </div>
+    }
+}
+
 <h3>@Model.Post.Title Details</h3>
 <div class="row mb-4">
     @{

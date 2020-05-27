@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
 using Violetum.Domain.Models.SearchParams;
@@ -65,6 +66,10 @@ namespace Violetum.Infrastructure.Repositories
 
         public Task<int> DeleteComment(Comment comment)
         {
+            IIncludableQueryable<Comment, IEnumerable<CommentVote>> votes =
+                _context.Comments.Where(x => x.Id == comment.Id).Include(x => x.CommentVotes);
+            _context.Comments.RemoveRange(votes);
+
             return DeleteEntity(comment);
         }
 

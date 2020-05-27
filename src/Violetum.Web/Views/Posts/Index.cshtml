@@ -5,6 +5,15 @@
     var postsCount = ((int) ViewData["TotalPosts"]).ToString();
 }
 
+@{
+    if (TempData["DeletePostSuccess"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["DeletePostSuccess"]
+        </div>
+    }
+}
+
 <h2>@postsCount Posts</h2>
 
 <p>

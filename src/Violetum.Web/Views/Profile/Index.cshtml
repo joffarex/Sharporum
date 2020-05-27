@@ -1,8 +1,12 @@
-﻿@using Violetum.ApplicationCore.ViewModels.Post
-@model ProfilePageViewModel
+﻿@model ProfilePageViewModel
 
 @{
-
+    if (TempData["EditProfileSuccess"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["EditProfileSuccess"]
+        </div>
+    }
 }
 
 <div class="row">

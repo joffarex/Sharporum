@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Violetum.Domain.Entities
 {
@@ -13,5 +14,8 @@ namespace Violetum.Domain.Entities
 
         public string CategoryId { get; set; }
         public Category Category { get; set; }
+
+        public ICollection<Comment> Comments { get; set; }
+        public ICollection<PostVote> PostVotes { get; set; }
     }
 }

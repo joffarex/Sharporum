@@ -1,4 +1,4 @@
-﻿@model Violetum.ApplicationCore.ViewModels.User.ProfileViewModel
+﻿@model UpdateProfileDto
 
 @{
     ViewData["Title"] = $"Edit profile - {Model.Username}";
@@ -46,6 +46,10 @@
                 <input asp-for="Website" class="form-control"/>
                 <span asp-validation-for="Website" class="text-danger"></span>
             </div>
+            <input type="hidden" asp-for="Id" class="form-control" value="@Model.Id"/>
+            <span asp-validation-for="Id" class="text-danger"></span>
+            <input type="hidden" asp-for="Username" class="form-control" value="@Model.Username"/>
+            <span asp-validation-for="Username" class="text-danger"></span>
 
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary"/>
