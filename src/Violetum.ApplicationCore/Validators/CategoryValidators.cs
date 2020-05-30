@@ -19,26 +19,26 @@ namespace Violetum.ApplicationCore.Validators
 
         public TResult GetCategoryByIdOrThrow<TResult>(string categoryId, Func<Category, TResult> selector)
         {
-            TResult post = _categoryRepository.GetCategory(x => x.Id == categoryId, selector);
-            if (post == null)
+            TResult category = _categoryRepository.GetCategory(x => x.Id == categoryId, selector);
+            if (category == null)
             {
                 throw new HttpStatusCodeException(HttpStatusCode.NotFound,
                     $"{nameof(Category)}:{categoryId} not found");
             }
 
-            return post;
+            return category;
         }
 
         public TResult GetCategoryByNameOrThrow<TResult>(string categoryName, Func<Category, TResult> selector)
         {
-            TResult post = _categoryRepository.GetCategory(x => x.Name == categoryName, selector);
-            if (post == null)
+            TResult category = _categoryRepository.GetCategory(x => x.Name == categoryName, selector);
+            if (category == null)
             {
                 throw new HttpStatusCodeException(HttpStatusCode.NotFound,
                     $"{nameof(Category)}:{categoryName} not found");
             }
 
-            return post;
+            return category;
         }
     }
 }

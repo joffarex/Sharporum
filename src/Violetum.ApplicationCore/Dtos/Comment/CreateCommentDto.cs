@@ -1,6 +1,6 @@
 ﻿namespace Violetum.ApplicationCore.Dtos.Comment
 {
-    public class CommentDto
+    public class CreateCommentDto
     {
         public string Content { get; set; }
         public string ParentId { get; set; }

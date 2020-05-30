@@ -10,7 +10,7 @@ namespace Violetum.Web.Profiles
         public CommentProfile()
         {
             CreateMap<Comment, CommentViewModel>();
-            CreateMap<CommentDto, Comment>();
+            CreateMap<CreateCommentDto, Comment>();
         }
     }
 }

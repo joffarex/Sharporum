@@ -101,23 +101,23 @@ namespace Violetum.Web.Controllers
             string userId = await _tokenManager.GetUserIdFromAccessToken();
             ViewData["UserId"] = userId;
 
-            return View(new CategoryDto());
+            return View(new CreateCategoryDto());
         }
 
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name,Description,Image,AuthorId")]
-            CategoryDto categoryDto)
+            CreateCategoryDto createCategoryDto)
         {
             if (!ModelState.IsValid)
             {
-                return View(categoryDto);
+                return View(createCategoryDto);
             }
 
             try
             {
-                CategoryViewModel category = await _categoryService.CreateCategory(categoryDto);
+                CategoryViewModel category = await _categoryService.CreateCategory(createCategoryDto);
 
                 TempData["CreateCategorySuccess"] = "Category successfully created";
                 return RedirectToAction(nameof(Details), new {category.Name});

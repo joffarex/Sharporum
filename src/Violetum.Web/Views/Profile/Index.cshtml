@@ -44,16 +44,16 @@
                             if (Model.IsAuthenticatedUserFollower)
                             {
                                 <form asp-action="Unfollow" asp-controller="Profile" asp-route-id="@Model.Profile.Id">
-                                    <input type="hidden" asp-for="FollowerDto.UserToFollowId" value="@Model.Profile.Id">
-                                    <input type="hidden" asp-for="FollowerDto.FollowerUserId" value="@ViewData["UserId"]">
+                                    <input type="hidden" asp-for="FollowActionDto.UserToFollowId" value="@Model.Profile.Id">
+                                    <input type="hidden" asp-for="FollowActionDto.FollowerUserId" value="@ViewData["UserId"]">
                                     <input type="submit" class="btn btn-sm btn-success" value="Unfollow">
                                 </form>
                             }
                             else
                             {
                                 <form asp-action="Follow" asp-controller="Profile" asp-route-id="@Model.Profile.Id">
-                                    <input type="hidden" asp-for="FollowerDto.UserToFollowId" value="@Model.Profile.Id">
-                                    <input type="hidden" asp-for="FollowerDto.FollowerUserId" value="@ViewData["UserId"]">
+                                    <input type="hidden" asp-for="FollowActionDto.UserToFollowId" value="@Model.Profile.Id">
+                                    <input type="hidden" asp-for="FollowActionDto.FollowerUserId" value="@ViewData["UserId"]">
                                     <input type="submit" class="btn btn-sm btn-success" value="Follow">
                                 </form>
                             }

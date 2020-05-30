@@ -10,6 +10,6 @@ namespace Violetum.Web.Models
         public ProfileViewModel Profile { get; set; }
         public IEnumerable<PostViewModel> Posts { get; set; }
         public bool IsAuthenticatedUserFollower { get; set; }
-        public FollowerDto FollowerDto { get; set; }
+        public FollowActionDto FollowActionDto { get; set; }
     }
 }

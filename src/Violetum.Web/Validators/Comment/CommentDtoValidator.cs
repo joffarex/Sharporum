@@ -3,7 +3,7 @@ using Violetum.ApplicationCore.Dtos.Comment;
 
 namespace Violetum.Web.Validators.Comment
 {
-    public class CommentDtoValidator : AbstractValidator<CommentDto>
+    public class CommentDtoValidator : AbstractValidator<CreateCommentDto>
     {
         public CommentDtoValidator()
         {

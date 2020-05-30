@@ -38,10 +38,10 @@ namespace Violetum.Web.Controllers
 
             if (!string.IsNullOrEmpty(parentId))
             {
-                return View(new CommentDto {ParentId = parentId});
+                return View(new CreateCommentDto {ParentId = parentId});
             }
 
-            return View(new CommentDto());
+            return View(new CreateCommentDto());
         }
 
         [Authorize]
@@ -49,7 +49,7 @@ namespace Violetum.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(string postId,
             [Bind("Content, ParentId, AuthorId, PostId")]
-            CommentDto commentDto)
+            CreateCommentDto createCommentDto)
         {
             if (!ModelState.IsValid)
             {
@@ -58,8 +58,8 @@ namespace Violetum.Web.Controllers
 
             try
             {
-                commentDto.PostId = postId;
-                CommentViewModel comment = await _commentService.CreateComment(commentDto);
+                createCommentDto.PostId = postId;
+                CommentViewModel comment = await _commentService.CreateComment(createCommentDto);
 
                 TempData["CreateCommentSuccess"] = "Comment successfully created";
                 return RedirectToAction("Details", "Posts", new {comment.Post.Id});

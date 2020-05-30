@@ -55,11 +55,11 @@ namespace Violetum.ApplicationCore.Services
                 x => _mapper.Map<CategoryViewModel>(x), searchParams);
         }
 
-        public async Task<CategoryViewModel> CreateCategory(CategoryDto categoryDto)
+        public async Task<CategoryViewModel> CreateCategory(CreateCategoryDto createCategoryDto)
         {
-            User user = await _userValidators.GetUserByIdOrThrow(categoryDto.AuthorId);
+            User user = await _userValidators.GetUserByIdOrThrow(createCategoryDto.AuthorId);
 
-            var category = _mapper.Map<Category>(categoryDto);
+            var category = _mapper.Map<Category>(createCategoryDto);
             category.Author = user;
 
             await _categoryRepository.CreateCategory(category);

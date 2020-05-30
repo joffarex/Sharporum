@@ -79,21 +79,21 @@ namespace Violetum.ApplicationCore.Services
             );
         }
 
-        public async Task<CommentViewModel> CreateComment(CommentDto commentDto)
+        public async Task<CommentViewModel> CreateComment(CreateCommentDto createCommentDto)
         {
-            User user = await _userValidators.GetUserByIdOrThrow(commentDto.AuthorId);
-            Post post = _postValidators.GetPostByIdOrThrow(commentDto.PostId, x => x);
+            User user = await _userValidators.GetUserByIdOrThrow(createCommentDto.AuthorId);
+            Post post = _postValidators.GetPostByIdOrThrow(createCommentDto.PostId, x => x);
 
-            if (!string.IsNullOrEmpty(commentDto.ParentId))
+            if (!string.IsNullOrEmpty(createCommentDto.ParentId))
             {
-                Comment parentComment = _commentValidators.GetCommentByIdOrThrow(commentDto.ParentId, x => x);
+                Comment parentComment = _commentValidators.GetCommentByIdOrThrow(createCommentDto.ParentId, x => x);
                 if (parentComment.Post.Id != post.Id)
                 {
                     throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "This operation is not allowed");
                 }
             }
 
-            var comment = _mapper.Map<Comment>(commentDto);
+            var comment = _mapper.Map<Comment>(createCommentDto);
             comment.Author = user;
             comment.Post = post;
 

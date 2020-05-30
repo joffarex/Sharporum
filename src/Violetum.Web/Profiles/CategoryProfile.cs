@@ -12,7 +12,7 @@ namespace Violetum.Web.Profiles
         {
             CreateMap<Category, CategoryViewModel>();
             CreateMap<Category, PostCategoryViewModel>();
-            CreateMap<CategoryDto, Category>();
+            CreateMap<CreateCategoryDto, Category>();
         }
     }
 }

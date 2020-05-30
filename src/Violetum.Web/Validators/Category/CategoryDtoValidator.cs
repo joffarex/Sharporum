@@ -3,7 +3,7 @@ using Violetum.ApplicationCore.Dtos.Category;
 
 namespace Violetum.Web.Validators.Category
 {
-    public class CategoryDtoValidator : AbstractValidator<CategoryDto>
+    public class CategoryDtoValidator : AbstractValidator<CreateCategoryDto>
     {
         public CategoryDtoValidator()
         {

@@ -48,11 +48,11 @@
             @Html.DisplayFor(model => model.Category.Name)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Category.Author.UserName)
+            @Html.DisplayNameFor(model => model.Category.Author.Username)
         </dt>
         <dd class="col-sm-10">
             <a asp-controller="Profile" asp-action="Index" asp-route-id="@Model.Category.Author.Id">
-                @Html.DisplayFor(model => model.Category.Author.UserName)
+                @Html.DisplayFor(model => model.Category.Author.Username)
             </a>
         </dd>
         <dt class="col-sm-2">
@@ -117,7 +117,7 @@
                             }
                         </div>
                         <a class="card-link" href="#">
-                            <a class="card-title" asp-controller="Profile" asp-action="Index" asp-route-id="@post.Author.Id">@post.Author.UserName</a>
+                            <a class="card-title" asp-controller="Profile" asp-action="Index" asp-route-id="@post.Author.Id">@post.Author.Username</a>
                         </a>
 
                         <p class="card-text">

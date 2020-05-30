@@ -100,11 +100,11 @@
             @Html.DisplayFor(model => model.Post.Title)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Post.Author.UserName)
+            @Html.DisplayNameFor(model => model.Post.Author.Username)
         </dt>
         <dd class="col-sm-10">
             <a asp-controller="Profile" asp-action="Index" asp-route-id="@Model.Post.Author.Id">
-                @Html.DisplayFor(model => model.Post.Author.UserName)
+                @Html.DisplayFor(model => model.Post.Author.Username)
             </a>
         </dd>
         <dt class="col-sm-2">
@@ -164,7 +164,7 @@
                             }
                         </div>
                         <a class="card-link" href="#">
-                            <a class="card-title" asp-controller="Profile" asp-action="Index" asp-route-id="@comment.Author.Id">@comment.Author.UserName</a>
+                            <a class="card-title" asp-controller="Profile" asp-action="Index" asp-route-id="@comment.Author.Id">@comment.Author.Username</a>
                         </a>
 
                         <p class="card-text">

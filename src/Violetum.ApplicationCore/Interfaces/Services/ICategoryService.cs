@@ -11,7 +11,7 @@ namespace Violetum.ApplicationCore.Interfaces.Services
         CategoryViewModel GetCategoryById(string id);
         CategoryViewModel GetCategoryByName(string categoryName);
         Task<IEnumerable<CategoryViewModel>> GetCategories(CategorySearchParams searchParams);
-        Task<CategoryViewModel> CreateCategory(CategoryDto categoryDto);
+        Task<CategoryViewModel> CreateCategory(CreateCategoryDto createCategoryDto);
         Task<CategoryViewModel> UpdateCategory(string id, string userId, UpdateCategoryDto updateCategoryDto);
         Task<bool> DeleteCategory(string id, string userId);
     }

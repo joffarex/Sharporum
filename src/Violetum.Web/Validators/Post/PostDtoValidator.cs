@@ -3,7 +3,7 @@ using Violetum.ApplicationCore.Dtos.Post;
 
 namespace Violetum.Web.Validators.Post
 {
-    public class PostDtoValidator : AbstractValidator<PostDto>
+    public class PostDtoValidator : AbstractValidator<CreatePostDto>
     {
         public PostDtoValidator()
         {

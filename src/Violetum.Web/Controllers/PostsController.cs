@@ -108,26 +108,26 @@ namespace Violetum.Web.Controllers
 
             if (!string.IsNullOrEmpty(categoryId))
             {
-                return View(new PostDto {CategoryId = categoryId});
+                return View(new CreatePostDto {CategoryId = categoryId});
             }
 
-            return View(new PostDto());
+            return View(new CreatePostDto());
         }
 
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Title,Content, CategoryId, AuthorId")]
-            PostDto postDto)
+            CreatePostDto createPostDto)
         {
             if (!ModelState.IsValid)
             {
-                return View(postDto);
+                return View(createPostDto);
             }
 
             try
             {
-                PostViewModel post = await _postService.CreatePost(postDto);
+                PostViewModel post = await _postService.CreatePost(createPostDto);
 
                 TempData["CreatePostSuccess"] = "Post successfully created";
                 return RedirectToAction(nameof(Details), new {post.Id});

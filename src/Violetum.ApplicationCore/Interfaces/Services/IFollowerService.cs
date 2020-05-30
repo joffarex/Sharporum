@@ -11,7 +11,7 @@ namespace Violetum.ApplicationCore.Interfaces.Services
 
         bool IsAuthenticatedUserFollower(string userToFollowId, string authenticatedUserId);
 
-        Task FollowUser(FollowerDto followerDto);
-        Task UnfollowUser(FollowerDto followerDto);
+        Task FollowUser(FollowActionDto followActionDto);
+        Task UnfollowUser(FollowActionDto followActionDto);
     }
 }

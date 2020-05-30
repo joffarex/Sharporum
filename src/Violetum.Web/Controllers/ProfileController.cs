@@ -123,17 +123,17 @@ namespace Violetum.Web.Controllers
         [HttpPost("Profile/{id}/Follow")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Follow(string id, [Bind("UserToFollowId,FollowerUserId")]
-            FollowerDto followerDto)
+            FollowActionDto followActionDto)
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
             try
             {
-                if ((userId != followerDto.FollowerUserId) || (id != followerDto.UserToFollowId))
+                if ((userId != followActionDto.FollowerUserId) || (id != followActionDto.UserToFollowId))
                 {
                     throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");
                 }
 
-                await _followerService.FollowUser(followerDto);
+                await _followerService.FollowUser(followActionDto);
 
                 return RedirectToAction(nameof(Index), new {Id = id});
             }
@@ -147,19 +147,19 @@ namespace Violetum.Web.Controllers
         [HttpPost("Profile/{id}/Unfollow")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Unfollow([Bind("UserToFollowId,FollowerUserId")]
-            FollowerDto followerDto)
+            FollowActionDto followActionDto)
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
             try
             {
-                if (userId != followerDto.FollowerUserId)
+                if (userId != followActionDto.FollowerUserId)
                 {
                     throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");
                 }
 
-                await _followerService.UnfollowUser(followerDto);
+                await _followerService.UnfollowUser(followActionDto);
 
-                return RedirectToAction(nameof(Index), new {Id = followerDto.UserToFollowId});
+                return RedirectToAction(nameof(Index), new {Id = followActionDto.UserToFollowId});
             }
             catch (DbUpdateException e)
             {

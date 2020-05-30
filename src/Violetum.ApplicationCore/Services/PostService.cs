@@ -107,12 +107,12 @@ namespace Violetum.ApplicationCore.Services
                 PostHelpers.WhereConditionPredicate(searchParams, x, followers));
         }
 
-        public async Task<PostViewModel> CreatePost(PostDto postDto)
+        public async Task<PostViewModel> CreatePost(CreatePostDto createPostDto)
         {
-            User user = await _userValidators.GetUserByIdOrThrow(postDto.AuthorId);
-            Category category = _categoryValidators.GetCategoryByIdOrThrow(postDto.CategoryId, x => x);
+            User user = await _userValidators.GetUserByIdOrThrow(createPostDto.AuthorId);
+            Category category = _categoryValidators.GetCategoryByIdOrThrow(createPostDto.CategoryId, x => x);
 
-            var post = _mapper.Map<Post>(postDto);
+            var post = _mapper.Map<Post>(createPostDto);
             post.Author = user;
             post.Category = category;
 

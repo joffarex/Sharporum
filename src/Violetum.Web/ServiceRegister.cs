@@ -55,11 +55,11 @@ namespace Microsoft.Extensions.DependencyInjection
             @this.AddTransient<ICommentRepository, CommentRepository>();
             @this.AddTransient<IFollowerRepository, FollowerRepository>();
 
-            @this.AddTransient<IValidator<PostDto>, PostDtoValidator>();
+            @this.AddTransient<IValidator<CreatePostDto>, PostDtoValidator>();
             @this.AddTransient<IValidator<UpdatePostDto>, UpdatePostDtoValidator>();
-            @this.AddTransient<IValidator<CommentDto>, CommentDtoValidator>();
+            @this.AddTransient<IValidator<CreateCommentDto>, CommentDtoValidator>();
             @this.AddTransient<IValidator<UpdateCommentDto>, UpdateCommentDtoValidator>();
-            @this.AddTransient<IValidator<CategoryDto>, CategoryDtoValidator>();
+            @this.AddTransient<IValidator<CreateCategoryDto>, CategoryDtoValidator>();
             @this.AddTransient<IValidator<UpdateCategoryDto>, UpdateCategoryDtoValidator>();
             @this.AddTransient<IValidator<UpdateProfileDto>, UpdateProfileDtoValidator>();
             return @this;

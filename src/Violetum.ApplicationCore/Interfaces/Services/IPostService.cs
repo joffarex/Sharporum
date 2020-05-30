@@ -14,7 +14,7 @@ namespace Violetum.ApplicationCore.Interfaces.Services
         Task<int> GetTotalPostsCount(PostSearchParams searchParams);
         int GetTotalPostsCountInNewsFeed(string userId, PostSearchParams searchParams);
 
-        Task<PostViewModel> CreatePost(PostDto postDto);
+        Task<PostViewModel> CreatePost(CreatePostDto createPostDto);
         Task<PostViewModel> UpdatePost(string postId, string userId, UpdatePostDto updatePostDto);
         Task DeletePost(string postId, string userId);
         Task VotePost(string postId, string userId, PostVoteDto postVoteDto);

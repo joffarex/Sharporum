@@ -61,10 +61,10 @@ namespace Violetum.ApplicationCore.Services
             return _followerRepository.IsAuthenticatedUserFollower(userToFollowId, authenticatedUserId);
         }
 
-        public async Task FollowUser(FollowerDto followerDto)
+        public async Task FollowUser(FollowActionDto followActionDto)
         {
-            User userToFollow = await _userValidators.GetUserByIdOrThrow(followerDto.UserToFollowId);
-            User followerUser = await _userValidators.GetUserByIdOrThrow(followerDto.FollowerUserId);
+            User userToFollow = await _userValidators.GetUserByIdOrThrow(followActionDto.UserToFollowId);
+            User followerUser = await _userValidators.GetUserByIdOrThrow(followActionDto.FollowerUserId);
 
             var follower = new Follower
             {
@@ -75,10 +75,10 @@ namespace Violetum.ApplicationCore.Services
             await _followerRepository.FollowUser(follower);
         }
 
-        public async Task UnfollowUser(FollowerDto followerDto)
+        public async Task UnfollowUser(FollowActionDto followActionDto)
         {
-            User userToFollow = await _userValidators.GetUserByIdOrThrow(followerDto.UserToFollowId);
-            User followerUser = await _userValidators.GetUserByIdOrThrow(followerDto.FollowerUserId);
+            User userToFollow = await _userValidators.GetUserByIdOrThrow(followActionDto.UserToFollowId);
+            User followerUser = await _userValidators.GetUserByIdOrThrow(followActionDto.FollowerUserId);
 
             await _followerRepository.UnfollowUser(userToFollow.Id, followerUser.Id);
         }
