@@ -2,7 +2,7 @@
 
 namespace Violetum.ApplicationCore
 {
-    public class Service : Attribute
+    public class ServiceAttribute : Attribute
     {
     }
 }

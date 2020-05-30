@@ -7,6 +7,7 @@ using Violetum.Domain.Infrastructure;
 
 namespace Violetum.ApplicationCore.Validators
 {
+    [Validator]
     public class PostValidators : IPostValidators
     {
         private readonly IPostRepository _postRepository;

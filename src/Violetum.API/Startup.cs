@@ -20,6 +20,7 @@ namespace Violetum.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.InstallServicesInAssembly(_configuration);
+            services.AddApplicationServices();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

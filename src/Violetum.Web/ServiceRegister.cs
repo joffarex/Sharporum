@@ -26,11 +26,11 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection @this)
         {
-            Type serviceType = typeof(Service);
+            Type serviceType = typeof(ServiceAttribute);
             IEnumerable<TypeInfo> definedType = serviceType.Assembly.DefinedTypes;
 
             IEnumerable<TypeInfo> services = definedType
-                .Where(x => x.GetTypeInfo().GetCustomAttribute<Service>() != null);
+                .Where(x => x.GetTypeInfo().GetCustomAttribute<ServiceAttribute>() != null);
 
             foreach (TypeInfo service in services)
             {

@@ -7,6 +7,7 @@ using Violetum.Domain.Entities;
 
 namespace Violetum.ApplicationCore.Validators
 {
+    [Validator]
     public class UserValidators : IUserValidators
     {
         private readonly UserManager<User> _userManager;

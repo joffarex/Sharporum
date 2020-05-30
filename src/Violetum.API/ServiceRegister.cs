@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Violetum.ApplicationCore;
+using Violetum.Infrastructure;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -10,20 +11,27 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection @this)
         {
-            Type serviceType = typeof(Service);
+            @this.InjectServicesOfSameAttribute<RepositoryAttribute>();
+            @this.InjectServicesOfSameAttribute<ValidatorAttribute>();
+            @this.InjectServicesOfSameAttribute<ServiceAttribute>();
+
+            return @this;
+        }
+
+        private static void InjectServicesOfSameAttribute<TAttribute>(this IServiceCollection @this)
+            where TAttribute : Attribute
+        {
+            Type serviceType = typeof(TAttribute);
             IEnumerable<TypeInfo> definedType = serviceType.Assembly.DefinedTypes;
 
             IEnumerable<TypeInfo> services = definedType
-                .Where(x => x.GetTypeInfo().GetCustomAttribute<Service>() != null);
+                .Where(x => x.GetTypeInfo().GetCustomAttribute<TAttribute>() != null);
 
             foreach (TypeInfo service in services)
             {
-                @this.AddTransient(service);
+                @this.AddTransient(service.ImplementedInterfaces.FirstOrDefault(x => !x.Name.Contains("Base")),
+                    service);
             }
-
-            // @this.AddTransient<IManager, Manager>();
-
-            return @this;
         }
     }
 }

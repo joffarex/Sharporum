@@ -10,6 +10,7 @@ using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.Infrastructure.Repositories
 {
+    [Repository]
     public class PostRepository : BaseRepository, IPostRepository
     {
         private readonly ApplicationDbContext _context;

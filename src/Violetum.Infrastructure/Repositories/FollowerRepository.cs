@@ -8,6 +8,7 @@ using Violetum.Domain.Infrastructure;
 
 namespace Violetum.Infrastructure.Repositories
 {
+    [Repository]
     public class FollowerRepository : BaseRepository, IFollowerRepository
     {
         private readonly ApplicationDbContext _context;
