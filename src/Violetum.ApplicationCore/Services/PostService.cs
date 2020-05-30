@@ -38,19 +38,19 @@ namespace Violetum.ApplicationCore.Services
 
         public PostViewModel GetPost(string postId)
         {
-            return _postValidators.GetReturnedPostOrThrow(postId, x => AttachVotesToPostViewModel(x));
+            return _postValidators.GetPostByIdOrThrow(postId, x => AttachVotesToPostViewModel(x));
         }
 
         public async Task<IEnumerable<PostViewModel>> GetPosts(PostSearchParams searchParams)
         {
             if (!string.IsNullOrEmpty(searchParams.UserId))
             {
-                await _userValidators.GetReturnedUserOrThrow(searchParams.UserId);
+                await _userValidators.GetUserByIdOrThrow(searchParams.UserId);
             }
 
             if (!string.IsNullOrEmpty(searchParams.CategoryName))
             {
-                _categoryValidators.GetReturnedCategoryByNameOrThrow(searchParams.CategoryName, x => x);
+                _categoryValidators.GetCategoryByNameOrThrow(searchParams.CategoryName, x => x);
             }
 
             return _postRepository.GetPosts(
@@ -65,7 +65,7 @@ namespace Violetum.ApplicationCore.Services
         {
             if (!string.IsNullOrEmpty(searchParams.CategoryName))
             {
-                _categoryValidators.GetReturnedCategoryByNameOrThrow(searchParams.CategoryName, x => x);
+                _categoryValidators.GetCategoryByNameOrThrow(searchParams.CategoryName, x => x);
             }
 
             IEnumerable<string> followers = _postRepository.GetUserFollowings(userId);
@@ -82,12 +82,12 @@ namespace Violetum.ApplicationCore.Services
         {
             if (!string.IsNullOrEmpty(searchParams.CategoryName))
             {
-                _categoryValidators.GetReturnedCategoryByNameOrThrow(searchParams.CategoryName, x => x);
+                _categoryValidators.GetCategoryByNameOrThrow(searchParams.CategoryName, x => x);
             }
 
             if (!string.IsNullOrEmpty(searchParams.UserId))
             {
-                await _userValidators.GetReturnedUserOrThrow(searchParams.UserId);
+                await _userValidators.GetUserByIdOrThrow(searchParams.UserId);
             }
 
             return _postRepository.GetPostCount(x =>
@@ -98,7 +98,7 @@ namespace Violetum.ApplicationCore.Services
         {
             if (!string.IsNullOrEmpty(searchParams.CategoryName))
             {
-                _categoryValidators.GetReturnedCategoryByNameOrThrow(searchParams.CategoryName, x => x);
+                _categoryValidators.GetCategoryByNameOrThrow(searchParams.CategoryName, x => x);
             }
 
             IEnumerable<string> followers = _postRepository.GetUserFollowings(userId);
@@ -109,8 +109,8 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<PostViewModel> CreatePost(PostDto postDto)
         {
-            User user = await _userValidators.GetReturnedUserOrThrow(postDto.AuthorId);
-            Category category = _categoryValidators.GetReturnedCategoryByIdOrThrow(postDto.CategoryId, x => x);
+            User user = await _userValidators.GetUserByIdOrThrow(postDto.AuthorId);
+            Category category = _categoryValidators.GetCategoryByIdOrThrow(postDto.CategoryId, x => x);
 
             var post = _mapper.Map<Post>(postDto);
             post.Author = user;
@@ -129,7 +129,7 @@ namespace Violetum.ApplicationCore.Services
                     $"{nameof(Post)}:(pid[{postId}]|dtoid[{updatePostDto.Id}] update");
             }
 
-            Post post = _postValidators.GetReturnedPostOrThrow(postId, x => x);
+            Post post = _postValidators.GetPostByIdOrThrow(postId, x => x);
 
             if (post.AuthorId != userId)
             {
@@ -146,7 +146,7 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task DeletePost(string postId, string userId)
         {
-            Post post = _postValidators.GetReturnedPostOrThrow(postId, x => x);
+            Post post = _postValidators.GetPostByIdOrThrow(postId, x => x);
 
             if (post.AuthorId != userId)
             {
@@ -160,9 +160,9 @@ namespace Violetum.ApplicationCore.Services
         {
             try
             {
-                User user = await _userValidators.GetReturnedUserOrThrow(userId);
+                User user = await _userValidators.GetUserByIdOrThrow(userId);
 
-                Post post = _postValidators.GetReturnedPostOrThrow(postId, x => x);
+                Post post = _postValidators.GetPostByIdOrThrow(postId, x => x);
 
                 var postVote =
                     _voteRepository.GetEntityVote<PostVote>(
@@ -204,7 +204,7 @@ namespace Violetum.ApplicationCore.Services
 
         public int GetPostVoteSum(string postId)
         {
-            Post post = _postValidators.GetReturnedPostOrThrow(postId, x => x);
+            Post post = _postValidators.GetPostByIdOrThrow(postId, x => x);
 
             return _postRepository.GetPostVoteSum(post.Id);
         }

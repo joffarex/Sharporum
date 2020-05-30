@@ -30,7 +30,7 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<ProfileViewModel> GetProfile(string userId)
         {
-            User user = await _userValidators.GetReturnedUserOrThrow(userId);
+            User user = await _userValidators.GetUserByIdOrThrow(userId);
             IList<Claim> userClaims = await _userManager.GetClaimsAsync(user);
 
             return ProfileHelpers.MapUserWithClaimsToProfile(user, userClaims);
@@ -45,7 +45,7 @@ namespace Violetum.ApplicationCore.Services
                     $"{nameof(Comment)}:(uid[{userId}]|dtoid[{updateProfileDto.Id}] update");
             }
 
-            User user = await _userValidators.GetReturnedUserOrThrow(userId);
+            User user = await _userValidators.GetUserByIdOrThrow(userId);
             IList<Claim> claims = await _userManager.GetClaimsAsync(user);
 
             IdentityResult removeResult;

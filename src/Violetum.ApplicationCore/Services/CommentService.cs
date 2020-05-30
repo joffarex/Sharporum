@@ -44,14 +44,14 @@ namespace Violetum.ApplicationCore.Services
 
         public CommentViewModel GetComment(string commentId)
         {
-            return _commentValidators.GetReturnedCommentOrThrow(commentId, x => AttachVotesToCommentViewModel(x));
+            return _commentValidators.GetCommentByIdOrThrow(commentId, x => AttachVotesToCommentViewModel(x));
         }
 
         public async Task<IEnumerable<CommentViewModel>> GetComments(CommentSearchParams searchParams)
         {
             if (!string.IsNullOrEmpty(searchParams.UserId))
             {
-                await _userValidators.GetReturnedUserOrThrow(searchParams.UserId);
+                await _userValidators.GetUserByIdOrThrow(searchParams.UserId);
             }
 
             return _commentRepository.GetComments(
@@ -66,12 +66,12 @@ namespace Violetum.ApplicationCore.Services
         {
             if (!string.IsNullOrEmpty(searchParams.UserId))
             {
-                await _userValidators.GetReturnedUserOrThrow(searchParams.UserId);
+                await _userValidators.GetUserByIdOrThrow(searchParams.UserId);
             }
 
             if (!string.IsNullOrEmpty(searchParams.PostId))
             {
-                _postValidators.GetReturnedPostOrThrow(searchParams.PostId, x => x);
+                _postValidators.GetPostByIdOrThrow(searchParams.PostId, x => x);
             }
 
             return _commentRepository.GetTotalCommentsCount(
@@ -81,12 +81,12 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<CommentViewModel> CreateComment(CommentDto commentDto)
         {
-            User user = await _userValidators.GetReturnedUserOrThrow(commentDto.AuthorId);
-            Post post = _postValidators.GetReturnedPostOrThrow(commentDto.PostId, x => x);
+            User user = await _userValidators.GetUserByIdOrThrow(commentDto.AuthorId);
+            Post post = _postValidators.GetPostByIdOrThrow(commentDto.PostId, x => x);
 
             if (!string.IsNullOrEmpty(commentDto.ParentId))
             {
-                Comment parentComment = _commentValidators.GetReturnedCommentOrThrow(commentDto.ParentId, x => x);
+                Comment parentComment = _commentValidators.GetCommentByIdOrThrow(commentDto.ParentId, x => x);
                 if (parentComment.Post.Id != post.Id)
                 {
                     throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "This operation is not allowed");
@@ -105,7 +105,7 @@ namespace Violetum.ApplicationCore.Services
         public async Task<CommentViewModel> UpdateComment(string commentId, string userId,
             UpdateCommentDto updateCommentDto)
         {
-            Comment comment = _commentValidators.GetReturnedCommentOrThrow(commentId, x => x);
+            Comment comment = _commentValidators.GetCommentByIdOrThrow(commentId, x => x);
             if (comment.PostId != updateCommentDto.PostId)
             {
                 throw new HttpStatusCodeException(HttpStatusCode.BadRequest,
@@ -126,7 +126,7 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<bool> DeleteComment(string commentId, string userId)
         {
-            Comment comment = _commentValidators.GetReturnedCommentOrThrow(commentId, x => x);
+            Comment comment = _commentValidators.GetCommentByIdOrThrow(commentId, x => x);
             if (comment.AuthorId != userId)
             {
                 throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");
@@ -139,8 +139,8 @@ namespace Violetum.ApplicationCore.Services
         {
             try
             {
-                User user = await _userValidators.GetReturnedUserOrThrow(userId);
-                Comment comment = _commentValidators.GetReturnedCommentOrThrow(commentId, x => x);
+                User user = await _userValidators.GetUserByIdOrThrow(userId);
+                Comment comment = _commentValidators.GetCommentByIdOrThrow(commentId, x => x);
 
                 var commentVote =
                     _voteRepository.GetEntityVote<CommentVote>(

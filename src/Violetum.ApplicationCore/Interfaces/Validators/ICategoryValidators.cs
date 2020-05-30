@@ -5,7 +5,7 @@ namespace Violetum.ApplicationCore.Interfaces.Validators
 {
     public interface ICategoryValidators
     {
-        TResult GetReturnedCategoryByIdOrThrow<TResult>(string categoryId, Func<Category, TResult> selector);
-        TResult GetReturnedCategoryByNameOrThrow<TResult>(string categoryName, Func<Category, TResult> selector);
+        TResult GetCategoryByIdOrThrow<TResult>(string categoryId, Func<Category, TResult> selector);
+        TResult GetCategoryByNameOrThrow<TResult>(string categoryName, Func<Category, TResult> selector);
     }
 }

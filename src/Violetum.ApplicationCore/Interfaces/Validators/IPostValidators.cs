@@ -5,6 +5,6 @@ namespace Violetum.ApplicationCore.Interfaces.Validators
 {
     public interface IPostValidators
     {
-        TResult GetReturnedPostOrThrow<TResult>(string postId, Func<Post, TResult> selector);
+        TResult GetPostByIdOrThrow<TResult>(string postId, Func<Post, TResult> selector);
     }
 }

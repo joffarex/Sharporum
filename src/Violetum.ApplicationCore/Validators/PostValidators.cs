@@ -16,7 +16,7 @@ namespace Violetum.ApplicationCore.Validators
             _postRepository = postRepository;
         }
 
-        public TResult GetReturnedPostOrThrow<TResult>(string postId, Func<Post, TResult> selector)
+        public TResult GetPostByIdOrThrow<TResult>(string postId, Func<Post, TResult> selector)
         {
             TResult post = _postRepository.GetPost(x => x.Id == postId, selector);
             if (post == null)

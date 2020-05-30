@@ -16,7 +16,7 @@ namespace Violetum.ApplicationCore.Validators
             _commentRepository = commentRepository;
         }
 
-        public TResult GetReturnedCommentOrThrow<TResult>(string commentId, Func<Comment, TResult> selector)
+        public TResult GetCommentByIdOrThrow<TResult>(string commentId, Func<Comment, TResult> selector)
         {
             TResult comment = _commentRepository.GetComment(x => x.Id == commentId, selector);
             if (comment == null)

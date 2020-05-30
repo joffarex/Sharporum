@@ -16,7 +16,7 @@ namespace Violetum.ApplicationCore.Validators
             _categoryRepository = categoryRepository;
         }
 
-        public TResult GetReturnedCategoryByIdOrThrow<TResult>(string categoryId, Func<Category, TResult> selector)
+        public TResult GetCategoryByIdOrThrow<TResult>(string categoryId, Func<Category, TResult> selector)
         {
             TResult post = _categoryRepository.GetCategory(x => x.Id == categoryId, selector);
             if (post == null)
@@ -28,7 +28,7 @@ namespace Violetum.ApplicationCore.Validators
             return post;
         }
 
-        public TResult GetReturnedCategoryByNameOrThrow<TResult>(string categoryName, Func<Category, TResult> selector)
+        public TResult GetCategoryByNameOrThrow<TResult>(string categoryName, Func<Category, TResult> selector)
         {
             TResult post = _categoryRepository.GetCategory(x => x.Name == categoryName, selector);
             if (post == null)

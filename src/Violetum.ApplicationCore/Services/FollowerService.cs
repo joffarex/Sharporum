@@ -30,7 +30,7 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<UserFollowersViewModel> GetUserFollowers(string userId)
         {
-            User user = await _userValidators.GetReturnedUserOrThrow(userId);
+            User user = await _userValidators.GetUserByIdOrThrow(userId);
 
             IEnumerable<FollowerViewModel> userFollowers =
                 _followerRepository.GetUserFollowers(userId, x => _mapper.Map<FollowerViewModel>(x));
@@ -44,7 +44,7 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<UserFollowingViewModel> GetUserFollowing(string userId)
         {
-            User user = await _userValidators.GetReturnedUserOrThrow(userId);
+            User user = await _userValidators.GetUserByIdOrThrow(userId);
 
             IEnumerable<FollowingViewModel> userFollowings =
                 _followerRepository.GetUserFollowing(userId, x => _mapper.Map<FollowingViewModel>(x));
@@ -63,8 +63,8 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task FollowUser(FollowerDto followerDto)
         {
-            User userToFollow = await _userValidators.GetReturnedUserOrThrow(followerDto.UserToFollowId);
-            User followerUser = await _userValidators.GetReturnedUserOrThrow(followerDto.FollowerUserId);
+            User userToFollow = await _userValidators.GetUserByIdOrThrow(followerDto.UserToFollowId);
+            User followerUser = await _userValidators.GetUserByIdOrThrow(followerDto.FollowerUserId);
 
             var follower = new Follower
             {
@@ -77,8 +77,8 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task UnfollowUser(FollowerDto followerDto)
         {
-            User userToFollow = await _userValidators.GetReturnedUserOrThrow(followerDto.UserToFollowId);
-            User followerUser = await _userValidators.GetReturnedUserOrThrow(followerDto.FollowerUserId);
+            User userToFollow = await _userValidators.GetUserByIdOrThrow(followerDto.UserToFollowId);
+            User followerUser = await _userValidators.GetUserByIdOrThrow(followerDto.FollowerUserId);
 
             await _followerRepository.UnfollowUser(userToFollow.Id, followerUser.Id);
         }

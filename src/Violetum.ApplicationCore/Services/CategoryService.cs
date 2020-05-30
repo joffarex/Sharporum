@@ -33,13 +33,13 @@ namespace Violetum.ApplicationCore.Services
 
         public CategoryViewModel GetCategoryById(string categoryId)
         {
-            return _categoryValidators.GetReturnedCategoryByIdOrThrow(categoryId,
+            return _categoryValidators.GetCategoryByIdOrThrow(categoryId,
                 x => _mapper.Map<CategoryViewModel>(x));
         }
 
         public CategoryViewModel GetCategoryByName(string categoryName)
         {
-            return _categoryValidators.GetReturnedCategoryByNameOrThrow(categoryName,
+            return _categoryValidators.GetCategoryByNameOrThrow(categoryName,
                 x => _mapper.Map<CategoryViewModel>(x));
         }
 
@@ -47,7 +47,7 @@ namespace Violetum.ApplicationCore.Services
         {
             if (!string.IsNullOrEmpty(searchParams.UserId))
             {
-                await _userValidators.GetReturnedUserOrThrow(searchParams.UserId);
+                await _userValidators.GetUserByIdOrThrow(searchParams.UserId);
             }
 
             return _categoryRepository.GetCategories(
@@ -57,7 +57,7 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<CategoryViewModel> CreateCategory(CategoryDto categoryDto)
         {
-            User user = await _userValidators.GetReturnedUserOrThrow(categoryDto.AuthorId);
+            User user = await _userValidators.GetUserByIdOrThrow(categoryDto.AuthorId);
 
             var category = _mapper.Map<Category>(categoryDto);
             category.Author = user;
@@ -76,7 +76,7 @@ namespace Violetum.ApplicationCore.Services
                     $"{nameof(Comment)}:(catid[{categoryId}]|dtoid[{updateCategoryDto.Id}] update");
             }
 
-            Category category = _categoryValidators.GetReturnedCategoryByIdOrThrow(categoryId, x => x);
+            Category category = _categoryValidators.GetCategoryByIdOrThrow(categoryId, x => x);
 
             if (category.AuthorId != userId)
             {
@@ -94,7 +94,7 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<bool> DeleteCategory(string categoryId, string userId)
         {
-            Category category = _categoryValidators.GetReturnedCategoryByIdOrThrow(categoryId, x => x);
+            Category category = _categoryValidators.GetCategoryByIdOrThrow(categoryId, x => x);
 
             if (category.AuthorId != userId)
             {

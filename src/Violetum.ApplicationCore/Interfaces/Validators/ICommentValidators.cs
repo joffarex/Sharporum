@@ -5,6 +5,6 @@ namespace Violetum.ApplicationCore.Interfaces.Validators
 {
     public interface ICommentValidators
     {
-        TResult GetReturnedCommentOrThrow<TResult>(string commentId, Func<Comment, TResult> selector);
+        TResult GetCommentByIdOrThrow<TResult>(string commentId, Func<Comment, TResult> selector);
     }
 }

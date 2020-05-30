@@ -5,6 +5,6 @@ namespace Violetum.ApplicationCore.Interfaces.Validators
 {
     public interface IUserValidators
     {
-        Task<User> GetReturnedUserOrThrow(string userId);
+        Task<User> GetUserByIdOrThrow(string userId);
     }
 }

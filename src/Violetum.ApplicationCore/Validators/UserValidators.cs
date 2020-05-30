@@ -17,7 +17,7 @@ namespace Violetum.ApplicationCore.Validators
         }
 
 
-        public async Task<User> GetReturnedUserOrThrow(string userId)
+        public async Task<User> GetUserByIdOrThrow(string userId)
         {
             User user = await _userManager.FindByIdAsync(userId);
             if (user == null)
