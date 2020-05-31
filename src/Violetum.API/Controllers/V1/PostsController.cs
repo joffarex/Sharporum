@@ -55,7 +55,7 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpGet(ApiRoutes.Posts.Get)]
-        public IActionResult Get(string postId)
+        public IActionResult Get([FromRoute] string postId)
         {
             return Ok(new {Post = _postService.GetPost(postId)});
         }

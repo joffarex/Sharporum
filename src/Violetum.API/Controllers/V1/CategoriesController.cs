@@ -36,7 +36,7 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpGet(ApiRoutes.Categories.Get)]
-        public IActionResult Get(string categoryId)
+        public IActionResult Get([FromRoute] string categoryId)
         {
             return Ok(new {Category = _categoryService.GetCategoryById(categoryId)});
         }

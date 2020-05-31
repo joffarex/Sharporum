@@ -45,13 +45,13 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpGet(ApiRoutes.Profiles.GetFollowers)]
-        public async Task<IActionResult> GetFollowers(string profileId)
+        public async Task<IActionResult> GetFollowers([FromRoute] string profileId)
         {
             return Ok(new {Followers = await _followerService.GetUserFollowers(profileId)});
         }
 
         [HttpGet(ApiRoutes.Profiles.GetFollowing)]
-        public async Task<IActionResult> GetFollowing(string profileId)
+        public async Task<IActionResult> GetFollowing([FromRoute] string profileId)
         {
             return Ok(new {Followers = await _followerService.GetUserFollowing(profileId)});
         }
