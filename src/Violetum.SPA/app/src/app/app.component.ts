@@ -8,6 +8,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
+  userId: string;
 
   constructor(
     public oidcSecurityService: OidcSecurityService,
@@ -35,6 +36,8 @@ export class AppComponent implements OnInit {
     })
       .subscribe((data: any) => {
         console.log(JSON.parse(data));
+        this.userId = this.oidcSecurityService.getPayloadFromIdToken().sub;
+        console.log(this.userId);
       });
   }
 }

@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Contracts.V1;
 using Violetum.ApplicationCore.Dtos.Category;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.ViewModels.Category;
+using Violetum.Domain.Infrastructure;
 using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.API.Controllers.V1
@@ -14,10 +16,12 @@ namespace Violetum.API.Controllers.V1
     public class CategoriesController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
+        private readonly ITokenManager _tokenManager;
 
-        public CategoriesController(ICategoryService categoryService)
+        public CategoriesController(ICategoryService categoryService, ITokenManager tokenManager)
         {
             _categoryService = categoryService;
+            _tokenManager = tokenManager;
         }
 
         [HttpGet(ApiRoutes.Categories.GetMany)]
@@ -28,8 +32,12 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPost(ApiRoutes.Categories.Create)]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateCategoryDto createCategoryDto)
         {
+                        string userId = await _tokenManager.GetUserIdFromAccessToken();
+                        createCategoryDto.AuthorId = userId;
+
             CategoryViewModel category = await _categoryService.CreateCategory(createCategoryDto);
 
             return Created(HttpContext.Request.GetDisplayUrl(), new {Category = category});
@@ -42,10 +50,11 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPut(ApiRoutes.Categories.Update)]
+        [Authorize]
         public async Task<IActionResult> Update([FromRoute] string categoryId,
             [FromBody] UpdateCategoryDto updateCategoryDto)
         {
-            string userId = User.Claims.Where(x => x.Type == "sub").Select(x => x.Value).FirstOrDefault();
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
 
             CategoryViewModel category = await _categoryService.UpdateCategory(categoryId, userId, updateCategoryDto);
 
@@ -53,9 +62,10 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpDelete(ApiRoutes.Categories.Delete)]
+        [Authorize]
         public async Task<IActionResult> Delete([FromRoute] string categoryId)
         {
-            string userId = User.Claims.Where(x => x.Type == "sub").Select(x => x.Value).FirstOrDefault();
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
 
             await _categoryService.DeleteCategory(categoryId, userId);
 

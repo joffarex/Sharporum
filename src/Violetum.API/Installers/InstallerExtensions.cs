@@ -5,6 +5,8 @@ using System.Reflection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Violetum.API.Infrastructure;
+using Violetum.Domain.Infrastructure;
 
 namespace Violetum.API.Installers
 {
@@ -34,6 +36,8 @@ namespace Violetum.API.Installers
             IEnumerable<TypeInfo> services = definedType
                 .Where(x => x.GetTypeInfo().GetCustomAttribute<TAttribute>() != null);
 
+            @this.AddTransient<ITokenManager, TokenManager>();
+            
             foreach (TypeInfo service in services)
             {
                 @this.AddTransient(service.ImplementedInterfaces.FirstOrDefault(x => !x.Name.Contains("Base")),

@@ -8,6 +8,7 @@ using Violetum.API.Contracts.V1;
 using Violetum.ApplicationCore.Dtos.Post;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.ViewModels.Post;
+using Violetum.Domain.Infrastructure;
 using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.API.Controllers.V1
@@ -15,10 +16,12 @@ namespace Violetum.API.Controllers.V1
     public class PostsController : ControllerBase
     {
         private readonly IPostService _postService;
+        private readonly ITokenManager _tokenManager;
 
-        public PostsController(IPostService postService)
+        public PostsController(IPostService postService, ITokenManager tokenManager)
         {
             _postService = postService;
+            _tokenManager = tokenManager;
         }
 
         [HttpGet("/secret")]
@@ -29,7 +32,6 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpGet(ApiRoutes.Posts.GetMany)]
-        [Authorize]
         public async Task<IActionResult> GetMany([FromQuery] PostSearchParams searchParams)
         {
             IEnumerable<PostViewModel> posts = await _postService.GetPosts(searchParams);
@@ -42,17 +44,22 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPost(ApiRoutes.Posts.Create)]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreatePostDto createPostDto)
         {
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            createPostDto.AuthorId = userId;
+            
             PostViewModel post = await _postService.CreatePost(createPostDto);
 
             return Created(HttpContext.Request.GetDisplayUrl(), new {Post = post});
         }
 
         [HttpGet(ApiRoutes.Posts.NewsFeed)]
-        public IActionResult NewsFeed([FromQuery] PostSearchParams searchParams)
+        [Authorize]
+        public async Task<IActionResult> NewsFeed([FromQuery] PostSearchParams searchParams)
         {
-            string userId = User.Claims.Where(x => x.Type == "sub").Select(x => x.Value).FirstOrDefault();
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
 
             IEnumerable<PostViewModel> posts = _postService.GetNewsFeedPosts(userId, searchParams);
             int postsCount = _postService.GetTotalPostsCountInNewsFeed(userId, searchParams);
@@ -70,9 +77,10 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPut(ApiRoutes.Posts.Update)]
+        [Authorize]
         public async Task<IActionResult> Update([FromRoute] string postId, [FromBody] UpdatePostDto updatePostDto)
         {
-            string userId = User.Claims.Where(x => x.Type == "sub").Select(x => x.Value).FirstOrDefault();
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
 
             PostViewModel post = await _postService.UpdatePost(postId, userId, updatePostDto);
 
@@ -80,9 +88,10 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpDelete(ApiRoutes.Posts.Delete)]
+        [Authorize]
         public async Task<IActionResult> Delete([FromRoute] string postId)
         {
-            string userId = User.Claims.Where(x => x.Type == "sub").Select(x => x.Value).FirstOrDefault();
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
 
             await _postService.DeletePost(postId, userId);
 
@@ -90,9 +99,10 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPost(ApiRoutes.Posts.Vote)]
+        [Authorize]
         public async Task<IActionResult> Vote([FromRoute] string postId, [FromBody] PostVoteDto postVoteDto)
         {
-            string userId = User.Claims.Where(x => x.Type == "sub").Select(x => x.Value).FirstOrDefault();
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
 
             await _postService.VotePost(postId, userId, postVoteDto);
 

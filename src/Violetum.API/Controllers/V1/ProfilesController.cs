@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Contracts.V1;
 using Violetum.ApplicationCore.Dtos.Follower;
@@ -8,18 +9,22 @@ using Violetum.ApplicationCore.Dtos.Profile;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.ViewModels.User;
 using Violetum.Domain.CustomExceptions;
+using Violetum.Domain.Infrastructure;
 
 namespace Violetum.API.Controllers.V1
 {
     public class ProfilesController : ControllerBase
     {
         private readonly IFollowerService _followerService;
+        private readonly ITokenManager _tokenManager;
         private readonly IProfileService _profileService;
 
-        public ProfilesController(IProfileService profileService, IFollowerService followerService)
+        public ProfilesController(IProfileService profileService, IFollowerService followerService,
+            ITokenManager tokenManager)
         {
             _profileService = profileService;
             _followerService = followerService;
+            _tokenManager = tokenManager;
         }
 
         [HttpGet(ApiRoutes.Profiles.Get)]
@@ -29,10 +34,11 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPut(ApiRoutes.Profiles.Update)]
+        [Authorize]
         public async Task<IActionResult> Update([FromRoute] string profileId,
             [FromBody] UpdateProfileDto updateProfileDto)
         {
-            string userId = User.Claims.Where(x => x.Type == "sub").Select(x => x.Value).FirstOrDefault();
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
 
             if (profileId != userId)
             {
@@ -57,10 +63,11 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPost(ApiRoutes.Profiles.Follow)]
+        [Authorize]
         public async Task<IActionResult> Follow([FromQuery] string profileId,
             [FromBody] FollowActionDto followActionDto)
         {
-            string userId = User.Claims.Where(x => x.Type == "sub").Select(x => x.Value).FirstOrDefault();
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
 
             if ((userId != followActionDto.FollowerUserId) || (profileId != followActionDto.UserToFollowId))
             {
@@ -73,10 +80,11 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPost(ApiRoutes.Profiles.Unfollow)]
+        [Authorize]
         public async Task<IActionResult> Unfollow([FromQuery] string profileId,
             [FromBody] FollowActionDto followActionDto)
         {
-            string userId = User.Claims.Where(x => x.Type == "sub").Select(x => x.Value).FirstOrDefault();
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
 
             if ((userId != followActionDto.FollowerUserId) || (profileId != followActionDto.UserToFollowId))
             {

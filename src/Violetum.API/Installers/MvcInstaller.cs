@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using AutoMapper;
+using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -17,6 +18,8 @@ namespace Violetum.API.Installers
         public void InstallServices(IServiceCollection services, IConfiguration configuration,
             IWebHostEnvironment environment)
         {
+            services.AddHttpContextAccessor();
+
             string filePath = Path.Combine(environment.ContentRootPath, "../../cert.pfx");
             var certificate = new X509Certificate2(filePath, "password");
 
@@ -46,6 +49,7 @@ namespace Violetum.API.Installers
                         ValidateLifetime = true,
                     };
                 });
+            services.AddHttpClient();
 
             services.AddCors(config =>
                 config.AddPolicy("SPAPolicy",
