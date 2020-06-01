@@ -10,16 +10,18 @@ namespace Violetum.API
     public class Startup
     {
         private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _environment;
 
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
             _configuration = configuration;
+            _environment = environment;
         }
 
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.InstallServicesInAssembly(_configuration);
+            services.InstallServicesInAssembly(_configuration, _environment);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -33,7 +35,7 @@ namespace Violetum.API
                 app.UseHsts();
             }
 
-
+            app.UseCors("SPAPolicy");
             app.UseHttpsRedirection();
             app.UseSwagger();
 
@@ -42,7 +44,7 @@ namespace Violetum.API
 
             app.UseAuthentication();
 
-            // app.UseAuthorization();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }

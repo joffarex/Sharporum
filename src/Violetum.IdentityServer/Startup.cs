@@ -86,8 +86,20 @@ namespace Violetum.IdentityServer
                     options.ConfigureDbContext = b => b.UseSqlServer(connectionString,
                         sql => sql.MigrationsAssembly(assembly));
                 })
-                .AddSigningCredential(certificate);
+                .AddSigningCredential(certificate).AddCustomCorsPolicy();
             // .AddDeveloperSigningCredential();
+
+            // var cors = new DefaultCorsPolicyService(_logger)
+            // {
+            //     AllowedOrigins = { "https://localhost:4200" },
+            // };
+            // services.AddSingleton<ICorsPolicyService>(cors);
+
+            services.AddCors(confg =>
+                confg.AddPolicy("AllowAll",
+                    p => p.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()));
 
             services.AddControllersWithViews();
         }
@@ -103,6 +115,7 @@ namespace Violetum.IdentityServer
             app.UseStaticFiles();
             app.UseRouting();
 
+            app.UseCors("AllowAll");
             app.UseIdentityServer();
 
             app.UseEndpoints(endpoints => { endpoints.MapDefaultControllerRoute(); });

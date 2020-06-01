@@ -44,6 +44,27 @@ namespace Violetum.IdentityServer
                     AllowOfflineAccess = true,
                     AccessTokenLifetime = 60,
                 },
+                new Client
+                {
+                    ClientId = "Violetum.SPA",
+
+                    AllowedGrantTypes = GrantTypes.Code,
+                    RequirePkce = true,
+                    RequireClientSecret = false,
+
+                    RedirectUris = {"http://localhost:4200"},
+                    PostLogoutRedirectUris = {"http://localhost:4200"},
+                    AllowedCorsOrigins = {"http://localhost:4200"},
+
+                    AllowedScopes =
+                    {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        "Violetum.API",
+                    },
+
+                    AllowAccessTokensViaBrowser = true,
+                    RequireConsent = false,
+                },
             };
     }
 }

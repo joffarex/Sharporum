@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Contracts.V1;
@@ -20,7 +21,15 @@ namespace Violetum.API.Controllers.V1
             _postService = postService;
         }
 
+        [HttpGet("/secret")]
+        [Authorize]
+        public IActionResult Secret()
+        {
+            return Ok(new {Msg = "Secret"});
+        }
+
         [HttpGet(ApiRoutes.Posts.GetMany)]
+        [Authorize]
         public async Task<IActionResult> GetMany([FromQuery] PostSearchParams searchParams)
         {
             IEnumerable<PostViewModel> posts = await _postService.GetPosts(searchParams);
