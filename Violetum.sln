@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Violetum.Web", "src\Violetu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Violetum.IdentityServer", "src\Violetum.IdentityServer\Violetum.IdentityServer.csproj", "{44975DDE-F269-48B7-86AC-C664E72F741E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Violetum.SPA", "src\Violetum.SPA\Violetum.SPA.csproj", "{479CFA36-6AC8-4920-B040-5A3A28D552A0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{44975DDE-F269-48B7-86AC-C664E72F741E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44975DDE-F269-48B7-86AC-C664E72F741E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44975DDE-F269-48B7-86AC-C664E72F741E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{479CFA36-6AC8-4920-B040-5A3A28D552A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{479CFA36-6AC8-4920-B040-5A3A28D552A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{479CFA36-6AC8-4920-B040-5A3A28D552A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{479CFA36-6AC8-4920-B040-5A3A28D552A0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
