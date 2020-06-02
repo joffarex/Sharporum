@@ -87,13 +87,6 @@ namespace Violetum.IdentityServer
                         sql => sql.MigrationsAssembly(assembly));
                 })
                 .AddSigningCredential(certificate).AddCustomCorsPolicy();
-            // .AddDeveloperSigningCredential();
-
-            // var cors = new DefaultCorsPolicyService(_logger)
-            // {
-            //     AllowedOrigins = { "https://localhost:4200" },
-            // };
-            // services.AddSingleton<ICorsPolicyService>(cors);
 
             services.AddCors(confg =>
                 confg.AddPolicy("AllowAll",
