@@ -1,4 +1,4 @@
-﻿namespace Violetum.IdentityServer.Controllers
+﻿namespace Violetum.IdentityServer.Models
 {
     public class UserViewModel
     {

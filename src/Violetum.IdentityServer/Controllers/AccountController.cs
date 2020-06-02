@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.Domain.Entities;
+using Violetum.IdentityServer.Models;
 
 namespace Violetum.IdentityServer.Controllers
 {
