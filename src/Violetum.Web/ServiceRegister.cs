@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using FluentValidation;
 using Violetum.ApplicationCore;
+using Violetum.ApplicationCore.Attributes;
 using Violetum.ApplicationCore.Dtos.Category;
 using Violetum.ApplicationCore.Dtos.Comment;
 using Violetum.ApplicationCore.Dtos.Post;

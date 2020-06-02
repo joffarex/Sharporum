@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Violetum.ApplicationCore.Attributes;
 using Violetum.ApplicationCore.Dtos.Follower;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.Interfaces.Validators;

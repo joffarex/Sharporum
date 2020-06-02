@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Violetum.ApplicationCore.Attributes;
 using Violetum.ApplicationCore.Interfaces.Validators;
 using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Entities;

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Violetum.ApplicationCore
+namespace Violetum.ApplicationCore.Attributes
 {
     public class ValidatorAttribute : Attribute
     {

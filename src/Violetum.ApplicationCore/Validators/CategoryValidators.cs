@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using Violetum.ApplicationCore.Attributes;
 using Violetum.ApplicationCore.Interfaces.Validators;
 using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Entities;
