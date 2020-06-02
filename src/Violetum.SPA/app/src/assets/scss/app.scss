@@ -1,0 +1,117 @@
+/*
+=========================================================
+* BLK Design System Angular - v1.1.0
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/app-angular
+* Copyright 2019 Creative Tim (https://www.creative-tim.com)
+* Licensed under MIT
+
+* Coded by Creative Tim
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ */
+
+// Core
+
+@import "app/custom/functions";
+@import "app/bootstrap/functions";
+
+@import "app/custom/variables";
+@import "app/bootstrap/variables";
+
+@import "app/custom/mixins";
+@import "app/bootstrap/mixins";
+
+// Bootstrap components
+
+@import "app/bootstrap/root";
+@import "app/bootstrap/reboot";
+@import "app/bootstrap/type";
+@import "app/bootstrap/images";
+@import "app/bootstrap/code";
+@import "app/bootstrap/grid";
+@import "app/bootstrap/tables";
+@import "app/bootstrap/forms";
+@import "app/bootstrap/buttons";
+@import "app/bootstrap/transitions";
+@import "app/bootstrap/dropdown";
+@import "app/bootstrap/button-group";
+@import "app/bootstrap/input-group";
+@import "app/bootstrap/custom-forms";
+@import "app/bootstrap/nav";
+@import "app/bootstrap/navbar";
+@import "app/bootstrap/card";
+@import "app/bootstrap/breadcrumb";
+@import "app/bootstrap/pagination";
+@import "app/bootstrap/badge";
+@import "app/bootstrap/jumbotron";
+@import "app/bootstrap/alert";
+@import "app/bootstrap/progress";
+@import "app/bootstrap/media";
+@import "app/bootstrap/list-group";
+@import "app/bootstrap/close";
+@import "app/bootstrap/modal";
+@import "app/bootstrap/tooltip";
+@import "app/bootstrap/popover";
+@import "app/bootstrap/carousel";
+@import "app/bootstrap/utilities";
+@import "app/bootstrap/print";
+
+// Custom components
+
+@import "app/custom/alerts.scss";
+@import "app/custom/buttons.scss";
+@import "app/custom/dropdown.scss";
+@import "app/custom/footer.scss";
+@import "app/custom/forms.scss";
+@import "app/custom/images.scss";
+@import "app/custom/modal.scss";
+@import "app/custom/navbar.scss";
+@import "app/custom/type.scss";
+@import "app/custom/icons.scss";
+@import "app/custom/tables";
+@import "app/custom/checkboxes-radio";
+@import "app/custom/fixed-plugin";
+@import "app/custom/pagination.scss";
+@import "app/custom/misc.scss";
+@import "app/custom/rtl.scss";
+@import "app/custom/input-group.scss";
+@import "app/custom/pages.scss";
+@import "app/custom/progress.scss";
+@import "app/custom/badge.scss";
+@import "app/custom/pills.scss";
+@import "app/custom/tabs.scss";
+@import "app/custom/info-areas.scss";
+
+// Sections
+@import "app/custom/sections.scss";
+
+// Vendor / Plugins
+
+@import "app/custom/vendor/plugin-perfect-scrollbar.scss";
+@import "app/custom/vendor/plugin-animate-bootstrap-notify.scss";
+@import "app/custom/vendor/plugin-bootstrap-switch.scss";
+@import "app/custom/vendor/plugin-nouislider.scss";
+@import "app/custom/vendor/plugin-datetimepicker.scss";
+
+// Cards
+
+@import "app/custom/card";
+@import "app/custom/cards/card-chart";
+@import "app/custom/cards/card-map";
+@import "app/custom/cards/card-user";
+@import "app/custom/cards/card-task";
+@import "app/custom/cards/card-plain";
+@import "app/custom/cards/card-register";
+@import "app/custom/cards/card-stats";
+@import "app/custom/cards/card-chart";
+
+// Angular changes
+@import "app/angular/tabs";
+@import "app/angular/pills";
+@import "app/angular/alerts";
+@import "app/angular/datepicker";
+@import "app/angular/pages";
