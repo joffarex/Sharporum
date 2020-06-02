@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Violetum.ApplicationCore;
+using Violetum.API.Validators;
 using Violetum.ApplicationCore.Attributes;
 using Violetum.Infrastructure;
 
@@ -16,6 +16,7 @@ namespace Violetum.API.Installers
             services.InjectCustomServicesByAttribute<RepositoryAttribute>();
             services.InjectCustomServicesByAttribute<ValidatorAttribute>();
             services.InjectCustomServicesByAttribute<ServiceAttribute>();
+            services.InjectCustomServicesByAttribute<FluentValidatorAttribute>();
         }
     }
 }
