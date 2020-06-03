@@ -74,7 +74,23 @@ namespace Violetum.IdentityServer.Controllers
                 return View(registerViewModel);
             }
 
-            var user = new User(registerViewModel.Username);
+            User existingUserWithUsername = await _userManager.FindByNameAsync(registerViewModel.Username);
+
+            if (existingUserWithUsername != null)
+            {
+                ModelState.AddModelError("UsernameExists", "User with provided username already exists");
+                return View(registerViewModel);
+            }
+
+            User existingUserWithEmail = await _userManager.FindByEmailAsync(registerViewModel.Email);
+
+            if (existingUserWithEmail != null)
+            {
+                ModelState.AddModelError("EmailExists", "User with provided email already exists");
+                return View(registerViewModel);
+            }
+
+            var user = new User {UserName = registerViewModel.Username, Email = registerViewModel.Email};
             IdentityResult result = await _userManager.CreateAsync(user, registerViewModel.Password);
 
             if (result.Succeeded)
@@ -84,7 +100,8 @@ namespace Violetum.IdentityServer.Controllers
                 return Redirect(registerViewModel.ReturnUrl);
             }
 
-            return View();
+            ModelState.AddModelError("Error", "User creation failed");
+            return View(registerViewModel);
         }
 
         [HttpGet]
