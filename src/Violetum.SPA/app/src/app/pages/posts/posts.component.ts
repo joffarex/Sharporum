@@ -1,10 +1,11 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import {Component, OnInit, OnDestroy, Input} from '@angular/core';
 
 @Component({
   selector: 'app-posts',
   templateUrl: 'posts.component.html'
 })
 export class PostsComponent implements OnInit, OnDestroy {
+  @Input() source: string;
   searchType = 'Post Title';
   posts: any[] = [
     {
@@ -30,6 +31,12 @@ export class PostsComponent implements OnInit, OnDestroy {
   ];
 
   constructor() {
+  }
+
+  getContentContainerClass(): string {
+    if (this.source !== 'profile') {
+      return 'content-container container';
+    }
   }
 
   ngOnInit() {

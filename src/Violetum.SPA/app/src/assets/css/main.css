@@ -260,6 +260,10 @@
     background-color: #EEEEEE;
 }*/
 
+.content-container {
+  padding-top: 20vh;
+}
+
 .social-buttons-demo .btn {
   margin-right: 5px;
   margin-bottom: 7px;

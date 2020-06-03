@@ -5,6 +5,8 @@ import {Component, OnInit, OnDestroy} from '@angular/core';
   templateUrl: 'profile.component.html'
 })
 export class ProfileComponent implements OnInit, OnDestroy {
+  source = 'profile';
+
   constructor() {
   }
 
