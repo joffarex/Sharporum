@@ -37,13 +37,12 @@ namespace Violetum.API
 
             app.UseCors("SPAPolicy");
             app.UseHttpsRedirection();
+            app.UseAuthentication();
+
             app.UseSwagger();
 
             app.UseSwaggerUI(options => { options.SwaggerEndpoint("/swagger/v1/swagger.json", "Violetum API V1"); });
             app.UseRouting();
-
-            app.UseAuthentication();
-
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });

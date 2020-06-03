@@ -65,6 +65,20 @@ namespace Violetum.IdentityServer
                     AllowAccessTokensViaBrowser = true,
                     RequireConsent = false,
                 },
+                new Client
+                {
+                    ClientId = "Violetum.API.Swagger",
+                    AllowedGrantTypes = GrantTypes.Implicit,
+                    AllowAccessTokensViaBrowser = true,
+                    RequireConsent = false,
+                    RequireClientSecret = false,
+                    RedirectUris = {"http://localhost:5001/swagger/oauth2-redirect.html"},
+                    AllowedScopes =
+                    {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        "Violetum.API",
+                    },
+                },
             };
     }
 }

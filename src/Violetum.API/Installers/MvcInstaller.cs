@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 
 namespace Violetum.API.Installers
 {
@@ -64,12 +63,6 @@ namespace Violetum.API.Installers
             services.AddControllers().AddFluentValidation(fv =>
             {
                 fv.RunDefaultMvcValidationAfterFluentValidationExecutes = false;
-            });
-            ;
-
-            services.AddSwaggerGen(options =>
-            {
-                options.SwaggerDoc("v1", new OpenApiInfo {Title = "Violetum API", Version = "v1"});
             });
         }
     }
