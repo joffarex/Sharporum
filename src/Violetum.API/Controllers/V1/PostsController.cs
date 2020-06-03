@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Contracts.V1;
+using Violetum.API.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Post;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.ViewModels.Post;
@@ -37,9 +37,11 @@ namespace Violetum.API.Controllers.V1
             IEnumerable<PostViewModel> posts = await _postService.GetPosts(searchParams);
             int postsCount = await _postService.GetTotalPostsCount(searchParams);
 
-            return Ok(new
+            return Ok(new GetManyResponse<PostViewModel>
             {
-                Posts = posts, PostsCount = postsCount, Params = new {searchParams.Limit, searchParams.CurrentPage},
+                Data = posts,
+                Count = postsCount,
+                Params = new Params {Limit = searchParams.Limit, CurrentPage = searchParams.CurrentPage},
             });
         }
 
@@ -49,10 +51,10 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
             createPostDto.AuthorId = userId;
-            
+
             PostViewModel post = await _postService.CreatePost(createPostDto);
 
-            return Created(HttpContext.Request.GetDisplayUrl(), new {Post = post});
+            return Created(HttpContext.Request.GetDisplayUrl(), new PostResponse {Post = post});
         }
 
         [HttpGet(ApiRoutes.Posts.NewsFeed)]
@@ -64,16 +66,18 @@ namespace Violetum.API.Controllers.V1
             IEnumerable<PostViewModel> posts = _postService.GetNewsFeedPosts(userId, searchParams);
             int postsCount = _postService.GetTotalPostsCountInNewsFeed(userId, searchParams);
 
-            return Ok(new
+            return Ok(new GetManyResponse<PostViewModel>
             {
-                Posts = posts, PostsCount = postsCount, Params = new {searchParams.Limit, searchParams.CurrentPage},
+                Data = posts,
+                Count = postsCount,
+                Params = new Params {Limit = searchParams.Limit, CurrentPage = searchParams.CurrentPage},
             });
         }
 
         [HttpGet(ApiRoutes.Posts.Get)]
         public IActionResult Get([FromRoute] string postId)
         {
-            return Ok(new {Post = _postService.GetPost(postId)});
+            return Ok(new PostResponse {Post = _postService.GetPost(postId)});
         }
 
         [HttpPut(ApiRoutes.Posts.Update)]
@@ -84,7 +88,7 @@ namespace Violetum.API.Controllers.V1
 
             PostViewModel post = await _postService.UpdatePost(postId, userId, updatePostDto);
 
-            return Ok(new {Post = post});
+            return Ok(new PostResponse {Post = post});
         }
 
         [HttpDelete(ApiRoutes.Posts.Delete)]
@@ -95,7 +99,7 @@ namespace Violetum.API.Controllers.V1
 
             await _postService.DeletePost(postId, userId);
 
-            return Ok(new {Message = "OK"});
+            return Ok(new ActionSuccessResponse {Message = "OK"});
         }
 
         [HttpPost(ApiRoutes.Posts.Vote)]
@@ -106,7 +110,7 @@ namespace Violetum.API.Controllers.V1
 
             await _postService.VotePost(postId, userId, postVoteDto);
 
-            return Ok(new {Message = "OK"});
+            return Ok(new ActionSuccessResponse {Message = "OK"});
         }
     }
 }

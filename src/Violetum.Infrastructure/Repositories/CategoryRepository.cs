@@ -43,6 +43,11 @@ namespace Violetum.Infrastructure.Repositories
                 .ToList();
         }
 
+        public int GetTotalCommentsCount(Func<Category, bool> condition)
+        {
+            return _context.Categories.AsEnumerable().Where(condition).Count();
+        }
+
         public Task<int> CreateCategory(Category category)
         {
             return CreateEntity(category);

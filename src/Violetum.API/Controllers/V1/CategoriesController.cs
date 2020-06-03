@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Contracts.V1;
+using Violetum.API.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Category;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.ViewModels.Category;
@@ -28,25 +28,32 @@ namespace Violetum.API.Controllers.V1
         public async Task<IActionResult> GetMany([FromQuery] CategorySearchParams searchParams)
         {
             IEnumerable<CategoryViewModel> categories = await _categoryService.GetCategories(searchParams);
-            return Ok(new {Categories = categories, Params = new {searchParams.Limit, searchParams.CurrentPage}});
+            int categoriesCount = await _categoryService.GetTotalCategoriesCount(searchParams);
+
+            return Ok(new GetManyResponse<CategoryViewModel>
+            {
+                Data = categories,
+                Count = categoriesCount,
+                Params = new Params {Limit = searchParams.Limit, CurrentPage = searchParams.CurrentPage},
+            });
         }
 
         [HttpPost(ApiRoutes.Categories.Create)]
         [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateCategoryDto createCategoryDto)
         {
-                        string userId = await _tokenManager.GetUserIdFromAccessToken();
-                        createCategoryDto.AuthorId = userId;
+            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            createCategoryDto.AuthorId = userId;
 
             CategoryViewModel category = await _categoryService.CreateCategory(createCategoryDto);
 
-            return Created(HttpContext.Request.GetDisplayUrl(), new {Category = category});
+            return Created(HttpContext.Request.GetDisplayUrl(), new CategoryResponse {Category = category});
         }
 
         [HttpGet(ApiRoutes.Categories.Get)]
         public IActionResult Get([FromRoute] string categoryId)
         {
-            return Ok(new {Category = _categoryService.GetCategoryById(categoryId)});
+            return Ok(new CategoryResponse {Category = _categoryService.GetCategoryById(categoryId)});
         }
 
         [HttpPut(ApiRoutes.Categories.Update)]
@@ -58,7 +65,7 @@ namespace Violetum.API.Controllers.V1
 
             CategoryViewModel category = await _categoryService.UpdateCategory(categoryId, userId, updateCategoryDto);
 
-            return Ok(new {Category = category});
+            return Ok(new CategoryResponse {Category = category});
         }
 
         [HttpDelete(ApiRoutes.Categories.Delete)]
@@ -69,7 +76,7 @@ namespace Violetum.API.Controllers.V1
 
             await _categoryService.DeleteCategory(categoryId, userId);
 
-            return Ok(new {Message = "OK"});
+            return Ok(new ActionSuccessResponse {Message = "OK"});
         }
     }
 }

@@ -56,6 +56,18 @@ namespace Violetum.ApplicationCore.Services
                 x => _mapper.Map<CategoryViewModel>(x), searchParams);
         }
 
+        public async Task<int> GetTotalCategoriesCount(CategorySearchParams searchParams)
+        {
+            if (!string.IsNullOrEmpty(searchParams.UserId))
+            {
+                await _userValidators.GetUserByIdOrThrow(searchParams.UserId);
+            }
+
+            return _categoryRepository.GetTotalCommentsCount(
+                x => CategoryHelpers.WhereConditionPredicate(searchParams, x)
+            );
+        }
+
         public async Task<CategoryViewModel> CreateCategory(CreateCategoryDto createCategoryDto)
         {
             User user = await _userValidators.GetUserByIdOrThrow(createCategoryDto.AuthorId);

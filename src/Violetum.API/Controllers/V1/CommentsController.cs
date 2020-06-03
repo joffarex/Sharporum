@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Contracts.V1;
+using Violetum.API.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Comment;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.ViewModels.Comment;
@@ -30,10 +30,11 @@ namespace Violetum.API.Controllers.V1
             IEnumerable<CommentViewModel> comments = await _commentService.GetComments(searchParams);
             int commentsCount = await _commentService.GetTotalCommentsCount(searchParams);
 
-            return Ok(new
+            return Ok(new GetManyResponse<CommentViewModel>
             {
-                Comments = comments, CommentsCount = commentsCount,
-                Params = new {searchParams.Limit, searchParams.CurrentPage},
+                Data = comments,
+                Count = commentsCount,
+                Params = new Params {Limit = searchParams.Limit, CurrentPage = searchParams.CurrentPage},
             });
         }
 
@@ -43,16 +44,16 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
             createCommentDto.AuthorId = userId;
-            
+
             CommentViewModel comment = await _commentService.CreateComment(createCommentDto);
 
-            return Created(HttpContext.Request.GetDisplayUrl(), new {Comment = comment});
+            return Created(HttpContext.Request.GetDisplayUrl(), new CommentResponse {Comment = comment});
         }
 
         [HttpGet(ApiRoutes.Comments.Get)]
         public IActionResult Get(string commentId)
         {
-            return Ok(new {Comment = _commentService.GetComment(commentId)});
+            return Ok(new CommentResponse {Comment = _commentService.GetComment(commentId)});
         }
 
         [HttpPut(ApiRoutes.Comments.Update)]
@@ -64,7 +65,7 @@ namespace Violetum.API.Controllers.V1
 
             CommentViewModel comment = await _commentService.UpdateComment(commentId, userId, updateCommentDto);
 
-            return Ok(new {Comment = comment});
+            return Ok(new CommentResponse {Comment = comment});
         }
 
         [HttpDelete(ApiRoutes.Comments.Delete)]
@@ -75,7 +76,7 @@ namespace Violetum.API.Controllers.V1
 
             await _commentService.DeleteComment(commentId, userId);
 
-            return Ok(new {Message = "OK"});
+            return Ok(new ActionSuccessResponse {Message = "OK"});
         }
 
         [HttpPost(ApiRoutes.Comments.Vote)]
@@ -86,7 +87,7 @@ namespace Violetum.API.Controllers.V1
 
             await _commentService.VoteComment(commentId, userId, commentVoteDto);
 
-            return Ok(new {Message = "OK"});
+            return Ok(new ActionSuccessResponse {Message = "OK"});
         }
     }
 }

@@ -16,6 +16,8 @@ namespace Violetum.Domain.Infrastructure
             Func<Category, TResult> selector,
             CategorySearchParams searchParams);
 
+        int GetTotalCommentsCount(Func<Category, bool> condition);
+
         Task<int> CreateCategory(Category category);
         Task<int> UpdateCategory(Category category);
         Task<int> DeleteCategory(Category category);
