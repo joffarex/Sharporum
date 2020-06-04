@@ -94,16 +94,13 @@ namespace Violetum.ApplicationCore.Services
                     $"{nameof(Comment)}:(catid[{categoryId}]|dtoid[{updateCategoryDto.Id}] update");
             }
 
-            if (string.IsNullOrEmpty(userId))
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, "Unauthorized User");
-            }
-
             Category category = _categoryValidators.GetCategoryByIdOrThrow(categoryId, x => x);
 
-            if (category.AuthorId != userId)
+            bool userOwnsCategory = CategoryHelpers.UserOwnsCategory(userId, category.AuthorId);
+            if (!userOwnsCategory)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized,
+                    $"Unauthorized User:{userId ?? "Anonymous"}");
             }
 
             category.Name = updateCategoryDto.Name;
@@ -117,16 +114,13 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<bool> DeleteCategory(string categoryId, string userId)
         {
-            if (string.IsNullOrEmpty(userId))
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, "Unauthorized User");
-            }
-
             Category category = _categoryValidators.GetCategoryByIdOrThrow(categoryId, x => x);
 
-            if (category.AuthorId != userId)
+            bool userOwnsCategory = CategoryHelpers.UserOwnsCategory(userId, category.AuthorId);
+            if (!userOwnsCategory)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized,
+                    $"Unauthorized User:{userId ?? "Anonymous"}");
             }
 
             return await _categoryRepository.DeleteCategory(category) > 0;

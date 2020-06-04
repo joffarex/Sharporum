@@ -135,16 +135,13 @@ namespace Violetum.ApplicationCore.Services
                     $"{nameof(Post)}:(pid[{postId}]|dtoid[{updatePostDto.Id}] update");
             }
 
-            if (string.IsNullOrEmpty(userId))
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, "Unauthorized User");
-            }
-
             Post post = _postValidators.GetPostByIdOrThrow(postId, x => x);
 
-            if (post.AuthorId != userId)
+            bool userOwnsPost = PostHelpers.UserOwnsPost(userId, post.AuthorId);
+            if (userOwnsPost)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized,
+                    $"Unauthorized User:{userId ?? "Anonymous"}");
             }
 
             post.Title = updatePostDto.Title;
@@ -157,16 +154,13 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task DeletePost(string postId, string userId)
         {
-            if (string.IsNullOrEmpty(userId))
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, "Unauthorized User");
-            }
-
             Post post = _postValidators.GetPostByIdOrThrow(postId, x => x);
 
-            if (post.AuthorId != userId)
+            bool userOwnsPost = PostHelpers.UserOwnsPost(userId, post.AuthorId);
+            if (userOwnsPost)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized,
+                    $"Unauthorized User:{userId ?? "Anonymous"}");
             }
 
             await _postRepository.DeletePost(post);
@@ -177,7 +171,6 @@ namespace Violetum.ApplicationCore.Services
             try
             {
                 User user = await _userValidators.GetUserByIdOrThrow(userId);
-
                 Post post = _postValidators.GetPostByIdOrThrow(postId, x => x);
 
                 var postVote =

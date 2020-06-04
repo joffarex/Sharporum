@@ -33,5 +33,10 @@ namespace Violetum.ApplicationCore.Helpers
         {
             return WhereConditionPredicate(searchParams, p) && followers.Contains(p.AuthorId);
         }
+
+        public static bool UserOwnsPost(string userId, string postAuthorId)
+        {
+            return userId == postAuthorId;
+        }
     }
 }

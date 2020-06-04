@@ -21,5 +21,10 @@ namespace Violetum.ApplicationCore.Helpers
 
             return predicate;
         }
+
+        public static bool UserOwnsCategory(string userId, string categoryAuthorId)
+        {
+            return userId == categoryAuthorId;
+        }
     }
 }

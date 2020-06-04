@@ -117,11 +117,6 @@ namespace Violetum.ApplicationCore.Services
                     $"{nameof(Post)}:(cid[{commentId}]|dtoid[{updateCommentDto.Id}] update");
             }
 
-            if (string.IsNullOrEmpty(userId))
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, "Unauthorized User");
-            }
-
             Comment comment = _commentValidators.GetCommentByIdOrThrow(commentId, x => x);
             if (comment.PostId != updateCommentDto.PostId)
             {
@@ -129,9 +124,11 @@ namespace Violetum.ApplicationCore.Services
                     $"{nameof(Comment)}:(cid[{comment.PostId}]|dtoid[{updateCommentDto.PostId}] update");
             }
 
-            if (comment.AuthorId != userId)
+            bool userOwnsComment = CommentHelpers.UserOwnsComment(userId, comment.AuthorId);
+            if (!userOwnsComment)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized,
+                    $"Unauthorized User:{userId ?? "Anonymous"}");
             }
 
             comment.Content = updateCommentDto.Content;
@@ -143,15 +140,12 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<bool> DeleteComment(string commentId, string userId)
         {
-            if (string.IsNullOrEmpty(userId))
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, "Unauthorized User");
-            }
-
             Comment comment = _commentValidators.GetCommentByIdOrThrow(commentId, x => x);
-            if (comment.AuthorId != userId)
+            bool userOwnsComment = CommentHelpers.UserOwnsComment(userId, comment.AuthorId);
+            if (!userOwnsComment)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized,
+                    $"Unauthorized User:{userId ?? "Anonymous"}");
             }
 
             return await _commentRepository.DeleteComment(comment) > 0;

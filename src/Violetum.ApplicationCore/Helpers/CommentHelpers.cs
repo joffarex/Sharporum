@@ -18,5 +18,10 @@ namespace Violetum.ApplicationCore.Helpers
 
             return true;
         }
+
+        public static bool UserOwnsComment(string userId, string commentAuthorId)
+        {
+            return userId == commentAuthorId;
+        }
     }
 }
