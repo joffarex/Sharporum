@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +37,7 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPut(ApiRoutes.Profiles.Update)]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Update([FromRoute] string profileId,
             [FromBody] UpdateProfileDto updateProfileDto)
         {
@@ -71,7 +72,7 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPost(ApiRoutes.Profiles.Follow)]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Follow([FromQuery] string profileId,
             [FromBody] FollowActionDto followActionDto)
         {
@@ -88,7 +89,7 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPost(ApiRoutes.Profiles.Unfollow)]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Unfollow([FromQuery] string profileId,
             [FromBody] FollowActionDto followActionDto)
         {

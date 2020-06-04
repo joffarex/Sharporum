@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -25,7 +26,7 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpGet("/secret")]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public IActionResult Secret()
         {
             string userId = _identityManager.GetUserId();
@@ -47,7 +48,7 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPost(ApiRoutes.Posts.Create)]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Create([FromBody] CreatePostDto createPostDto)
         {
             string userId = _identityManager.GetUserId();
@@ -59,7 +60,7 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpGet(ApiRoutes.Posts.NewsFeed)]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public IActionResult NewsFeed([FromQuery] PostSearchParams searchParams)
         {
             string userId = _identityManager.GetUserId();
@@ -82,7 +83,7 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPut(ApiRoutes.Posts.Update)]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Update([FromRoute] string postId, [FromBody] UpdatePostDto updatePostDto)
         {
             string userId = _identityManager.GetUserId();
@@ -93,7 +94,7 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpDelete(ApiRoutes.Posts.Delete)]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Delete([FromRoute] string postId)
         {
             string userId = _identityManager.GetUserId();
@@ -104,7 +105,7 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPost(ApiRoutes.Posts.Vote)]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Vote([FromRoute] string postId, [FromBody] PostVoteDto postVoteDto)
         {
             string userId = _identityManager.GetUserId();

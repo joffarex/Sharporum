@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using AutoMapper;
@@ -18,6 +19,8 @@ namespace Violetum.API.Installers
             IWebHostEnvironment environment)
         {
             services.AddHttpContextAccessor();
+            JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+
 
             string filePath = Path.Combine(environment.ContentRootPath, "../../cert.pfx");
             var certificate = new X509Certificate2(filePath, "password");
