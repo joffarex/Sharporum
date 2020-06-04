@@ -19,14 +19,15 @@ namespace Violetum.Web.Controllers
     public class PostsController : Controller
     {
         private readonly ICommentService _commentService;
+        private readonly IIdentityManager _identityManager;
         private readonly IPostService _postService;
-        private readonly ITokenManager _tokenManager;
 
-        public PostsController(IPostService postService, ICommentService commentService, ITokenManager tokenManager)
+        public PostsController(IPostService postService, ICommentService commentService,
+            IIdentityManager identityManager)
         {
             _postService = postService;
             _commentService = commentService;
-            _tokenManager = tokenManager;
+            _identityManager = identityManager;
         }
 
         [HttpGet("Posts/{id}")]
@@ -38,7 +39,7 @@ namespace Violetum.Web.Controllers
 
             PostViewModel post = _postService.GetPost(id);
 
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
             ViewData["UserId"] = userId;
 
             var searchParams = new CommentSearchParams
@@ -93,7 +94,7 @@ namespace Violetum.Web.Controllers
                 (int) Math.Ceiling(totalPosts / (double) searchParams.Limit);
             ViewData["totalPages"] = totalPages;
 
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
             ViewData["UserId"] = userId;
 
             return View(posts);
@@ -102,7 +103,7 @@ namespace Violetum.Web.Controllers
         [Authorize]
         public async Task<IActionResult> Create([FromQuery] string categoryId)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
             ViewData["UserId"] = userId;
             // TODO: populate model with categories
 
@@ -141,7 +142,7 @@ namespace Violetum.Web.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(string id)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
             PostViewModel post = _postService.GetPost(id);
             if (post.Author.Id != userId)
             {
@@ -166,7 +167,7 @@ namespace Violetum.Web.Controllers
                 return RedirectToAction(nameof(Edit));
             }
 
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
             try
             {
                 PostViewModel post = await _postService.UpdatePost(id, userId, updatePostDto);
@@ -181,9 +182,9 @@ namespace Violetum.Web.Controllers
         }
 
         [Authorize]
-        public async Task<IActionResult> Delete(string id)
+        public IActionResult Delete(string id)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
             PostViewModel post = _postService.GetPost(id);
             if (post.Author.Id != userId)
             {
@@ -198,7 +199,7 @@ namespace Violetum.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
             try
             {
                 await _postService.DeletePost(id, userId);
@@ -223,7 +224,7 @@ namespace Violetum.Web.Controllers
                 return RedirectToAction(nameof(Details), new {Id = postId});
             }
 
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
 
             await _postService.VotePost(postId, userId, postVoteDto);
 

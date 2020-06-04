@@ -70,6 +70,11 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<CategoryViewModel> CreateCategory(CreateCategoryDto createCategoryDto)
         {
+            if (string.IsNullOrEmpty(createCategoryDto.AuthorId))
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, "Unauthorized User");
+            }
+
             User user = await _userValidators.GetUserByIdOrThrow(createCategoryDto.AuthorId);
 
             var category = _mapper.Map<Category>(createCategoryDto);
@@ -87,6 +92,11 @@ namespace Violetum.ApplicationCore.Services
             {
                 throw new HttpStatusCodeException(HttpStatusCode.BadRequest,
                     $"{nameof(Comment)}:(catid[{categoryId}]|dtoid[{updateCategoryDto.Id}] update");
+            }
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, "Unauthorized User");
             }
 
             Category category = _categoryValidators.GetCategoryByIdOrThrow(categoryId, x => x);
@@ -107,6 +117,11 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<bool> DeleteCategory(string categoryId, string userId)
         {
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, "Unauthorized User");
+            }
+
             Category category = _categoryValidators.GetCategoryByIdOrThrow(categoryId, x => x);
 
             if (category.AuthorId != userId)

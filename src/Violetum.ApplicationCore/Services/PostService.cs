@@ -110,6 +110,11 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<PostViewModel> CreatePost(CreatePostDto createPostDto)
         {
+            if (string.IsNullOrEmpty(createPostDto.AuthorId))
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, "Unauthorized User");
+            }
+
             User user = await _userValidators.GetUserByIdOrThrow(createPostDto.AuthorId);
             Category category = _categoryValidators.GetCategoryByIdOrThrow(createPostDto.CategoryId, x => x);
 
@@ -130,6 +135,11 @@ namespace Violetum.ApplicationCore.Services
                     $"{nameof(Post)}:(pid[{postId}]|dtoid[{updatePostDto.Id}] update");
             }
 
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, "Unauthorized User");
+            }
+
             Post post = _postValidators.GetPostByIdOrThrow(postId, x => x);
 
             if (post.AuthorId != userId)
@@ -147,6 +157,11 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task DeletePost(string postId, string userId)
         {
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, "Unauthorized User");
+            }
+
             Post post = _postValidators.GetPostByIdOrThrow(postId, x => x);
 
             if (post.AuthorId != userId)

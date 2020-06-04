@@ -22,16 +22,16 @@ namespace Violetum.Web.Controllers
     public class ProfileController : Controller
     {
         private readonly IFollowerService _followerService;
+        private readonly IIdentityManager _identityManager;
         private readonly IMapper _mapper;
         private readonly IPostService _postService;
         private readonly IProfileService _profileService;
-        private readonly ITokenManager _tokenManager;
 
-        public ProfileController(IProfileService profileService, ITokenManager tokenManager,
+        public ProfileController(IProfileService profileService, IIdentityManager identityManager,
             IPostService postService, IFollowerService followerService, IMapper mapper)
         {
             _profileService = profileService;
-            _tokenManager = tokenManager;
+            _identityManager = identityManager;
             _postService = postService;
             _followerService = followerService;
             _mapper = mapper;
@@ -60,7 +60,7 @@ namespace Violetum.Web.Controllers
                 (int) Math.Ceiling(await _postService.GetTotalPostsCount(searchParams) / (double) searchParams.Limit);
             ViewData["totalPages"] = totalPages;
 
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
             ViewData["UserId"] = userId;
 
             return View(new ProfilePageViewModel
@@ -75,7 +75,7 @@ namespace Violetum.Web.Controllers
         [HttpGet("Profile/Edit")]
         public async Task<IActionResult> Edit()
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
 
             ProfileViewModel profile = await _profileService.GetProfile(userId);
             return View(_mapper.Map<UpdateProfileDto>(profile));
@@ -93,7 +93,7 @@ namespace Violetum.Web.Controllers
                 return RedirectToAction(nameof(Edit));
             }
 
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
 
             TempData["EditProfileSuccess"] = "Profile successfully edited";
             ProfileViewModel profile = await _profileService.UpdateProfile(userId, updateProfileDto);
@@ -125,7 +125,7 @@ namespace Violetum.Web.Controllers
         public async Task<IActionResult> Follow(string id, [Bind("UserToFollowId,FollowerUserId")]
             FollowActionDto followActionDto)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
             try
             {
                 if ((userId != followActionDto.FollowerUserId) || (id != followActionDto.UserToFollowId))
@@ -149,7 +149,7 @@ namespace Violetum.Web.Controllers
         public async Task<IActionResult> Unfollow([Bind("UserToFollowId,FollowerUserId")]
             FollowActionDto followActionDto)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
             try
             {
                 if (userId != followActionDto.FollowerUserId)
@@ -187,7 +187,7 @@ namespace Violetum.Web.Controllers
                 searchParams.PostTitle = title;
             }
 
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
             ViewData["UserId"] = userId;
 
             IEnumerable<PostViewModel> posts = _postService.GetNewsFeedPosts(userId, searchParams);

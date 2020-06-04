@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -17,12 +16,12 @@ namespace Violetum.API.Controllers.V1
     public class CategoriesController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
-        private readonly ITokenManager _tokenManager;
+        private readonly IIdentityManager _identityManager;
 
-        public CategoriesController(ICategoryService categoryService, ITokenManager tokenManager)
+        public CategoriesController(ICategoryService categoryService, IIdentityManager identityManager)
         {
             _categoryService = categoryService;
-            _tokenManager = tokenManager;
+            _identityManager = identityManager;
         }
 
         [HttpGet(ApiRoutes.Categories.GetMany)]
@@ -40,10 +39,10 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPost(ApiRoutes.Categories.Create)]
-        [Authorize(JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateCategoryDto createCategoryDto)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
             createCategoryDto.AuthorId = userId;
 
             CategoryViewModel category = await _categoryService.CreateCategory(createCategoryDto);
@@ -58,11 +57,11 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPut(ApiRoutes.Categories.Update)]
-        [Authorize(JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize]
         public async Task<IActionResult> Update([FromRoute] string categoryId,
             [FromBody] UpdateCategoryDto updateCategoryDto)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
 
             CategoryViewModel category = await _categoryService.UpdateCategory(categoryId, userId, updateCategoryDto);
 
@@ -70,10 +69,10 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpDelete(ApiRoutes.Categories.Delete)]
-        [Authorize(JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize]
         public async Task<IActionResult> Delete([FromRoute] string categoryId)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
 
             await _categoryService.DeleteCategory(categoryId, userId);
 

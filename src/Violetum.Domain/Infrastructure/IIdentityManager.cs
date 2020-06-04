@@ -3,9 +3,9 @@ using Violetum.Domain.Models;
 
 namespace Violetum.Domain.Infrastructure
 {
-    public interface ITokenManager
+    public interface IIdentityManager
     {
-        Task<string> GetUserIdFromAccessToken();
+        string GetUserId();
         Task<UserTokens> GetUserTokens();
         Task RefreshAccessToken();
     }

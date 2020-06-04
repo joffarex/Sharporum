@@ -20,15 +20,15 @@ namespace Violetum.Web.Controllers
     public class CategoryController : Controller
     {
         private readonly ICategoryService _categoryService;
+        private readonly IIdentityManager _identityManager;
         private readonly IPostService _postService;
-        private readonly ITokenManager _tokenManager;
 
         public CategoryController(ICategoryService categoryService, IPostService postService,
-            ITokenManager tokenManager)
+            IIdentityManager identityManager)
         {
             _categoryService = categoryService;
             _postService = postService;
-            _tokenManager = tokenManager;
+            _identityManager = identityManager;
         }
 
         [HttpGet("Category/{name}")]
@@ -42,7 +42,7 @@ namespace Violetum.Web.Controllers
 
             CategoryViewModel category = _categoryService.GetCategoryByName(name);
 
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
             ViewData["UserId"] = userId;
 
             var searchParams = new PostSearchParams
@@ -89,16 +89,16 @@ namespace Violetum.Web.Controllers
             IEnumerable<CategoryViewModel>
                 categories = await _categoryService.GetCategories(searchParams);
 
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
             ViewData["UserId"] = userId;
 
             return View(categories);
         }
 
         [Authorize]
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
             ViewData["UserId"] = userId;
 
             return View(new CreateCategoryDto());
@@ -131,7 +131,7 @@ namespace Violetum.Web.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(string id)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
             CategoryViewModel category = _categoryService.GetCategoryById(id);
 
             if (category.Author.Id != userId)
@@ -159,7 +159,7 @@ namespace Violetum.Web.Controllers
                 return RedirectToAction(nameof(Edit));
             }
 
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
 
             try
             {
@@ -177,7 +177,7 @@ namespace Violetum.Web.Controllers
         [Authorize]
         public async Task<IActionResult> Delete(string id)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
 
             CategoryViewModel category = _categoryService.GetCategoryById(id);
 
@@ -208,7 +208,7 @@ namespace Violetum.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
 
             try
             {

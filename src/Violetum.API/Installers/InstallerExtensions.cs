@@ -36,8 +36,8 @@ namespace Violetum.API.Installers
             IEnumerable<TypeInfo> services = definedType
                 .Where(x => x.GetTypeInfo().GetCustomAttribute<TAttribute>() != null);
 
-            @this.AddTransient<ITokenManager, TokenManager>();
-            
+            @this.AddTransient<IIdentityManager, IdentityManager>();
+
             foreach (TypeInfo service in services)
             {
                 @this.AddTransient(service.ImplementedInterfaces.FirstOrDefault(x => !x.Name.Contains("Base")),

@@ -1,7 +1,8 @@
 ﻿using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Contracts.V1;
 using Violetum.API.Contracts.V1.Responses;
@@ -11,22 +12,21 @@ using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.ViewModels.Follower;
 using Violetum.ApplicationCore.ViewModels.User;
 using Violetum.Domain.CustomExceptions;
-using Violetum.Domain.Infrastructure;
 
 namespace Violetum.API.Controllers.V1
 {
     public class ProfilesController : ControllerBase
     {
         private readonly IFollowerService _followerService;
+        private readonly HttpContext _httpContext;
         private readonly IProfileService _profileService;
-        private readonly ITokenManager _tokenManager;
 
         public ProfilesController(IProfileService profileService, IFollowerService followerService,
-            ITokenManager tokenManager)
+            IHttpContextAccessor httpContextAccessor)
         {
             _profileService = profileService;
             _followerService = followerService;
-            _tokenManager = tokenManager;
+            _httpContext = httpContextAccessor.HttpContext;
         }
 
         [HttpGet(ApiRoutes.Profiles.Get)]
@@ -36,11 +36,11 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPut(ApiRoutes.Profiles.Update)]
-        [Authorize(JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize]
         public async Task<IActionResult> Update([FromRoute] string profileId,
             [FromBody] UpdateProfileDto updateProfileDto)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _httpContext.User.FindFirstValue("sub");
 
             if (profileId != userId)
             {
@@ -71,11 +71,11 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPost(ApiRoutes.Profiles.Follow)]
-        [Authorize(JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize]
         public async Task<IActionResult> Follow([FromQuery] string profileId,
             [FromBody] FollowActionDto followActionDto)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _httpContext.User.FindFirstValue("sub");
 
             if ((userId != followActionDto.FollowerUserId) || (profileId != followActionDto.UserToFollowId))
             {
@@ -88,11 +88,11 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPost(ApiRoutes.Profiles.Unfollow)]
-        [Authorize(JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize]
         public async Task<IActionResult> Unfollow([FromQuery] string profileId,
             [FromBody] FollowActionDto followActionDto)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _httpContext.User.FindFirstValue("sub");
 
             if ((userId != followActionDto.FollowerUserId) || (profileId != followActionDto.UserToFollowId))
             {

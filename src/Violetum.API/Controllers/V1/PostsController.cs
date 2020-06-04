@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -16,20 +15,21 @@ namespace Violetum.API.Controllers.V1
 {
     public class PostsController : ControllerBase
     {
+        private readonly IIdentityManager _identityManager;
         private readonly IPostService _postService;
-        private readonly ITokenManager _tokenManager;
 
-        public PostsController(IPostService postService, ITokenManager tokenManager)
+        public PostsController(IPostService postService, IIdentityManager identityManager)
         {
             _postService = postService;
-            _tokenManager = tokenManager;
+            _identityManager = identityManager;
         }
 
         [HttpGet("/secret")]
-        [Authorize(JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize]
         public IActionResult Secret()
         {
-            return Ok(new {Msg = "Secret"});
+            string userId = _identityManager.GetUserId();
+            return Ok(new {Msg = "Secret", UserId = userId});
         }
 
         [HttpGet(ApiRoutes.Posts.GetMany)]
@@ -47,10 +47,10 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPost(ApiRoutes.Posts.Create)]
-        [Authorize(JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreatePostDto createPostDto)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
             createPostDto.AuthorId = userId;
 
             PostViewModel post = await _postService.CreatePost(createPostDto);
@@ -59,10 +59,10 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpGet(ApiRoutes.Posts.NewsFeed)]
-        [Authorize(JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> NewsFeed([FromQuery] PostSearchParams searchParams)
+        [Authorize]
+        public IActionResult NewsFeed([FromQuery] PostSearchParams searchParams)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
 
             IEnumerable<PostViewModel> posts = _postService.GetNewsFeedPosts(userId, searchParams);
             int postsCount = _postService.GetTotalPostsCountInNewsFeed(userId, searchParams);
@@ -82,10 +82,10 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPut(ApiRoutes.Posts.Update)]
-        [Authorize(JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize]
         public async Task<IActionResult> Update([FromRoute] string postId, [FromBody] UpdatePostDto updatePostDto)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
 
             PostViewModel post = await _postService.UpdatePost(postId, userId, updatePostDto);
 
@@ -93,10 +93,10 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpDelete(ApiRoutes.Posts.Delete)]
-        [Authorize(JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize]
         public async Task<IActionResult> Delete([FromRoute] string postId)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
 
             await _postService.DeletePost(postId, userId);
 
@@ -104,10 +104,10 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPost(ApiRoutes.Posts.Vote)]
-        [Authorize(JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize]
         public async Task<IActionResult> Vote([FromRoute] string postId, [FromBody] PostVoteDto postVoteDto)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
 
             await _postService.VotePost(postId, userId, postVoteDto);
 

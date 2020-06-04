@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using FluentValidation;
-using Violetum.ApplicationCore;
 using Violetum.ApplicationCore.Attributes;
 using Violetum.ApplicationCore.Dtos.Category;
 using Violetum.ApplicationCore.Dtos.Comment;
@@ -49,7 +48,7 @@ namespace Microsoft.Extensions.DependencyInjection
             @this.AddTransient<ICommentService, CommentService>();
             @this.AddTransient<IFollowerService, FollowerService>();
 
-            @this.AddTransient<ITokenManager, TokenManager>();
+            @this.AddTransient<IIdentityManager, IdentityManager>();
             @this.AddTransient<IVoteRepository, VoteRepository>();
             @this.AddTransient<IPostRepository, PostRepository>();
             @this.AddTransient<ICategoryRepository, CategoryRepository>();

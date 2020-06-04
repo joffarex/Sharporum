@@ -82,6 +82,11 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<CommentViewModel> CreateComment(CreateCommentDto createCommentDto)
         {
+            if (string.IsNullOrEmpty(createCommentDto.AuthorId))
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, "Unauthorized User");
+            }
+
             User user = await _userValidators.GetUserByIdOrThrow(createCommentDto.AuthorId);
             Post post = _postValidators.GetPostByIdOrThrow(createCommentDto.PostId, x => x);
 
@@ -106,6 +111,17 @@ namespace Violetum.ApplicationCore.Services
         public async Task<CommentViewModel> UpdateComment(string commentId, string userId,
             UpdateCommentDto updateCommentDto)
         {
+            if (commentId != updateCommentDto.Id)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest,
+                    $"{nameof(Post)}:(cid[{commentId}]|dtoid[{updateCommentDto.Id}] update");
+            }
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, "Unauthorized User");
+            }
+
             Comment comment = _commentValidators.GetCommentByIdOrThrow(commentId, x => x);
             if (comment.PostId != updateCommentDto.PostId)
             {
@@ -127,6 +143,11 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<bool> DeleteComment(string commentId, string userId)
         {
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, "Unauthorized User");
+            }
+
             Comment comment = _commentValidators.GetCommentByIdOrThrow(commentId, x => x);
             if (comment.AuthorId != userId)
             {

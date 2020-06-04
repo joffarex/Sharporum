@@ -1,24 +1,22 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Net;
-using System.Net.Http;
+﻿using System.Net.Http;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityModel.Client;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
-using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Infrastructure;
 using Violetum.Domain.Models;
 
 namespace Violetum.API.Infrastructure
 {
-    public class TokenManager : ITokenManager
+    public class IdentityManager : IIdentityManager
     {
         private readonly DiscoveryDocumentResponse _discoveryDocument;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly HttpContext _httpContext;
 
-        public TokenManager(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
+        public IdentityManager(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
         {
             _httpClientFactory = httpClientFactory;
             _httpContext = httpContextAccessor.HttpContext;
@@ -29,23 +27,9 @@ namespace Violetum.API.Infrastructure
                 .GetResult();
         }
 
-        public async Task<string> GetUserIdFromAccessToken()
+        public string GetUserId()
         {
-            string accessToken = await _httpContext.GetTokenAsync("access_token");
-
-            if (string.IsNullOrEmpty(accessToken))
-            {
-                return null;
-            }
-
-            JwtSecurityToken jwtToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
-            string userId = jwtToken.Subject;
-            if (string.IsNullOrEmpty(userId))
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "Invalid token");
-            }
-
-            return userId;
+            return _httpContext.User.FindFirstValue("sub");
         }
 
         public async Task<UserTokens> GetUserTokens()

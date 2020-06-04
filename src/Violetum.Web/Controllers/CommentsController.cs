@@ -14,12 +14,12 @@ namespace Violetum.Web.Controllers
     public class CommentsController : Controller
     {
         private readonly ICommentService _commentService;
-        private readonly ITokenManager _tokenManager;
+        private readonly IIdentityManager _identityManager;
 
-        public CommentsController(ICommentService commentService, ITokenManager tokenManager)
+        public CommentsController(ICommentService commentService, IIdentityManager identityManager)
         {
             _commentService = commentService;
-            _tokenManager = tokenManager;
+            _identityManager = identityManager;
         }
 
         [Authorize]
@@ -31,7 +31,7 @@ namespace Violetum.Web.Controllers
                 throw new HttpStatusCodeException(HttpStatusCode.BadRequest);
             }
 
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
             ViewData["UserId"] = userId;
             ViewData["PostId"] = postId;
             // TODO: populate model with categories
@@ -73,7 +73,7 @@ namespace Violetum.Web.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(string id)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
             CommentViewModel comment = _commentService.GetComment(id);
             if (comment.Author.Id != userId)
             {
@@ -98,7 +98,7 @@ namespace Violetum.Web.Controllers
                 return RedirectToAction(nameof(Edit));
             }
 
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
             try
             {
                 CommentViewModel comment = await _commentService.UpdateComment(id, userId, updateCommentDto);
@@ -118,7 +118,7 @@ namespace Violetum.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string id, string postId)
         {
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
 
             try
             {
@@ -145,7 +145,7 @@ namespace Violetum.Web.Controllers
                 return RedirectToAction("Details", "Posts", new {Id = commentVoteDto.PostId});
             }
 
-            string userId = await _tokenManager.GetUserIdFromAccessToken();
+            string userId = _identityManager.GetUserId();
 
             await _commentService.VoteComment(commentId, userId, commentVoteDto);
 
