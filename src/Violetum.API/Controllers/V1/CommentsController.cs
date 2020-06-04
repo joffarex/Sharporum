@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -39,7 +40,7 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPost(ApiRoutes.Comments.Create)]
-        [Authorize]
+        [Authorize(JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Create([FromBody] CreateCommentDto createCommentDto)
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
@@ -57,7 +58,7 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPut(ApiRoutes.Comments.Update)]
-        [Authorize]
+        [Authorize(JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Update([FromRoute] string commentId,
             [FromBody] UpdateCommentDto updateCommentDto)
         {
@@ -69,7 +70,7 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpDelete(ApiRoutes.Comments.Delete)]
-        [Authorize]
+        [Authorize(JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Delete([FromRoute] string commentId)
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
@@ -80,7 +81,7 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPost(ApiRoutes.Comments.Vote)]
-        [Authorize]
+        [Authorize(JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Vote([FromRoute] string commentId, [FromBody] CommentVoteDto commentVoteDto)
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();

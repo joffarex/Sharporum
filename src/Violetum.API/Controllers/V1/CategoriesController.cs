@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -39,7 +40,7 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPost(ApiRoutes.Categories.Create)]
-        [Authorize]
+        [Authorize(JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Create([FromBody] CreateCategoryDto createCategoryDto)
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
@@ -57,7 +58,7 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPut(ApiRoutes.Categories.Update)]
-        [Authorize]
+        [Authorize(JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Update([FromRoute] string categoryId,
             [FromBody] UpdateCategoryDto updateCategoryDto)
         {
@@ -69,7 +70,7 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpDelete(ApiRoutes.Categories.Delete)]
-        [Authorize]
+        [Authorize(JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Delete([FromRoute] string categoryId)
         {
             string userId = await _tokenManager.GetUserIdFromAccessToken();
