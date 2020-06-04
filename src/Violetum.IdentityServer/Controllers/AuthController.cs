@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
@@ -35,29 +36,36 @@ namespace Violetum.IdentityServer.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel loginViewModel)
         {
-            // TODO: Validate vm
+            if (!ModelState.IsValid)
+            {
+                return View(loginViewModel);
+            }
 
-            SignInResult result =
-                await _signInManager.PasswordSignInAsync(loginViewModel.Username, loginViewModel.Password, false,
-                    false);
+            SignInResult result = await _signInManager.PasswordSignInAsync(
+                loginViewModel.Username, loginViewModel.Password, false, false
+            );
 
             if (result.Succeeded)
             {
-                return Redirect(loginViewModel.ReturnUrl);
+                if (Url.IsLocalUrl(loginViewModel.ReturnUrl))
+                {
+                    return Redirect(loginViewModel.ReturnUrl);
+                }
+
+                if (string.IsNullOrEmpty(loginViewModel.ReturnUrl))
+                {
+                    return Redirect("~/");
+                }
+
+                throw new Exception("invalid return URL");
             }
 
-            if (result.IsLockedOut)
-            {
-                // TODO: implement
-            }
-            else if (result.IsNotAllowed)
-            {
-                return Unauthorized();
-            }
+            ModelState.AddModelError(string.Empty, "Invalid credentials");
 
-            return View();
+            return View(loginViewModel);
         }
 
         [HttpGet]
@@ -67,6 +75,7 @@ namespace Violetum.IdentityServer.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel registerViewModel)
         {
             if (!ModelState.IsValid)
@@ -74,11 +83,17 @@ namespace Violetum.IdentityServer.Controllers
                 return View(registerViewModel);
             }
 
+            if (registerViewModel.Password != registerViewModel.ConfirmPassword)
+            {
+                ModelState.AddModelError(string.Empty, "Passwords must mstch");
+                return View(registerViewModel);
+            }
+
             User existingUserWithUsername = await _userManager.FindByNameAsync(registerViewModel.Username);
 
             if (existingUserWithUsername != null)
             {
-                ModelState.AddModelError("UsernameExists", "User with provided username already exists");
+                ModelState.AddModelError(string.Empty, "User with provided username already exists");
                 return View(registerViewModel);
             }
 
@@ -86,7 +101,7 @@ namespace Violetum.IdentityServer.Controllers
 
             if (existingUserWithEmail != null)
             {
-                ModelState.AddModelError("EmailExists", "User with provided email already exists");
+                ModelState.AddModelError(string.Empty, "User with provided email already exists");
                 return View(registerViewModel);
             }
 
@@ -98,7 +113,7 @@ namespace Violetum.IdentityServer.Controllers
                 return RedirectToAction("Login", new {registerViewModel.ReturnUrl});
             }
 
-            ModelState.AddModelError("Error", "User creation failed");
+            ModelState.AddModelError(string.Empty, "User creation failed");
             return View(registerViewModel);
         }
 

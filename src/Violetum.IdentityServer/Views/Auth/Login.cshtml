@@ -1,5 +1,13 @@
 @model Violetum.IdentityServer.Models.LoginViewModel
 
+@if (ViewContext.ModelState.IsValid == false)
+{
+    <div class="alert alert-danger">
+        <strong>Error</strong>
+        <div asp-validation-summary="All" class="danger"></div>
+    </div>
+}
+
 <form asp-controller="Auth" asp-action="Login" method="post">
     <input type="hidden" asp-for="ReturnUrl"/>
     <div>
