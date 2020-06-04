@@ -1,5 +1,5 @@
 import {Component, HostListener, Inject, OnDestroy, OnInit, Renderer2} from '@angular/core';
-import {DOCUMENT, Location} from '@angular/common';
+import {DOCUMENT} from '@angular/common';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 
@@ -14,7 +14,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(
     private renderer: Renderer2,
-    public location: Location,
     @Inject(DOCUMENT) private document: Document,
     public oidcSecurityService: OidcSecurityService,
     public http: HttpClient,

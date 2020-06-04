@@ -1,12 +1,13 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BrowserModule} from '@angular/platform-browser';
-import {Routes, RouterModule} from '@angular/router';
+import {RouterModule, Routes} from '@angular/router';
 
 import {IndexComponent} from './pages/index/index.component';
 import {ProfileComponent} from './pages/profile/profile.component';
 import {PostsComponent} from './pages/posts/posts.component';
 import {CategoriesComponent} from './pages/categories/categories.component';
+import {UnauthorizedComponent} from './pages/unauthorized/unauthorized.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'home', pathMatch: 'full'},
@@ -14,6 +15,8 @@ const routes: Routes = [
   {path: 'profile', component: ProfileComponent},
   {path: 'posts', component: PostsComponent},
   {path: 'categories', component: CategoriesComponent},
+  {path: 'forbidden', component: UnauthorizedComponent},
+  {path: 'unauthorized', component: UnauthorizedComponent},
 ];
 
 @NgModule({

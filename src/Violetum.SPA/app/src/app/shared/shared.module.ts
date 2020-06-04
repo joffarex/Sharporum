@@ -17,7 +17,7 @@ import {ModalModule} from 'ngx-bootstrap/modal';
 import {JwBootstrapSwitchNg2Module} from 'jw-bootstrap-switch-ng2';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 
-import {SearchComponent} from './search/search.component';
+import {SearchComponent} from './components/search/search.component';
 
 @NgModule({
   imports: [

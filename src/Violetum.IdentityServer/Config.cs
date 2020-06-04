@@ -65,6 +65,8 @@ namespace Violetum.IdentityServer
                     AllowAccessTokensViaBrowser = true,
                     RequireConsent = false,
                     IncludeJwtId = true,
+                    AllowOfflineAccess = true,
+                    AccessTokenLifetime = 60,
                 },
                 new Client
                 {
@@ -79,6 +81,8 @@ namespace Violetum.IdentityServer
                         IdentityServerConstants.StandardScopes.OpenId,
                         "Violetum.API",
                     },
+
+                    AccessTokenLifetime = 60,
                 },
             };
     }

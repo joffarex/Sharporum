@@ -25,6 +25,19 @@ namespace Violetum.API.Installers
             string filePath = Path.Combine(environment.ContentRootPath, "../../cert.pfx");
             var certificate = new X509Certificate2(filePath, "password");
 
+            var optionsTokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new X509SecurityKey(certificate),
+                IssuerSigningKeyResolver =
+                    (token, securityToken, kid, validationParameters) =>
+                        new List<X509SecurityKey> {new X509SecurityKey(certificate)},
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                RequireExpirationTime = false,
+                ValidateLifetime = true,
+            };
+
             services.AddAuthentication(options =>
                 {
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -38,18 +51,7 @@ namespace Violetum.API.Installers
 
                     options.Audience = "Violetum.API";
                     options.SaveToken = true;
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new X509SecurityKey(certificate),
-                        IssuerSigningKeyResolver =
-                            (token, securityToken, kid, validationParameters) =>
-                                new List<X509SecurityKey> {new X509SecurityKey(certificate)},
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                        RequireExpirationTime = false,
-                        ValidateLifetime = true,
-                    };
+                    options.TokenValidationParameters = optionsTokenValidationParameters;
                 });
             services.AddHttpClient();
 

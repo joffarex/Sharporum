@@ -6,21 +6,9 @@ import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {HttpClientModule} from '@angular/common/http';
 
-import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
-import {ProgressbarModule} from 'ngx-bootstrap/progressbar';
-import {TooltipModule} from 'ngx-bootstrap/tooltip';
-import {CollapseModule} from 'ngx-bootstrap/collapse';
-import {TabsModule} from 'ngx-bootstrap/tabs';
-import {PaginationModule} from 'ngx-bootstrap/pagination';
-import {AlertModule} from 'ngx-bootstrap/alert';
-import {BsDatepickerModule} from 'ngx-bootstrap/datepicker';
-import {CarouselModule} from 'ngx-bootstrap/carousel';
-import {ModalModule} from 'ngx-bootstrap/modal';
-
 import {PagesModule} from './pages/pages.module';
-
-import {IndexComponent} from './pages/index/index.component';
-import {OidcConfigService, LogLevel, AuthModule} from 'angular-auth-oidc-client';
+import {AuthModule, EventTypes, LogLevel, OidcConfigService, PublicEventsService} from 'angular-auth-oidc-client';
+import {filter} from 'rxjs/operators';
 
 export function configureAuth(oidcConfigService: OidcConfigService) {
   return () =>
@@ -30,8 +18,12 @@ export function configureAuth(oidcConfigService: OidcConfigService) {
       responseType: 'code',
       redirectUrl: window.location.origin,
       postLogoutRedirectUri: window.location.origin,
-      scope: 'openid Violetum.API',
-      logLevel: LogLevel.Debug,
+      scope: 'openid Violetum.API offline_access',
+      logLevel: LogLevel.Warn,
+      silentRenew: true,
+      useRefreshToken: true,
+      forbiddenRoute: '/forbidden',
+      unauthorizedRoute: '/unauthorized',
     });
 }
 
@@ -68,4 +60,12 @@ export function configureAuth(oidcConfigService: OidcConfigService) {
   bootstrap: [AppComponent]
 })
 export class AppModule {
+  constructor(private readonly eventService: PublicEventsService) {
+    this.eventService
+      .registerForEvents()
+      .pipe(filter((notification) => notification.type === EventTypes.ConfigLoaded))
+      .subscribe((config) => {
+        console.log('ConfigLoaded', config);
+      });
+  }
 }

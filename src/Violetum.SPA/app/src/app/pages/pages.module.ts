@@ -21,9 +21,10 @@ import {IndexComponent} from './index/index.component';
 import {ProfileComponent} from './profile/profile.component';
 import {PostsComponent} from './posts/posts.component';
 import {SharedModule} from '../shared/shared.module';
-import {CategoriesComponent} from "./categories/categories.component";
-import {PostComponent} from "./posts/post/post.component";
-import {CategoryComponent} from "./categories/category/category.component";
+import {CategoriesComponent} from './categories/categories.component';
+import {PostComponent} from './posts/post/post.component';
+import {CategoryComponent} from './categories/category/category.component';
+import {UnauthorizedComponent} from "./unauthorized/unauthorized.component";
 
 @NgModule({
   imports: [
@@ -52,6 +53,7 @@ import {CategoryComponent} from "./categories/category/category.component";
     PostComponent,
     CategoriesComponent,
     CategoryComponent,
+    UnauthorizedComponent,
   ],
   exports: [
     IndexComponent,
@@ -60,6 +62,7 @@ import {CategoryComponent} from "./categories/category/category.component";
     PostComponent,
     CategoriesComponent,
     CategoryComponent,
+    UnauthorizedComponent,
   ],
   providers: []
 })
