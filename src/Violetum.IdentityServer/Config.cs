@@ -64,6 +64,7 @@ namespace Violetum.IdentityServer
 
                     AllowAccessTokensViaBrowser = true,
                     RequireConsent = false,
+                    IncludeJwtId = true,
                 },
                 new Client
                 {

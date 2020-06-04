@@ -95,9 +95,7 @@ namespace Violetum.IdentityServer.Controllers
 
             if (result.Succeeded)
             {
-                await _signInManager.SignInAsync(user, false);
-
-                return Redirect(registerViewModel.ReturnUrl);
+                return RedirectToAction("Login", new {registerViewModel.ReturnUrl});
             }
 
             ModelState.AddModelError("Error", "User creation failed");

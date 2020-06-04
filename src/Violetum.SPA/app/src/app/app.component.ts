@@ -1,12 +1,5 @@
-import {
-  Component,
-  OnInit,
-  Renderer2,
-  HostListener,
-  Inject, OnDestroy
-} from '@angular/core';
-import {Location} from '@angular/common';
-import {DOCUMENT} from '@angular/common';
+import {Component, HostListener, Inject, OnDestroy, OnInit, Renderer2} from '@angular/core';
+import {DOCUMENT, Location} from '@angular/common';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 
@@ -62,14 +55,14 @@ export class AppComponent implements OnInit, OnDestroy {
     this.oidcSecurityService.authorize();
   }
 
-  register() {
-    this.document.location.href = `http://localhost:5000/auth/register?returnUrl=${window.location.href}`;
+  logout() {
+    this.oidcSecurityService.logoff();
   }
 
   callApi() {
     const token = this.oidcSecurityService.getToken();
 
-    this.http.get('http://localhost:5001/api/v1/posts?OrderByDir=desc&SortBy=VoteCount&CurrentPage=1', {
+    this.http.get('http://localhost:5001/secret', {
       headers: new HttpHeaders({
         Authorization: 'Bearer ' + token,
       }),
