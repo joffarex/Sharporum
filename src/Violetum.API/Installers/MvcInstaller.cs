@@ -2,19 +2,24 @@
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
+using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using AutoMapper;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
+using Newtonsoft.Json;
 using Violetum.API.Authorization.Category;
 using Violetum.API.Authorization.Category.Handlers;
 using Violetum.API.Authorization.Category.Requirements;
 using Violetum.API.Filters;
+using Violetum.Domain.Models;
 
 namespace Violetum.API.Installers
 {
@@ -56,6 +61,28 @@ namespace Violetum.API.Installers
                     options.Audience = "Violetum.API";
                     options.SaveToken = true;
                     options.TokenValidationParameters = optionsTokenValidationParameters;
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnChallenge = async context =>
+                        {
+                            var errorDetails = new ErrorDetails
+                            {
+                                StatusCode = (int) HttpStatusCode.Unauthorized,
+                                Message = "Unauthorized User",
+                            };
+
+                            context.Response.StatusCode = errorDetails.StatusCode;
+
+                            // Emit the WWW-Authenticate header.
+                            context.Response.Headers.Append(HeaderNames.WWWAuthenticate, context.Options.Challenge);
+
+                            context.Response.ContentType = "application/json";
+                            await context.Response.WriteAsync(JsonConvert.SerializeObject(errorDetails));
+
+                            context.HandleResponse();
+                        },
+                    };
                 });
 
             services.AddAuthorization(options =>
