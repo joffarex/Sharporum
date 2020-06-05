@@ -15,23 +15,20 @@ namespace Violetum.API.Filters
             var errorDetails = new ErrorDetails();
             Exception exception = context.Exception;
 
-            if (exception == null)
+            switch (exception)
             {
-                errorDetails.StatusCode = (int) HttpStatusCode.BadRequest;
-                errorDetails.Message = "Runtime Error";
-            }
-            else
-            {
-                if (exception is HttpStatusCodeException httpStatusCodeException)
-                {
+                case null:
+                    errorDetails.StatusCode = (int) HttpStatusCode.BadRequest;
+                    errorDetails.Message = "Runtime Error";
+                    break;
+                case HttpStatusCodeException httpStatusCodeException:
                     errorDetails.StatusCode = (int) httpStatusCodeException.StatusCode;
                     errorDetails.Message = httpStatusCodeException.Message;
-                }
-                else
-                {
+                    break;
+                default:
                     errorDetails.StatusCode = (int) HttpStatusCode.InternalServerError;
                     errorDetails.Message = exception.Message;
-                }
+                    break;
             }
 
             context.Result = new ObjectResult(errorDetails)
