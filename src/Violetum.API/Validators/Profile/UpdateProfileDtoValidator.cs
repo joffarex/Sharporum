@@ -8,15 +8,18 @@ namespace Violetum.API.Validators.Profile
     {
         public UpdateProfileDtoValidator()
         {
-            RuleFor(x => x.Id).NotNull();
-            RuleFor(x => x.Username).NotNull().Length(8, 50);
-            RuleFor(x => x.Name).NotNull();
-            RuleFor(x => x.GivenName).NotNull();
-            RuleFor(x => x.FamilyName).NotNull();
-            RuleFor(x => x.Picture).NotNull();
+            RuleFor(x => x.Id).NotEmpty();
+            RuleFor(x => x.Username).NotEmpty().Matches("^[a-zA-Z0-9 ]*$");
+            RuleFor(x => x.Name).NotEmpty().Matches("^[a-zA-Z ]*$");
+            RuleFor(x => x.GivenName).NotEmpty().Matches("^[a-zA-Z]*$");
+            RuleFor(x => x.FamilyName).NotEmpty().Matches("^[a-zA-Z]*$");
+            RuleFor(x => x.Picture).NotEmpty()
+                .Matches("@(https?:)?//?[^'\"<>]+?\\.(jpg|jpeg|gif|png)@");
             RuleFor(x => x.Gender).NotNull();
             RuleFor(x => x.Birthdate).NotNull();
-            RuleFor(x => x.Website).NotNull();
+            RuleFor(x => x.Website).NotEmpty().Matches(
+                "/((([A-Za-z]{3,9}:(?:\\/\\/)?)(?:[-;:&=\\+\\$,\\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\\+\\$,\\w]+@)[A-Za-z0-9.-]+)((?:\\/[\\+~%\\/.\\w-_]*)?\\??(?:[-\\+=&;%@.\\w_]*)#?(?:[\\w]*))?)/"
+            );
         }
     }
 }

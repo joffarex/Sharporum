@@ -8,10 +8,10 @@ namespace Violetum.API.Validators.Post
     {
         public CreatePostDtoValidator()
         {
-            RuleFor(x => x.AuthorId).NotNull();
-            RuleFor(x => x.CategoryId).NotNull();
-            RuleFor(x => x.Title).NotNull().Length(10, 255);
-            RuleFor(x => x.Content).NotNull();
+            RuleFor(x => x.AuthorId).NotEmpty();
+            RuleFor(x => x.CategoryId).NotEmpty();
+            RuleFor(x => x.Title).NotNull().Length(10, 255).Matches("^[a-zA-Z0-9 ]*$");
+            RuleFor(x => x.Content).NotEmpty();
         }
     }
 }
