@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Violetum.ApplicationCore.Attributes;
 using Violetum.ApplicationCore.Dtos.Category;
 using Violetum.ApplicationCore.Helpers;
@@ -11,6 +12,7 @@ using Violetum.ApplicationCore.ViewModels.Category;
 using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
+using Violetum.Domain.Models;
 using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.ApplicationCore.Services
@@ -21,15 +23,20 @@ namespace Violetum.ApplicationCore.Services
         private readonly ICategoryRepository _categoryRepository;
         private readonly ICategoryValidators _categoryValidators;
         private readonly IMapper _mapper;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<User> _userManager;
         private readonly IUserValidators _userValidators;
 
         public CategoryService(ICategoryRepository categoryRepository, IMapper mapper,
-            ICategoryValidators categoryValidators, IUserValidators userValidators)
+            ICategoryValidators categoryValidators, IUserValidators userValidators,
+            RoleManager<IdentityRole> roleManager, UserManager<User> userManager)
         {
             _categoryRepository = categoryRepository;
             _mapper = mapper;
             _categoryValidators = categoryValidators;
             _userValidators = userValidators;
+            _roleManager = roleManager;
+            _userManager = userManager;
         }
 
         public CategoryViewModel GetCategoryById(string categoryId)
@@ -82,6 +89,8 @@ namespace Violetum.ApplicationCore.Services
 
             await _categoryRepository.CreateCategory(category);
 
+            await CreateCategoryAdminRole(user, category.Id);
+
             return _mapper.Map<CategoryViewModel>(category);
         }
 
@@ -123,7 +132,52 @@ namespace Violetum.ApplicationCore.Services
                     $"Unauthorized User:{userId ?? "Anonymous"}");
             }
 
+            await RemoveCategoryRoles(categoryId);
+
             return await _categoryRepository.DeleteCategory(category) > 0;
+        }
+
+        private async Task CreateCategoryAdminRole(User user, string categoryId)
+        {
+            string roleName = $"{nameof(Category)}/{categoryId}/{Roles.Admin}";
+            if (!await _roleManager.RoleExistsAsync(roleName))
+            {
+                await _roleManager.CreateAsync(new IdentityRole(roleName));
+            }
+            else
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest);
+            }
+
+            await _userManager.AddToRoleAsync(user, roleName);
+        }
+
+        private async Task RemoveCategoryRoles(string categoryId)
+        {
+            string roleBase = $"{nameof(Category)}/{categoryId}";
+            var roles = new List<string>
+            {
+                $"{roleBase}/{Roles.Admin}",
+                $"{roleBase}/{Roles.Moderator}",
+            };
+
+            foreach (string roleName in roles)
+            {
+                IList<User> roleUsers = await _userManager.GetUsersInRoleAsync(roleName);
+                foreach (User user in roleUsers)
+                {
+                    await _userManager.RemoveFromRoleAsync(user, roleName);
+                }
+
+                IdentityRole role = await _roleManager.FindByNameAsync(roleName);
+                IdentityResult identityResult = await _roleManager.DeleteAsync(role);
+
+                if (!identityResult.Succeeded)
+                {
+                    throw new HttpStatusCodeException(HttpStatusCode.BadRequest,
+                        $"Something went wrong while removing category:{categoryId} roles");
+                }
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
+using IdentityServer4.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Logging;
 using Violetum.Domain.Entities;
+using Violetum.IdentityServer.Services;
 using Violetum.Infrastructure;
 
 namespace Violetum.IdentityServer
@@ -56,6 +58,8 @@ namespace Violetum.IdentityServer
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
+            services.AddTransient<IProfileService, CustomProfileService>();
 
             services.ConfigureApplicationCookie(config =>
             {

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Violetum.API.Authorization.Category;
 using Violetum.API.Contracts.V1;
 using Violetum.API.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Category;
@@ -58,7 +59,10 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPut(ApiRoutes.Categories.Update)]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(
+            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
+            Policy = PolicyConstants.UpdateCategoryRolePolicy
+        )]
         public async Task<IActionResult> Update([FromRoute] string categoryId,
             [FromBody] UpdateCategoryDto updateCategoryDto)
         {
@@ -70,7 +74,10 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpDelete(ApiRoutes.Categories.Delete)]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(
+            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
+            Policy = PolicyConstants.DeleteCategoryRolePolicy
+        )]
         public async Task<IActionResult> Delete([FromRoute] string categoryId)
         {
             string userId = _identityManager.GetUserId();

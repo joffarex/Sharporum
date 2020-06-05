@@ -18,7 +18,7 @@ namespace Violetum.API.Installers
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
-            services.AddIdentityCore<User>().AddEntityFrameworkStores<ApplicationDbContext>()
+            services.AddIdentityCore<User>().AddRoles<IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
         }
     }

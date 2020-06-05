@@ -6,10 +6,14 @@ using System.Security.Cryptography.X509Certificates;
 using AutoMapper;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Violetum.API.Authorization.Category;
+using Violetum.API.Authorization.Category.Handlers;
+using Violetum.API.Authorization.Category.Requirements;
 
 namespace Violetum.API.Installers
 {
@@ -53,6 +57,18 @@ namespace Violetum.API.Installers
                     options.SaveToken = true;
                     options.TokenValidationParameters = optionsTokenValidationParameters;
                 });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(PolicyConstants.UpdateCategoryRolePolicy,
+                    policy => { policy.AddRequirements(new CanUpdateCategoryAuthorizationRequirement()); });
+                options.AddPolicy(PolicyConstants.DeleteCategoryRolePolicy,
+                    policy => { policy.AddRequirements(new CanDeleteCategoryAuthorizationRequirement()); });
+            });
+
+            services.AddScoped<IAuthorizationHandler, CanUpdateCategoryHandler>();
+            services.AddScoped<IAuthorizationHandler, CanDeleteCategoryHandler>();
+
             services.AddHttpClient();
 
             services.AddCors(config =>

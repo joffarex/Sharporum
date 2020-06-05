@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Models;
 
@@ -15,7 +16,10 @@ namespace Violetum.IdentityServer
         public static IEnumerable<ApiResource> Apis =>
             new List<ApiResource>
             {
-                new ApiResource("Violetum.API", "Violetum API"),
+                new ApiResource("Violetum.API", "Violetum API", new List<string>
+                {
+                    JwtClaimTypes.Role,
+                }),
             };
 
         public static IEnumerable<Client> Clients =>
@@ -42,7 +46,7 @@ namespace Violetum.IdentityServer
                     },
 
                     AllowOfflineAccess = true,
-                    AccessTokenLifetime = 60,
+                    AccessTokenLifetime = 3600,
                 },
                 new Client
                 {
@@ -66,7 +70,9 @@ namespace Violetum.IdentityServer
                     RequireConsent = false,
                     IncludeJwtId = true,
                     AllowOfflineAccess = true,
-                    AccessTokenLifetime = 60,
+                    AccessTokenLifetime = 3600,
+                    UpdateAccessTokenClaimsOnRefresh = true,
+                    AlwaysIncludeUserClaimsInIdToken = true,
                 },
                 new Client
                 {
@@ -82,7 +88,7 @@ namespace Violetum.IdentityServer
                         "Violetum.API",
                     },
 
-                    AccessTokenLifetime = 60,
+                    AccessTokenLifetime = 3600,
                 },
             };
     }
