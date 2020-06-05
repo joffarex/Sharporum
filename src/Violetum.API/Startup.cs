@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Serilog;
 using Violetum.API.Installers;
 
 namespace Violetum.API
@@ -35,6 +36,7 @@ namespace Violetum.API
                 app.UseHsts();
             }
 
+            app.UseSerilogRequestLogging();
             app.UseCors("SPAPolicy");
             app.UseHttpsRedirection();
 
