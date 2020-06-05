@@ -14,6 +14,7 @@ using Microsoft.IdentityModel.Tokens;
 using Violetum.API.Authorization.Category;
 using Violetum.API.Authorization.Category.Handlers;
 using Violetum.API.Authorization.Category.Requirements;
+using Violetum.API.Filters;
 
 namespace Violetum.API.Installers
 {
@@ -24,7 +25,6 @@ namespace Violetum.API.Installers
         {
             services.AddHttpContextAccessor();
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
-
 
             string filePath = Path.Combine(environment.ContentRootPath, "../../cert.pfx");
             var certificate = new X509Certificate2(filePath, "password");
@@ -72,19 +72,25 @@ namespace Violetum.API.Installers
             services.AddHttpClient();
 
             services.AddCors(config =>
-                config.AddPolicy("SPAPolicy",
-                    builder => builder.WithOrigins("http://localhost:4200")
+            {
+                config.AddPolicy("SPAPolicy", builder =>
+                {
+                    builder.WithOrigins("http://localhost:4200")
                         .AllowAnyMethod()
-                        .AllowAnyHeader()));
+                        .AllowAnyHeader();
+                });
+            });
 
             services.AddCors();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-            services.AddControllers().AddFluentValidation(fv =>
-            {
-                fv.RunDefaultMvcValidationAfterFluentValidationExecutes = false;
-            });
+            services.AddControllers(options =>
+                {
+                    options.Filters.Add<ValidationFilter>();
+                    options.Filters.Add<ExceptionHandlerFilter>();
+                })
+                .AddFluentValidation(fv => { fv.RunDefaultMvcValidationAfterFluentValidationExecutes = false; });
         }
     }
 }
