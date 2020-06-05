@@ -29,7 +29,7 @@ namespace Violetum.API.Filters
                 }
                 else
                 {
-                    errorDetails.StatusCode = 500;
+                    errorDetails.StatusCode = (int) HttpStatusCode.InternalServerError;
                     errorDetails.Message = exception.Message;
                 }
             }
