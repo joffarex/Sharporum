@@ -16,12 +16,6 @@ export class CommentsComponent implements OnInit, OnDestroy {
     {
       content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vehicula ligula magna, non vulputate lacus portanec. Nunc at ultricies nibh. Nulla vitae finibus lectus. Orci varius natoque pe...'
     },
-    {
-      content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vehicula ligula magna, non vulputate lacus portanec. Nunc at ultricies nibh. Nulla vitae finibus lectus. Orci varius natoque pe...'
-    },
-    {
-      content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vehicula ligula magna, non vulputate lacus portanec. Nunc at ultricies nibh. Nulla vitae finibus lectus. Orci varius natoque pe...'
-    },
   ];
 
   constructor() {
