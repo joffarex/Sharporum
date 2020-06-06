@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Violetum.API.Authorization.Category;
+using Violetum.API.Authorization;
 using Violetum.API.Contracts.V1;
 using Violetum.API.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Category;
@@ -17,13 +17,16 @@ namespace Violetum.API.Controllers.V1
 {
     public class CategoriesController : ControllerBase
     {
+        private readonly IAuthorizationService _authorizationService;
         private readonly ICategoryService _categoryService;
         private readonly IIdentityManager _identityManager;
 
-        public CategoriesController(ICategoryService categoryService, IIdentityManager identityManager)
+        public CategoriesController(ICategoryService categoryService, IIdentityManager identityManager,
+            IAuthorizationService authorizationService)
         {
             _categoryService = categoryService;
             _identityManager = identityManager;
+            _authorizationService = authorizationService;
         }
 
         [HttpGet(ApiRoutes.Categories.GetMany)]
@@ -59,32 +62,50 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPut(ApiRoutes.Categories.Update)]
-        [Authorize(
-            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
-            Policy = PolicyConstants.UpdateCategoryRolePolicy
-        )]
         public async Task<IActionResult> Update([FromRoute] string categoryId,
             [FromBody] UpdateCategoryDto updateCategoryDto)
         {
-            string userId = _identityManager.GetUserId();
+            CategoryViewModel categoryViewModel = _categoryService.GetCategoryById(categoryId);
 
-            CategoryViewModel category = await _categoryService.UpdateCategory(categoryId, userId, updateCategoryDto);
+            AuthorizationResult authorizationResult =
+                await _authorizationService.AuthorizeAsync(User, categoryViewModel,
+                    PolicyConstants.UpdateCategoryRolePolicy);
+            if (authorizationResult.Succeeded)
+            {
+                CategoryViewModel category =
+                    await _categoryService.UpdateCategory(categoryViewModel, updateCategoryDto);
 
-            return Ok(new CategoryResponse {Category = category});
+                return Ok(new CategoryResponse {Category = category});
+            }
+
+            if (User.Identity.IsAuthenticated)
+            {
+                return new ForbidResult();
+            }
+
+            return new ChallengeResult();
         }
 
         [HttpDelete(ApiRoutes.Categories.Delete)]
-        [Authorize(
-            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
-            Policy = PolicyConstants.DeleteCategoryRolePolicy
-        )]
         public async Task<IActionResult> Delete([FromRoute] string categoryId)
         {
-            string userId = _identityManager.GetUserId();
+            CategoryViewModel category = _categoryService.GetCategoryById(categoryId);
 
-            await _categoryService.DeleteCategory(categoryId, userId);
+            AuthorizationResult authorizationResult =
+                await _authorizationService.AuthorizeAsync(User, category, PolicyConstants.DeleteCategoryRolePolicy);
+            if (authorizationResult.Succeeded)
+            {
+                await _categoryService.DeleteCategory(category);
 
-            return Ok(new ActionSuccessResponse {Message = "OK"});
+                return Ok(new ActionSuccessResponse {Message = "OK"});
+            }
+
+            if (User.Identity.IsAuthenticated)
+            {
+                return new ForbidResult();
+            }
+
+            return new ChallengeResult();
         }
     }
 }

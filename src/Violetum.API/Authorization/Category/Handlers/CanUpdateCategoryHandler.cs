@@ -1,24 +1,25 @@
-﻿using System.Threading.Tasks;
+﻿using System.Security.Claims;
+using System.Threading.Tasks;
 using IdentityModel;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Violetum.API.Authorization.Category.Requirements;
+using Violetum.ApplicationCore.Helpers;
+using Violetum.ApplicationCore.ViewModels.Category;
 using Violetum.Domain.Models;
 
 namespace Violetum.API.Authorization.Category.Handlers
 {
     public class
-        CanUpdateCategoryHandler : BaseCategoryAuthorizationHandler<CanUpdateCategoryAuthorizationRequirement>
+        CanUpdateCategoryHandler : AuthorizationHandler<CanUpdateCategoryAuthorizationRequirement, CategoryViewModel>
     {
-        public CanUpdateCategoryHandler(IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
-        {
-        }
-
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
-            CanUpdateCategoryAuthorizationRequirement requirement)
+            CanUpdateCategoryAuthorizationRequirement requirement, CategoryViewModel category)
         {
-            if (context.User.HasClaim(JwtClaimTypes.Role, $"{RoleBase}/{Roles.Admin}") ||
-                context.User.HasClaim(JwtClaimTypes.Role, $"{RoleBase}/{Roles.Moderator}"))
+            string roleBase = $"{nameof(Category)}/{category.Id}";
+
+            if (context.User.HasClaim(JwtClaimTypes.Role, $"{roleBase}/{Roles.Admin}") ||
+                context.User.HasClaim(JwtClaimTypes.Role, $"{roleBase}/{Roles.Moderator}") ||
+                CategoryHelpers.UserOwnsCategory(context.User.FindFirstValue("sub"), category.Author.Id))
             {
                 context.Succeed(requirement);
                 return Task.CompletedTask;

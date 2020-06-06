@@ -121,6 +121,20 @@ namespace Violetum.ApplicationCore.Services
             return _mapper.Map<CategoryViewModel>(category);
         }
 
+        public async Task<CategoryViewModel> UpdateCategory(CategoryViewModel categoryViewModel,
+            UpdateCategoryDto updateCategoryDto)
+        {
+            var category = _mapper.Map<Category>(categoryViewModel);
+
+            category.Name = updateCategoryDto.Name;
+            category.Description = updateCategoryDto.Description;
+            category.Image = updateCategoryDto.Image;
+
+            await _categoryRepository.UpdateCategory(category);
+
+            return _mapper.Map<CategoryViewModel>(category);
+        }
+
         public async Task<bool> DeleteCategory(string categoryId, string userId)
         {
             Category category = _categoryValidators.GetCategoryByIdOrThrow(categoryId, x => x);
@@ -135,6 +149,13 @@ namespace Violetum.ApplicationCore.Services
             await RemoveCategoryRoles(categoryId);
 
             return await _categoryRepository.DeleteCategory(category) > 0;
+        }
+
+        public async Task<bool> DeleteCategory(CategoryViewModel categoryViewModel)
+        {
+            await RemoveCategoryRoles(categoryViewModel.Id);
+
+            return await _categoryRepository.DeleteCategory(_mapper.Map<Category>(categoryViewModel)) > 0;
         }
 
         private async Task CreateCategoryAdminRole(User user, string categoryId)
