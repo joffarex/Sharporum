@@ -17,16 +17,10 @@ import {ModalModule} from 'ngx-bootstrap/modal';
 import {JwBootstrapSwitchNg2Module} from 'jw-bootstrap-switch-ng2';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 
-import {IndexComponent} from './index/index.component';
-import {ProfileComponent} from './profile/profile.component';
-import {PostsComponent} from './posts/posts.component';
+
 import {SharedModule} from '../shared/shared.module';
-import {CategoriesComponent} from './categories/categories.component';
-import {PostComponent} from './posts/post/post.component';
-import {CategoryComponent} from './categories/category/category.component';
-import {UnauthorizedComponent} from './unauthorized/unauthorized.component';
-import {CommentsComponent} from './comments/comments.component';
-import {CommentComponent} from './comments/comment/comment.component';
+import {FooterComponent} from './footer/footer.component';
+import {NavbarComponent} from './navbar/navbar.component';
 
 @NgModule({
   imports: [
@@ -49,28 +43,14 @@ import {CommentComponent} from './comments/comment/comment.component';
     SharedModule,
   ],
   declarations: [
-    IndexComponent,
-    ProfileComponent,
-    PostsComponent,
-    PostComponent,
-    CategoriesComponent,
-    CategoryComponent,
-    UnauthorizedComponent,
-    CommentsComponent,
-    CommentComponent,
+    NavbarComponent,
+    FooterComponent,
   ],
   exports: [
-    IndexComponent,
-    ProfileComponent,
-    PostsComponent,
-    PostComponent,
-    CategoriesComponent,
-    CategoryComponent,
-    UnauthorizedComponent,
-    CommentsComponent,
-    CommentComponent,
+    NavbarComponent,
+    FooterComponent,
   ],
   providers: []
 })
-export class PagesModule {
+export class CoreModule {
 }

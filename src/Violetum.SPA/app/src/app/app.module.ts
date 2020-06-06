@@ -9,6 +9,7 @@ import {HttpClientModule} from '@angular/common/http';
 import {PagesModule} from './pages/pages.module';
 import {AuthModule, EventTypes, LogLevel, OidcConfigService, PublicEventsService} from 'angular-auth-oidc-client';
 import {filter} from 'rxjs/operators';
+import {CoreModule} from './core/core.module';
 
 export function configureAuth(oidcConfigService: OidcConfigService) {
   return () =>
@@ -29,7 +30,7 @@ export function configureAuth(oidcConfigService: OidcConfigService) {
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
   ],
   imports: [
     BrowserAnimationsModule,
@@ -44,6 +45,7 @@ export function configureAuth(oidcConfigService: OidcConfigService) {
     // CollapseModule.forRoot(),
     // TabsModule.forRoot(),
     PagesModule,
+    CoreModule,
     // PaginationModule.forRoot(),
     // AlertModule.forRoot(),
     // BsDatepickerModule.forRoot(),

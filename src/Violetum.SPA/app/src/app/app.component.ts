@@ -10,7 +10,6 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 })
 export class AppComponent implements OnInit, OnDestroy {
   userId: string;
-  isCollapsed = true;
 
   constructor(
     private renderer: Renderer2,
@@ -47,29 +46,6 @@ export class AppComponent implements OnInit, OnDestroy {
           this.userId = this.oidcSecurityService.getPayloadFromIdToken().sub;
           console.log(this.userId);
         }
-      });
-  }
-
-  login() {
-    this.oidcSecurityService.authorize();
-  }
-
-  logout() {
-    this.oidcSecurityService.logoff();
-  }
-
-  callApi() {
-    const token = this.oidcSecurityService.getToken();
-
-    this.http.get('http://localhost:5001/secret', {
-      headers: new HttpHeaders({
-        Authorization: 'Bearer ' + token,
-      }),
-      responseType: 'text',
-    })
-      .subscribe((data: any) => {
-        console.log(JSON.parse(data));
-
       });
   }
 
