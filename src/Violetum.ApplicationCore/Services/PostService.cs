@@ -152,6 +152,18 @@ namespace Violetum.ApplicationCore.Services
             return _mapper.Map<PostViewModel>(post);
         }
 
+        public async Task<PostViewModel> UpdatePost(PostViewModel postViewModel, UpdatePostDto updatePostDto)
+        {
+            var post = _mapper.Map<Post>(postViewModel);
+
+            post.Title = updatePostDto.Title;
+            post.Content = updatePostDto.Content;
+
+            await _postRepository.UpdatePost(post);
+
+            return _mapper.Map<PostViewModel>(post);
+        }
+
         public async Task DeletePost(string postId, string userId)
         {
             Post post = _postValidators.GetPostByIdOrThrow(postId, x => x);
@@ -164,6 +176,11 @@ namespace Violetum.ApplicationCore.Services
             }
 
             await _postRepository.DeletePost(post);
+        }
+
+        public async Task DeletePost(PostViewModel postViewModel)
+        {
+            await _postRepository.DeletePost(_mapper.Map<Post>(postViewModel));
         }
 
         public async Task VotePost(string postId, string userId, PostVoteDto postVoteDto)

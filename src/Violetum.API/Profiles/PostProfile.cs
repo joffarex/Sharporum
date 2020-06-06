@@ -11,6 +11,7 @@ namespace Violetum.API.Profiles
         public PostProfile()
         {
             CreateMap<Post, PostViewModel>();
+            CreateMap<PostViewModel, Post>();
             CreateMap<CreatePostDto, Post>();
             CreateMap<Post, CommentPostViewModel>();
         }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Violetum.API.Authorization;
 using Violetum.API.Contracts.V1;
 using Violetum.API.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Post;
@@ -16,13 +17,16 @@ namespace Violetum.API.Controllers.V1
 {
     public class PostsController : ControllerBase
     {
+        private readonly IAuthorizationService _authorizationService;
         private readonly IIdentityManager _identityManager;
         private readonly IPostService _postService;
 
-        public PostsController(IPostService postService, IIdentityManager identityManager)
+        public PostsController(IPostService postService, IIdentityManager identityManager,
+            IAuthorizationService authorizationService)
         {
             _postService = postService;
             _identityManager = identityManager;
+            _authorizationService = authorizationService;
         }
 
         [HttpGet("/secret")]
@@ -83,25 +87,47 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPut(ApiRoutes.Posts.Update)]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Update([FromRoute] string postId, [FromBody] UpdatePostDto updatePostDto)
         {
-            string userId = _identityManager.GetUserId();
+            PostViewModel postViewModel = _postService.GetPost(postId);
 
-            PostViewModel post = await _postService.UpdatePost(postId, userId, updatePostDto);
+            AuthorizationResult authorizationResult =
+                await _authorizationService.AuthorizeAsync(User, postViewModel, PolicyConstants.UpdatePostRolePolicy);
+            if (authorizationResult.Succeeded)
+            {
+                PostViewModel post = await _postService.UpdatePost(postViewModel, updatePostDto);
 
-            return Ok(new PostResponse {Post = post});
+                return Ok(new PostResponse {Post = post});
+            }
+
+            if (User.Identity.IsAuthenticated)
+            {
+                return new ForbidResult();
+            }
+
+            return new ChallengeResult();
         }
 
         [HttpDelete(ApiRoutes.Posts.Delete)]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Delete([FromRoute] string postId)
         {
-            string userId = _identityManager.GetUserId();
+            PostViewModel post = _postService.GetPost(postId);
 
-            await _postService.DeletePost(postId, userId);
+            AuthorizationResult authorizationResult =
+                await _authorizationService.AuthorizeAsync(User, post, PolicyConstants.DeletePostRolePolicy);
+            if (authorizationResult.Succeeded)
+            {
+                await _postService.DeletePost(post);
 
-            return Ok(new ActionSuccessResponse {Message = "OK"});
+                return Ok(new ActionSuccessResponse {Message = "OK"});
+            }
+
+            if (User.Identity.IsAuthenticated)
+            {
+                return new ForbidResult();
+            }
+
+            return new ChallengeResult();
         }
 
         [HttpPost(ApiRoutes.Posts.Vote)]

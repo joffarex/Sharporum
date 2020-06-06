@@ -15,9 +15,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
-using Violetum.API.Authorization.Category;
+using Violetum.API.Authorization;
 using Violetum.API.Authorization.Category.Handlers;
 using Violetum.API.Authorization.Category.Requirements;
+using Violetum.API.Authorization.Post.Handlers;
+using Violetum.API.Authorization.Post.Requirements;
 using Violetum.API.Filters;
 using Violetum.Domain.Models;
 
@@ -91,10 +93,16 @@ namespace Violetum.API.Installers
                     policy => { policy.AddRequirements(new CanUpdateCategoryAuthorizationRequirement()); });
                 options.AddPolicy(PolicyConstants.DeleteCategoryRolePolicy,
                     policy => { policy.AddRequirements(new CanDeleteCategoryAuthorizationRequirement()); });
+                options.AddPolicy(PolicyConstants.DeletePostRolePolicy,
+                    policy => { policy.AddRequirements(new CanDeletePostAuthorizationRequirement()); });
+                options.AddPolicy(PolicyConstants.UpdatePostRolePolicy,
+                    policy => { policy.AddRequirements(new CanUpdatePostAuthorizationRequirement()); });
             });
 
             services.AddScoped<IAuthorizationHandler, CanUpdateCategoryHandler>();
             services.AddScoped<IAuthorizationHandler, CanDeleteCategoryHandler>();
+            services.AddScoped<IAuthorizationHandler, CanDeletePostHandler>();
+            services.AddScoped<IAuthorizationHandler, CanUpdatePostHandler>();
 
             services.AddHttpClient();
 
