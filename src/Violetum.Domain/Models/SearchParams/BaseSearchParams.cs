@@ -2,11 +2,21 @@
 {
     public abstract class BaseSearchParams
     {
-        public string SortBy { get; set; }
-        public string OrderByDir { get; set; }
+        public string SortBy { get; set; } = "CreatedAt";
+        public string OrderByDir { get; set; } = "desc";
 
-        public int CurrentPage { get; set; } = 1;
-        public virtual int Limit { get; } = 20;
+        public int CurrentPage
+        {
+            get => CurrentPage;
+            set => CurrentPage = value < 1 ? 1 : value;
+        }
+
+        public int Limit
+        {
+            get => Limit;
+            set => Limit = value > 100 ? 100 : value;
+        }
+
         public int Offset => Limit * (CurrentPage - 1);
     }
 }
