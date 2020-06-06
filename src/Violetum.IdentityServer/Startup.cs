@@ -33,14 +33,12 @@ namespace Violetum.IdentityServer
 
             string connectionString = _configuration.GetConnectionString("DefaultConnection");
 
-            // configures IIS out-of-proc settings (see https://github.com/aspnet/AspNetCore/issues/14882)
             services.Configure<IISOptions>(iis =>
             {
                 iis.AuthenticationDisplayName = "Windows";
                 iis.AutomaticAuthentication = false;
             });
 
-            // configures IIS in-proc settings
             services.Configure<IISServerOptions>(iis =>
             {
                 iis.AuthenticationDisplayName = "Windows";
@@ -90,13 +88,19 @@ namespace Violetum.IdentityServer
                     options.ConfigureDbContext = b => b.UseSqlServer(connectionString,
                         sql => sql.MigrationsAssembly(assembly));
                 })
-                .AddSigningCredential(certificate).AddCustomCorsPolicy();
+                .AddSigningCredential(certificate)
+                .AddCustomCorsPolicy();
 
             services.AddCors(confg =>
+            {
                 confg.AddPolicy("AllowAll",
-                    p => p.AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader()));
+                    p =>
+                    {
+                        p.AllowAnyOrigin()
+                            .AllowAnyMethod()
+                            .AllowAnyHeader();
+                    });
+            });
 
             services.AddControllersWithViews();
         }

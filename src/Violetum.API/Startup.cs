@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Serilog;
 using Violetum.API.Installers;
 
@@ -19,23 +18,13 @@ namespace Violetum.API
             _environment = environment;
         }
 
-
         public void ConfigureServices(IServiceCollection services)
         {
             services.InstallServicesInAssembly(_configuration, _environment);
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseHsts();
-            }
-
             app.UseSerilogRequestLogging();
             app.UseCors("SPAPolicy");
             app.UseHttpsRedirection();
