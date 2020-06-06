@@ -21,5 +21,6 @@ namespace Violetum.ApplicationCore.Interfaces.Services
 
         Task<bool> DeleteCategory(string id, string userId);
         Task<bool> DeleteCategory(CategoryViewModel categoryViewModel);
+        Task AddModerator(CategoryViewModel categoryViewModel, AddModeratorDto addModeratorDto);
     }
 }

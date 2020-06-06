@@ -158,6 +158,18 @@ namespace Violetum.ApplicationCore.Services
             return await _categoryRepository.DeleteCategory(_mapper.Map<Category>(categoryViewModel)) > 0;
         }
 
+        public async Task AddModerator(CategoryViewModel categoryViewModel, AddModeratorDto addModeratorDto)
+        {
+            string roleName = $"{nameof(Category)}/{categoryViewModel.Id}/{Roles.Moderator}";
+            if (!await _roleManager.RoleExistsAsync(roleName))
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest);
+            }
+
+            User newModerator = await _userManager.FindByIdAsync(addModeratorDto.NewModeratorId);
+            await _userManager.AddToRoleAsync(newModerator, roleName);
+        }
+
         private async Task CreateCategoryAdminRole(User user, string categoryId)
         {
             string roleName = $"{nameof(Category)}/{categoryId}/{Roles.Admin}";

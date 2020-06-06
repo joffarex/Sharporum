@@ -24,6 +24,7 @@
             public const string Get = Base + "/categories/{categoryId}";
             public const string Update = Base + "/categories/{categoryId}";
             public const string Delete = Base + "/categories/{categoryId}";
+            public const string SetModerator = Base + "/categories/{categoryId}/set-moderator";
         }
 
         public static class Comments

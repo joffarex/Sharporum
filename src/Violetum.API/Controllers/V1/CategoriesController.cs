@@ -107,5 +107,28 @@ namespace Violetum.API.Controllers.V1
 
             return new ChallengeResult();
         }
+
+        [HttpPost(ApiRoutes.Categories.SetModerator)]
+        public async Task<IActionResult> AddModerator([FromRoute] string categoryId,
+            [FromBody] AddModeratorDto addModeratorDto)
+        {
+            CategoryViewModel category = _categoryService.GetCategoryById(categoryId);
+
+            AuthorizationResult authorizationResult =
+                await _authorizationService.AuthorizeAsync(User, category, PolicyConstants.AddModeratorRolePolicy);
+            if (authorizationResult.Succeeded)
+            {
+                await _categoryService.AddModerator(category, addModeratorDto);
+
+                return Ok(new ActionSuccessResponse {Message = "OK"});
+            }
+
+            if (User.Identity.IsAuthenticated)
+            {
+                return new ForbidResult();
+            }
+
+            return new ChallengeResult();
+        }
     }
 }

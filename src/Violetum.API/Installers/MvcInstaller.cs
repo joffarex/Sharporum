@@ -95,6 +95,8 @@ namespace Violetum.API.Installers
                     policy => { policy.AddRequirements(new CanUpdateCategoryAuthorizationRequirement()); });
                 options.AddPolicy(PolicyConstants.DeleteCategoryRolePolicy,
                     policy => { policy.AddRequirements(new CanDeleteCategoryAuthorizationRequirement()); });
+                options.AddPolicy(PolicyConstants.AddModeratorRolePolicy,
+                    policy => { policy.AddRequirements(new CanAddModeratorAuthorizationRequirement()); });
                 options.AddPolicy(PolicyConstants.DeletePostRolePolicy,
                     policy => { policy.AddRequirements(new CanDeletePostAuthorizationRequirement()); });
                 options.AddPolicy(PolicyConstants.UpdatePostRolePolicy,
@@ -107,6 +109,7 @@ namespace Violetum.API.Installers
 
             services.AddScoped<IAuthorizationHandler, CanUpdateCategoryHandler>();
             services.AddScoped<IAuthorizationHandler, CanDeleteCategoryHandler>();
+            services.AddScoped<IAuthorizationHandler, CanAddModeratorHandler>();
             services.AddScoped<IAuthorizationHandler, CanDeletePostHandler>();
             services.AddScoped<IAuthorizationHandler, CanUpdatePostHandler>();
             services.AddScoped<IAuthorizationHandler, CanDeleteCommentHandler>();
