@@ -20,7 +20,7 @@ namespace Violetum.API.Authorization.Comment.Handlers
 
             if (context.User.HasClaim(JwtClaimTypes.Role, $"{roleBase}/{Roles.Admin}") ||
                 context.User.HasClaim(JwtClaimTypes.Role, $"{roleBase}/{Roles.Moderator}") ||
-                PostHelpers.UserOwnsPost(context.User.FindFirstValue("sub"), comment.Author.Id))
+                CommentHelpers.UserOwnsComment(context.User.FindFirstValue("sub"), comment.Author.Id))
             {
                 context.Succeed(requirement);
                 return Task.CompletedTask;

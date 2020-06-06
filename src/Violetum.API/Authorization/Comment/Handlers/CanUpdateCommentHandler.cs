@@ -14,7 +14,7 @@ namespace Violetum.API.Authorization.Comment.Handlers
             CanUpdateCommentAuthorizationRequirement requirement,
             CommentViewModel comment)
         {
-            if (PostHelpers.UserOwnsPost(context.User.FindFirstValue("sub"), comment.Author.Id))
+            if (CommentHelpers.UserOwnsComment(context.User.FindFirstValue("sub"), comment.Author.Id))
             {
                 context.Succeed(requirement);
                 return Task.CompletedTask;
