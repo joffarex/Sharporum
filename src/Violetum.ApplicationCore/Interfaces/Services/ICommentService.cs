@@ -13,7 +13,9 @@ namespace Violetum.ApplicationCore.Interfaces.Services
         Task<int> GetTotalCommentsCount(CommentSearchParams searchParams);
         Task<CommentViewModel> CreateComment(CreateCommentDto createCommentDto);
         Task<CommentViewModel> UpdateComment(string commentId, string userId, UpdateCommentDto updateCommentDto);
+        Task<CommentViewModel> UpdateComment(CommentViewModel commentViewModel, UpdateCommentDto updateCommentDto);
         Task<bool> DeleteComment(string commentId, string userId);
+        Task<bool> DeleteComment(CommentViewModel commentViewModel);
         Task VoteComment(string commentId, string userId, CommentVoteDto commentVoteDto);
     }
 }

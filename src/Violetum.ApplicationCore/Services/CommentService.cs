@@ -138,6 +138,18 @@ namespace Violetum.ApplicationCore.Services
             return _mapper.Map<CommentViewModel>(comment);
         }
 
+        public async Task<CommentViewModel> UpdateComment(CommentViewModel commentViewModel,
+            UpdateCommentDto updateCommentDto)
+        {
+            var comment = _mapper.Map<Comment>(commentViewModel);
+
+            comment.Content = updateCommentDto.Content;
+
+            await _commentRepository.UpdateComment(comment);
+
+            return _mapper.Map<CommentViewModel>(comment);
+        }
+
         public async Task<bool> DeleteComment(string commentId, string userId)
         {
             Comment comment = _commentValidators.GetCommentByIdOrThrow(commentId, x => x);
@@ -149,6 +161,11 @@ namespace Violetum.ApplicationCore.Services
             }
 
             return await _commentRepository.DeleteComment(comment) > 0;
+        }
+
+        public async Task<bool> DeleteComment(CommentViewModel commentViewModel)
+        {
+            return await _commentRepository.DeleteComment(_mapper.Map<Comment>(commentViewModel)) > 0;
         }
 
         public async Task VoteComment(string commentId, string userId, CommentVoteDto commentVoteDto)

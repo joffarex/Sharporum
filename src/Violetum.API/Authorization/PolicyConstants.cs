@@ -6,5 +6,7 @@
         public const string DeleteCategoryRolePolicy = nameof(DeleteCategoryRolePolicy);
         public const string DeletePostRolePolicy = nameof(DeletePostRolePolicy);
         public const string UpdatePostRolePolicy = nameof(UpdatePostRolePolicy);
+        public const string DeleteCommentRolePolicy = nameof(DeleteCommentRolePolicy);
+        public const string UpdateCommentRolePolicy = nameof(UpdateCommentRolePolicy);
     }
 }

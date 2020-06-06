@@ -18,6 +18,8 @@ using Newtonsoft.Json;
 using Violetum.API.Authorization;
 using Violetum.API.Authorization.Category.Handlers;
 using Violetum.API.Authorization.Category.Requirements;
+using Violetum.API.Authorization.Comment.Handlers;
+using Violetum.API.Authorization.Comment.Requirements;
 using Violetum.API.Authorization.Post.Handlers;
 using Violetum.API.Authorization.Post.Requirements;
 using Violetum.API.Filters;
@@ -97,12 +99,18 @@ namespace Violetum.API.Installers
                     policy => { policy.AddRequirements(new CanDeletePostAuthorizationRequirement()); });
                 options.AddPolicy(PolicyConstants.UpdatePostRolePolicy,
                     policy => { policy.AddRequirements(new CanUpdatePostAuthorizationRequirement()); });
+                options.AddPolicy(PolicyConstants.DeleteCommentRolePolicy,
+                    policy => { policy.AddRequirements(new CanDeleteCommentAuthorizationRequirement()); });
+                options.AddPolicy(PolicyConstants.UpdateCommentRolePolicy,
+                    policy => { policy.AddRequirements(new CanUpdateCommentAuthorizationRequirement()); });
             });
 
             services.AddScoped<IAuthorizationHandler, CanUpdateCategoryHandler>();
             services.AddScoped<IAuthorizationHandler, CanDeleteCategoryHandler>();
             services.AddScoped<IAuthorizationHandler, CanDeletePostHandler>();
             services.AddScoped<IAuthorizationHandler, CanUpdatePostHandler>();
+            services.AddScoped<IAuthorizationHandler, CanDeleteCommentHandler>();
+            services.AddScoped<IAuthorizationHandler, CanUpdateCommentHandler>();
 
             services.AddHttpClient();
 

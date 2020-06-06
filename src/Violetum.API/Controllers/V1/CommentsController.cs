@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Violetum.API.Authorization;
 using Violetum.API.Contracts.V1;
 using Violetum.API.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Comment;
@@ -16,13 +17,16 @@ namespace Violetum.API.Controllers.V1
 {
     public class CommentsController : ControllerBase
     {
+        private readonly IAuthorizationService _authorizationService;
         private readonly ICommentService _commentService;
         private readonly IIdentityManager _identityManager;
 
-        public CommentsController(ICommentService commentService, IIdentityManager identityManager)
+        public CommentsController(ICommentService commentService, IIdentityManager identityManager,
+            IAuthorizationService authorizationService)
         {
             _commentService = commentService;
             _identityManager = identityManager;
+            _authorizationService = authorizationService;
         }
 
         [HttpGet(ApiRoutes.Comments.GetMany)]
@@ -58,26 +62,50 @@ namespace Violetum.API.Controllers.V1
         }
 
         [HttpPut(ApiRoutes.Comments.Update)]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Update([FromRoute] string commentId,
             [FromBody] UpdateCommentDto updateCommentDto)
         {
-            string userId = _identityManager.GetUserId();
+            CommentViewModel commentViewModel = _commentService.GetComment(commentId);
 
-            CommentViewModel comment = await _commentService.UpdateComment(commentId, userId, updateCommentDto);
+            AuthorizationResult authorizationResult =
+                await _authorizationService.AuthorizeAsync(User, commentViewModel,
+                    PolicyConstants.UpdateCommentRolePolicy);
+            if (authorizationResult.Succeeded)
+            {
+                CommentViewModel comment = await _commentService.UpdateComment(commentViewModel, updateCommentDto);
 
-            return Ok(new CommentResponse {Comment = comment});
+                return Ok(new CommentResponse {Comment = comment});
+            }
+
+            if (User.Identity.IsAuthenticated)
+            {
+                return new ForbidResult();
+            }
+
+            return new ChallengeResult();
         }
 
         [HttpDelete(ApiRoutes.Comments.Delete)]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Delete([FromRoute] string commentId)
         {
-            string userId = _identityManager.GetUserId();
+            CommentViewModel comment = _commentService.GetComment(commentId);
 
-            await _commentService.DeleteComment(commentId, userId);
+            AuthorizationResult authorizationResult =
+                await _authorizationService.AuthorizeAsync(User, comment,
+                    PolicyConstants.UpdateCommentRolePolicy);
+            if (authorizationResult.Succeeded)
+            {
+                await _commentService.DeleteComment(comment);
 
-            return Ok(new ActionSuccessResponse {Message = "OK"});
+                return Ok(new ActionSuccessResponse {Message = "OK"});
+            }
+
+            if (User.Identity.IsAuthenticated)
+            {
+                return new ForbidResult();
+            }
+
+            return new ChallengeResult();
         }
 
         [HttpPost(ApiRoutes.Comments.Vote)]
