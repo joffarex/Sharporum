@@ -25,6 +25,8 @@ import {CategoriesComponent} from './categories/categories.component';
 import {PostComponent} from './posts/post/post.component';
 import {CategoryComponent} from './categories/category/category.component';
 import {UnauthorizedComponent} from "./unauthorized/unauthorized.component";
+import { CommentsComponent } from './comments/comments.component';
+import { CommentComponent } from './comments/comment/comment.component';
 
 @NgModule({
   imports: [
@@ -54,6 +56,8 @@ import {UnauthorizedComponent} from "./unauthorized/unauthorized.component";
     CategoriesComponent,
     CategoryComponent,
     UnauthorizedComponent,
+    CommentsComponent,
+    CommentComponent,
   ],
   exports: [
     IndexComponent,
@@ -63,6 +67,8 @@ import {UnauthorizedComponent} from "./unauthorized/unauthorized.component";
     CategoriesComponent,
     CategoryComponent,
     UnauthorizedComponent,
+    CommentsComponent,
+    CommentComponent,
   ],
   providers: []
 })
