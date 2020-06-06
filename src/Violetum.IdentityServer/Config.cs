@@ -31,22 +31,20 @@ namespace Violetum.IdentityServer
                     ClientSecrets = {new Secret("49C1A7E1-0C79-4A89-A3D6-A37998FB86B0".Sha256())},
 
                     AllowedGrantTypes = GrantTypes.Code,
-                    RequireConsent = false,
                     RequirePkce = true,
 
-                    // where to redirect to after login
-                    RedirectUris = {"http://localhost:5002/signin-oidc"},
+                    RequireConsent = false,
+                    IncludeJwtId = true,
+                    AllowOfflineAccess = true,
+                    AccessTokenLifetime = 300,
 
-                    // where to redirect to after logout
+                    RedirectUris = {"http://localhost:5002/signin-oidc"},
                     PostLogoutRedirectUris = {"http://localhost:5002/Home/Index"},
 
                     AllowedScopes = new List<string>
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                     },
-
-                    AllowOfflineAccess = true,
-                    AccessTokenLifetime = 3600,
                 },
                 new Client
                 {
@@ -55,6 +53,14 @@ namespace Violetum.IdentityServer
                     AllowedGrantTypes = GrantTypes.Code,
                     RequirePkce = true,
                     RequireClientSecret = false,
+
+                    AllowAccessTokensViaBrowser = true,
+                    RequireConsent = false,
+                    IncludeJwtId = true,
+                    AllowOfflineAccess = true,
+                    AccessTokenLifetime = 300,
+                    UpdateAccessTokenClaimsOnRefresh = true,
+                    AlwaysIncludeUserClaimsInIdToken = true,
 
                     RedirectUris = {"http://localhost:4200"},
                     PostLogoutRedirectUris = {"http://localhost:4200"},
@@ -65,30 +71,26 @@ namespace Violetum.IdentityServer
                         IdentityServerConstants.StandardScopes.OpenId,
                         "Violetum.API",
                     },
+                },
+                new Client
+                {
+                    ClientId = "Swagger",
+
+                    AllowedGrantTypes = GrantTypes.Implicit,
+                    RequireClientSecret = false,
 
                     AllowAccessTokensViaBrowser = true,
                     RequireConsent = false,
                     IncludeJwtId = true,
-                    AllowOfflineAccess = true,
-                    AccessTokenLifetime = 3600,
-                    UpdateAccessTokenClaimsOnRefresh = true,
-                    AlwaysIncludeUserClaimsInIdToken = true,
-                },
-                new Client
-                {
-                    ClientId = "Violetum.API.Swagger",
-                    AllowedGrantTypes = GrantTypes.Implicit,
-                    AllowAccessTokensViaBrowser = true,
-                    RequireConsent = false,
-                    RequireClientSecret = false,
+                    AccessTokenLifetime = 300,
+
                     RedirectUris = {"http://localhost:5001/swagger/oauth2-redirect.html"},
+
                     AllowedScopes =
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         "Violetum.API",
                     },
-
-                    AccessTokenLifetime = 3600,
                 },
             };
     }
