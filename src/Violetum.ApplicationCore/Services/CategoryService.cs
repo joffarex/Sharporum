@@ -79,6 +79,7 @@ namespace Violetum.ApplicationCore.Services
         {
             User user = await _userValidators.GetUserByIdOrThrow(userId);
 
+            createCategoryDto.Image = await BaseHelpers.UploadImageToBucketAndGetUrl(createCategoryDto.Image);
             var category = _mapper.Map<Category>(createCategoryDto);
             category.Author = user;
 
@@ -96,7 +97,17 @@ namespace Violetum.ApplicationCore.Services
 
             category.Name = updateCategoryDto.Name;
             category.Description = updateCategoryDto.Description;
-            category.Image = updateCategoryDto.Image;
+
+            await _categoryRepository.UpdateCategory(category);
+
+            return _mapper.Map<CategoryViewModel>(category);
+        }
+
+        public async Task<CategoryViewModel> UpdateCategoryImage(CategoryViewModel categoryViewModel,
+            UpdateCategoryImageDto updateCategoryImageDto)
+        {
+            var category = _mapper.Map<Category>(categoryViewModel);
+            category.Image = await BaseHelpers.UploadImageToBucketAndGetUrl(updateCategoryImageDto.Image);
 
             await _categoryRepository.UpdateCategory(category);
 

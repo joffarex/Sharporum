@@ -18,6 +18,9 @@ namespace Violetum.ApplicationCore.Interfaces.Services
         Task<CategoryViewModel> UpdateCategory(CategoryViewModel categoryViewModel,
             UpdateCategoryDto updateCategoryDto);
 
+        Task<CategoryViewModel> UpdateCategoryImage(CategoryViewModel categoryViewModel,
+            UpdateCategoryImageDto updateCategoryImageDto);
+
         Task<bool> DeleteCategory(CategoryViewModel categoryViewModel);
         Task AddModerator(CategoryViewModel categoryViewModel, AddModeratorDto addModeratorDto);
     }

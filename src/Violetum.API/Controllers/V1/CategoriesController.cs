@@ -126,6 +126,41 @@ namespace Violetum.API.Controllers.V1
         }
 
         /// <summary>
+        ///     Updates category image
+        /// </summary>
+        /// <param name="categoryId"></param>
+        /// <param name="updateCategoryImageDto"></param>
+        /// <response code="200">Updates category image</response>
+        /// <response code="400">Unable to update category due to validation errors</response>
+        [HttpPut(ApiRoutes.Categories.UpdateImage)]
+        [ProducesResponseType(typeof(CategoryResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
+        public async Task<IActionResult> UpdateImage([FromRoute] string categoryId,
+            [FromBody] UpdateCategoryImageDto updateCategoryImageDto)
+        {
+            CategoryViewModel categoryViewModel = _categoryService.GetCategoryById(categoryId);
+
+            AuthorizationResult authorizationResult =
+                await _authorizationService.AuthorizeAsync(User, categoryViewModel,
+                    PolicyConstants.UpdateCategoryRolePolicy);
+            if (authorizationResult.Succeeded)
+            {
+                CategoryViewModel category =
+                    await _categoryService.UpdateCategoryImage(categoryViewModel, updateCategoryImageDto);
+
+                return Ok(new CategoryResponse {Category = category});
+            }
+
+            if (User.Identity.IsAuthenticated)
+            {
+                return new ForbidResult();
+            }
+
+            return new ChallengeResult();
+        }
+
+        /// <summary>
         ///     Deletes category
         /// </summary>
         /// <param name="categoryId"></param>

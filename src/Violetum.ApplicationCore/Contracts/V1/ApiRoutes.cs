@@ -23,6 +23,7 @@
             public const string Create = Base + "/categories";
             public const string Get = Base + "/categories/{categoryId}";
             public const string Update = Base + "/categories/{categoryId}";
+            public const string UpdateImage = Base + "/categories/{categoryId}/image";
             public const string Delete = Base + "/categories/{categoryId}";
             public const string SetModerator = Base + "/categories/{categoryId}/set-moderator";
         }

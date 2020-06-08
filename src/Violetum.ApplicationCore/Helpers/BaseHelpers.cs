@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Violetum.ApplicationCore.Helpers
 {
@@ -21,6 +22,11 @@ namespace Violetum.ApplicationCore.Helpers
             }
 
             return orderByExpr;
+        }
+
+        public static async Task<string> UploadImageToBucketAndGetUrl(string image)
+        {
+            throw new NotImplementedException();
         }
     }
 }
