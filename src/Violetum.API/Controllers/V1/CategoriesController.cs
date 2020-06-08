@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Authorization;
@@ -11,7 +13,6 @@ using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Category;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.ViewModels.Category;
-using Violetum.Domain.Infrastructure;
 using Violetum.Domain.Models;
 using Violetum.Domain.Models.SearchParams;
 
@@ -22,13 +23,13 @@ namespace Violetum.API.Controllers.V1
     {
         private readonly IAuthorizationService _authorizationService;
         private readonly ICategoryService _categoryService;
-        private readonly IIdentityManager _identityManager;
+        private readonly HttpContext _httpContext;
 
-        public CategoriesController(ICategoryService categoryService, IIdentityManager identityManager,
+        public CategoriesController(ICategoryService categoryService, IHttpContextAccessor httpContextAccessor,
             IAuthorizationService authorizationService)
         {
             _categoryService = categoryService;
-            _identityManager = identityManager;
+            _httpContext = httpContextAccessor.HttpContext;
             _authorizationService = authorizationService;
         }
 
@@ -68,7 +69,7 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Create([FromBody] CreateCategoryDto createCategoryDto)
         {
-            string userId = _identityManager.GetUserId();
+            string userId = _httpContext.User.FindFirstValue("sub");
 
             CategoryViewModel category = await _categoryService.CreateCategory(userId, createCategoryDto);
 

@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Authorization;
@@ -11,7 +13,6 @@ using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Post;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.ViewModels.Post;
-using Violetum.Domain.Infrastructure;
 using Violetum.Domain.Models;
 using Violetum.Domain.Models.SearchParams;
 
@@ -21,14 +22,14 @@ namespace Violetum.API.Controllers.V1
     public class PostsController : ControllerBase
     {
         private readonly IAuthorizationService _authorizationService;
-        private readonly IIdentityManager _identityManager;
+        private readonly HttpContext _httpContext;
         private readonly IPostService _postService;
 
-        public PostsController(IPostService postService, IIdentityManager identityManager,
+        public PostsController(IPostService postService, IHttpContextAccessor httpContextAccessor,
             IAuthorizationService authorizationService)
         {
             _postService = postService;
-            _identityManager = identityManager;
+            _httpContext = httpContextAccessor.HttpContext;
             _authorizationService = authorizationService;
         }
 
@@ -36,7 +37,7 @@ namespace Violetum.API.Controllers.V1
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public IActionResult Secret()
         {
-            string userId = _identityManager.GetUserId();
+            string userId = _httpContext.User.FindFirstValue("sub");
             return Ok(new {Msg = "Secret", UserId = userId});
         }
 
@@ -79,7 +80,7 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Create([FromBody] CreatePostDto createPostDto)
         {
-            string userId = _identityManager.GetUserId();
+            string userId = _httpContext.User.FindFirstValue("sub");
 
             PostViewModel post = await _postService.CreatePost(userId, createPostDto);
 
@@ -102,7 +103,7 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public IActionResult NewsFeed([FromQuery] PostSearchParams searchParams)
         {
-            string userId = _identityManager.GetUserId();
+            string userId = _httpContext.User.FindFirstValue("sub");
 
             IEnumerable<PostViewModel> posts = _postService.GetNewsFeedPosts(userId, searchParams);
             int postsCount = _postService.GetTotalPostsCountInNewsFeed(userId, searchParams);
@@ -203,7 +204,7 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.UnprocessableEntity)]
         public async Task<IActionResult> Vote([FromRoute] string postId, [FromBody] PostVoteDto postVoteDto)
         {
-            string userId = _identityManager.GetUserId();
+            string userId = _httpContext.User.FindFirstValue("sub");
 
             await _postService.VotePost(postId, userId, postVoteDto);
 

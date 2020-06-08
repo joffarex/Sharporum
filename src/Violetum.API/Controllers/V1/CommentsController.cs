@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Authorization;
@@ -11,7 +13,6 @@ using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Comment;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.ViewModels.Comment;
-using Violetum.Domain.Infrastructure;
 using Violetum.Domain.Models;
 using Violetum.Domain.Models.SearchParams;
 
@@ -22,13 +23,13 @@ namespace Violetum.API.Controllers.V1
     {
         private readonly IAuthorizationService _authorizationService;
         private readonly ICommentService _commentService;
-        private readonly IIdentityManager _identityManager;
+        private readonly HttpContext _httpContext;
 
-        public CommentsController(ICommentService commentService, IIdentityManager identityManager,
+        public CommentsController(ICommentService commentService, IHttpContextAccessor httpContextAccessor,
             IAuthorizationService authorizationService)
         {
             _commentService = commentService;
-            _identityManager = identityManager;
+            _httpContext = httpContextAccessor.HttpContext;
             _authorizationService = authorizationService;
         }
 
@@ -71,7 +72,7 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Create([FromBody] CreateCommentDto createCommentDto)
         {
-            string userId = _identityManager.GetUserId();
+            string userId = _httpContext.User.FindFirstValue("sub");
 
             CommentViewModel comment = await _commentService.CreateComment(userId, createCommentDto);
 
@@ -169,7 +170,7 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.UnprocessableEntity)]
         public async Task<IActionResult> Vote([FromRoute] string commentId, [FromBody] CommentVoteDto commentVoteDto)
         {
-            string userId = _identityManager.GetUserId();
+            string userId = _httpContext.User.FindFirstValue("sub");
 
             await _commentService.VoteComment(commentId, userId, commentVoteDto);
 
