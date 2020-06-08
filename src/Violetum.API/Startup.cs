@@ -8,8 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Serilog;
-using Violetum.API.Contracts.HealthChecks;
 using Violetum.API.Installers;
+using Violetum.ApplicationCore.Contracts.HealthChecks;
 
 namespace Violetum.API
 {

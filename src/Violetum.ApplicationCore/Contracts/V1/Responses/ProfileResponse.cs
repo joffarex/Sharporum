@@ -1,6 +1,6 @@
 ﻿using Violetum.ApplicationCore.ViewModels.User;
 
-namespace Violetum.API.Contracts.V1.Responses
+namespace Violetum.ApplicationCore.Contracts.V1.Responses
 {
     public class ProfileResponse
     {

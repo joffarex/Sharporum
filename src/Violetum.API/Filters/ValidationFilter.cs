@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Violetum.API.Contracts.V1.Responses;
+using Violetum.ApplicationCore.Contracts.V1.Responses;
 
 namespace Violetum.API.Filters
 {

@@ -1,4 +1,4 @@
-﻿namespace Violetum.API.Contracts.V1.Responses
+﻿namespace Violetum.ApplicationCore.Contracts.V1.Responses
 {
     public class ErrorModel
     {
