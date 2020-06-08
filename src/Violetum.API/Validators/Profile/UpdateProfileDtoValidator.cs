@@ -8,7 +8,6 @@ namespace Violetum.API.Validators.Profile
     {
         public UpdateProfileDtoValidator()
         {
-            RuleFor(x => x.Id).NotEmpty();
             RuleFor(x => x.Username).NotEmpty().Matches("^[a-zA-Z0-9 ]*$");
             RuleFor(x => x.Name).NotEmpty().Matches("^[a-zA-Z ]*$");
             RuleFor(x => x.GivenName).NotEmpty().Matches("^[a-zA-Z]*$");

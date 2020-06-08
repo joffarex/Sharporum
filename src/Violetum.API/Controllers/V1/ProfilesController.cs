@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.ApplicationCore.Contracts.V1;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
-using Violetum.ApplicationCore.Dtos.Follower;
 using Violetum.ApplicationCore.Dtos.Profile;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.ViewModels.Follower;
@@ -111,26 +110,18 @@ namespace Violetum.API.Controllers.V1
         /// <summary>
         ///     Follows user
         /// </summary>
-        /// <param name="profileId"></param>
-        /// <param name="followActionDto"></param>
+        /// <param name="userToFollowId"></param>
         /// <response code="200">Follows user</response>
         /// <response code="404">Unable to find user to follow or user who follows</response>
         [HttpPost(ApiRoutes.Profiles.Follow)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(ActionSuccessResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
-        public async Task<IActionResult> Follow([FromRoute] string profileId,
-            [FromBody] FollowActionDto followActionDto)
+        public async Task<IActionResult> Follow([FromRoute] string userToFollowId)
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            // TODO: change this shit
-            if ((userId != followActionDto.FollowerUserId) || (profileId != followActionDto.UserToFollowId))
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");
-            }
-
-            await _followerService.FollowUser(followActionDto);
+            await _followerService.FollowUser(userId, userToFollowId);
 
             return Ok(new ActionSuccessResponse {Message = "OK"});
         }
@@ -138,26 +129,18 @@ namespace Violetum.API.Controllers.V1
         /// <summary>
         ///     Unfollows user
         /// </summary>
-        /// <param name="profileId"></param>
-        /// <param name="followActionDto"></param>
+        /// <param name="userToUnfollowId"></param>
         /// <response code="200">Unfollows user</response>
         /// <response code="404">Unable to find user to unfollow or user who unfollows</response>
         [HttpPost(ApiRoutes.Profiles.Unfollow)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(ActionSuccessResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
-        public async Task<IActionResult> Unfollow([FromRoute] string profileId,
-            [FromBody] FollowActionDto followActionDto)
+        public async Task<IActionResult> Unfollow([FromRoute] string userToUnfollowId)
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            // TODO: change this shit
-            if ((userId != followActionDto.FollowerUserId) || (profileId != followActionDto.UserToFollowId))
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");
-            }
-
-            await _followerService.UnfollowUser(followActionDto);
+            await _followerService.UnfollowUser(userId, userToUnfollowId);
 
             return Ok(new ActionSuccessResponse {Message = "OK"});
         }

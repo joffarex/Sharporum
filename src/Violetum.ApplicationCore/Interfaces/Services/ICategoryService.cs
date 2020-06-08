@@ -13,13 +13,11 @@ namespace Violetum.ApplicationCore.Interfaces.Services
         Task<IEnumerable<CategoryViewModel>> GetCategories(CategorySearchParams searchParams);
         Task<int> GetTotalCategoriesCount(CategorySearchParams searchParams);
 
-        Task<CategoryViewModel> CreateCategory(CreateCategoryDto createCategoryDto);
-        Task<CategoryViewModel> UpdateCategory(string id, string userId, UpdateCategoryDto updateCategoryDto);
+        Task<CategoryViewModel> CreateCategory(string userId, CreateCategoryDto createCategoryDto);
 
         Task<CategoryViewModel> UpdateCategory(CategoryViewModel categoryViewModel,
             UpdateCategoryDto updateCategoryDto);
 
-        Task<bool> DeleteCategory(string id, string userId);
         Task<bool> DeleteCategory(CategoryViewModel categoryViewModel);
         Task AddModerator(CategoryViewModel categoryViewModel, AddModeratorDto addModeratorDto);
     }

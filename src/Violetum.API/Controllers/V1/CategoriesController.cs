@@ -69,9 +69,8 @@ namespace Violetum.API.Controllers.V1
         public async Task<IActionResult> Create([FromBody] CreateCategoryDto createCategoryDto)
         {
             string userId = _identityManager.GetUserId();
-            createCategoryDto.AuthorId = userId;
 
-            CategoryViewModel category = await _categoryService.CreateCategory(createCategoryDto);
+            CategoryViewModel category = await _categoryService.CreateCategory(userId, createCategoryDto);
 
             return Created(HttpContext.Request.GetDisplayUrl(), new CategoryResponse {Category = category});
         }

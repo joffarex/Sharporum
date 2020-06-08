@@ -75,14 +75,9 @@ namespace Violetum.ApplicationCore.Services
             );
         }
 
-        public async Task<CategoryViewModel> CreateCategory(CreateCategoryDto createCategoryDto)
+        public async Task<CategoryViewModel> CreateCategory(string userId, CreateCategoryDto createCategoryDto)
         {
-            if (string.IsNullOrEmpty(createCategoryDto.AuthorId))
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, "Unauthorized User");
-            }
-
-            User user = await _userValidators.GetUserByIdOrThrow(createCategoryDto.AuthorId);
+            User user = await _userValidators.GetUserByIdOrThrow(userId);
 
             var category = _mapper.Map<Category>(createCategoryDto);
             category.Author = user;
@@ -90,33 +85,6 @@ namespace Violetum.ApplicationCore.Services
             await _categoryRepository.CreateCategory(category);
 
             await CreateCategoryAdminRole(user, category.Id);
-
-            return _mapper.Map<CategoryViewModel>(category);
-        }
-
-        public async Task<CategoryViewModel> UpdateCategory(string categoryId, string userId,
-            UpdateCategoryDto updateCategoryDto)
-        {
-            if (categoryId != updateCategoryDto.Id)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.BadRequest,
-                    $"{nameof(Comment)}:(catid[{categoryId}]|dtoid[{updateCategoryDto.Id}] update");
-            }
-
-            Category category = _categoryValidators.GetCategoryByIdOrThrow(categoryId, x => x);
-
-            bool userOwnsCategory = CategoryHelpers.UserOwnsCategory(userId, category.AuthorId);
-            if (!userOwnsCategory)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized,
-                    $"Unauthorized User:{userId ?? "Anonymous"}");
-            }
-
-            category.Name = updateCategoryDto.Name;
-            category.Description = updateCategoryDto.Description;
-            category.Image = updateCategoryDto.Image;
-
-            await _categoryRepository.UpdateCategory(category);
 
             return _mapper.Map<CategoryViewModel>(category);
         }
@@ -133,22 +101,6 @@ namespace Violetum.ApplicationCore.Services
             await _categoryRepository.UpdateCategory(category);
 
             return _mapper.Map<CategoryViewModel>(category);
-        }
-
-        public async Task<bool> DeleteCategory(string categoryId, string userId)
-        {
-            Category category = _categoryValidators.GetCategoryByIdOrThrow(categoryId, x => x);
-
-            bool userOwnsCategory = CategoryHelpers.UserOwnsCategory(userId, category.AuthorId);
-            if (!userOwnsCategory)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized,
-                    $"Unauthorized User:{userId ?? "Anonymous"}");
-            }
-
-            await RemoveCategoryRoles(categoryId);
-
-            return await _categoryRepository.DeleteCategory(category) > 0;
         }
 
         public async Task<bool> DeleteCategory(CategoryViewModel categoryViewModel)

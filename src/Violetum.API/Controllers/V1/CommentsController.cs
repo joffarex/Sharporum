@@ -72,9 +72,8 @@ namespace Violetum.API.Controllers.V1
         public async Task<IActionResult> Create([FromBody] CreateCommentDto createCommentDto)
         {
             string userId = _identityManager.GetUserId();
-            createCommentDto.AuthorId = userId;
 
-            CommentViewModel comment = await _commentService.CreateComment(createCommentDto);
+            CommentViewModel comment = await _commentService.CreateComment(userId, createCommentDto);
 
             return Created(HttpContext.Request.GetDisplayUrl(), new CommentResponse {Comment = comment});
         }

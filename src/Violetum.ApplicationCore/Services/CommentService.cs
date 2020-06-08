@@ -80,14 +80,9 @@ namespace Violetum.ApplicationCore.Services
             );
         }
 
-        public async Task<CommentViewModel> CreateComment(CreateCommentDto createCommentDto)
+        public async Task<CommentViewModel> CreateComment(string userId, CreateCommentDto createCommentDto)
         {
-            if (string.IsNullOrEmpty(createCommentDto.AuthorId))
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, "Unauthorized User");
-            }
-
-            User user = await _userValidators.GetUserByIdOrThrow(createCommentDto.AuthorId);
+            User user = await _userValidators.GetUserByIdOrThrow(userId);
             Post post = _postValidators.GetPostByIdOrThrow(createCommentDto.PostId, x => x);
 
             if (!string.IsNullOrEmpty(createCommentDto.ParentId))
@@ -108,36 +103,6 @@ namespace Violetum.ApplicationCore.Services
             return _mapper.Map<CommentViewModel>(comment);
         }
 
-        public async Task<CommentViewModel> UpdateComment(string commentId, string userId,
-            UpdateCommentDto updateCommentDto)
-        {
-            if (commentId != updateCommentDto.Id)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.BadRequest,
-                    $"{nameof(Post)}:(cid[{commentId}]|dtoid[{updateCommentDto.Id}] update");
-            }
-
-            Comment comment = _commentValidators.GetCommentByIdOrThrow(commentId, x => x);
-            if (comment.PostId != updateCommentDto.PostId)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.BadRequest,
-                    $"{nameof(Comment)}:(cid[{comment.PostId}]|dtoid[{updateCommentDto.PostId}] update");
-            }
-
-            bool userOwnsComment = CommentHelpers.UserOwnsComment(userId, comment.AuthorId);
-            if (!userOwnsComment)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized,
-                    $"Unauthorized User:{userId ?? "Anonymous"}");
-            }
-
-            comment.Content = updateCommentDto.Content;
-
-            await _commentRepository.UpdateComment(comment);
-
-            return _mapper.Map<CommentViewModel>(comment);
-        }
-
         public async Task<CommentViewModel> UpdateComment(CommentViewModel commentViewModel,
             UpdateCommentDto updateCommentDto)
         {
@@ -148,19 +113,6 @@ namespace Violetum.ApplicationCore.Services
             await _commentRepository.UpdateComment(comment);
 
             return _mapper.Map<CommentViewModel>(comment);
-        }
-
-        public async Task<bool> DeleteComment(string commentId, string userId)
-        {
-            Comment comment = _commentValidators.GetCommentByIdOrThrow(commentId, x => x);
-            bool userOwnsComment = CommentHelpers.UserOwnsComment(userId, comment.AuthorId);
-            if (!userOwnsComment)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized,
-                    $"Unauthorized User:{userId ?? "Anonymous"}");
-            }
-
-            return await _commentRepository.DeleteComment(comment) > 0;
         }
 
         public async Task<bool> DeleteComment(CommentViewModel commentViewModel)

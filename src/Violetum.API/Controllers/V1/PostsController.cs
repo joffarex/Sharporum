@@ -80,9 +80,8 @@ namespace Violetum.API.Controllers.V1
         public async Task<IActionResult> Create([FromBody] CreatePostDto createPostDto)
         {
             string userId = _identityManager.GetUserId();
-            createPostDto.AuthorId = userId;
 
-            PostViewModel post = await _postService.CreatePost(createPostDto);
+            PostViewModel post = await _postService.CreatePost(userId, createPostDto);
 
             return Created(HttpContext.Request.GetDisplayUrl(), new PostResponse {Post = post});
         }

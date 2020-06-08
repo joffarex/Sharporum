@@ -108,14 +108,9 @@ namespace Violetum.ApplicationCore.Services
                 PostHelpers.WhereConditionPredicate(searchParams, x, followers));
         }
 
-        public async Task<PostViewModel> CreatePost(CreatePostDto createPostDto)
+        public async Task<PostViewModel> CreatePost(string userId, CreatePostDto createPostDto)
         {
-            if (string.IsNullOrEmpty(createPostDto.AuthorId))
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, "Unauthorized User");
-            }
-
-            User user = await _userValidators.GetUserByIdOrThrow(createPostDto.AuthorId);
+            User user = await _userValidators.GetUserByIdOrThrow(userId);
             Category category = _categoryValidators.GetCategoryByIdOrThrow(createPostDto.CategoryId, x => x);
 
             var post = _mapper.Map<Post>(createPostDto);
@@ -123,31 +118,6 @@ namespace Violetum.ApplicationCore.Services
             post.Category = category;
 
             await _postRepository.CreatePost(post);
-
-            return _mapper.Map<PostViewModel>(post);
-        }
-
-        public async Task<PostViewModel> UpdatePost(string postId, string userId, UpdatePostDto updatePostDto)
-        {
-            if (postId != updatePostDto.Id)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.BadRequest,
-                    $"{nameof(Post)}:(pid[{postId}]|dtoid[{updatePostDto.Id}] update");
-            }
-
-            Post post = _postValidators.GetPostByIdOrThrow(postId, x => x);
-
-            bool userOwnsPost = PostHelpers.UserOwnsPost(userId, post.AuthorId);
-            if (userOwnsPost)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized,
-                    $"Unauthorized User:{userId ?? "Anonymous"}");
-            }
-
-            post.Title = updatePostDto.Title;
-            post.Content = updatePostDto.Content;
-
-            await _postRepository.UpdatePost(post);
 
             return _mapper.Map<PostViewModel>(post);
         }
@@ -162,20 +132,6 @@ namespace Violetum.ApplicationCore.Services
             await _postRepository.UpdatePost(post);
 
             return _mapper.Map<PostViewModel>(post);
-        }
-
-        public async Task DeletePost(string postId, string userId)
-        {
-            Post post = _postValidators.GetPostByIdOrThrow(postId, x => x);
-
-            bool userOwnsPost = PostHelpers.UserOwnsPost(userId, post.AuthorId);
-            if (userOwnsPost)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized,
-                    $"Unauthorized User:{userId ?? "Anonymous"}");
-            }
-
-            await _postRepository.DeletePost(post);
         }
 
         public async Task DeletePost(PostViewModel postViewModel)

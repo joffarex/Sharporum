@@ -43,8 +43,8 @@
             public const string Update = Base + "/profiles/{profileId}";
             public const string GetFollowers = Base + "/profiles/{profileId}/followers";
             public const string GetFollowing = Base + "/profiles/{profileId}/following";
-            public const string Follow = Base + "/profiles/{profileId}/follow";
-            public const string Unfollow = Base + "/profiles/{profileId}/unfollow";
+            public const string Follow = Base + "/profiles/{userToFollowId}/follow";
+            public const string Unfollow = Base + "/profiles/{userToUnfollowId}/unfollow";
         }
     }
 }

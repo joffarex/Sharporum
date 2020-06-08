@@ -8,8 +8,6 @@ namespace Violetum.API.Validators.Comment
     {
         public UpdateCommentDtoValidator()
         {
-            RuleFor(x => x.Id).NotEmpty();
-            RuleFor(x => x.PostId).NotEmpty();
             RuleFor(x => x.Content).NotEmpty();
         }
     }
