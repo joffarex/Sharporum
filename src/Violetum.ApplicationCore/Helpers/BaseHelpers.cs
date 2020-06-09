@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.StaticFiles;
+using Violetum.Domain.Models;
 
 namespace Violetum.ApplicationCore.Helpers
 {
     public static class BaseHelpers
     {
+        private static readonly FileExtensionContentTypeProvider Provider = new FileExtensionContentTypeProvider();
+
         public static Func<T, object> GetOrderByExpression<T>(string sortColumn)
         {
             Func<T, object> orderByExpr = null;
@@ -24,9 +27,27 @@ namespace Violetum.ApplicationCore.Helpers
             return orderByExpr;
         }
 
-        public static async Task<string> UploadImageToBucketAndGetUrl(string image)
+        public static FileData GetFileData<TEntity>(string image, string fileName)
         {
-            throw new NotImplementedException();
+            // TODO: add validation
+            string[] imageParts = image.Split(",");
+            string contentType = imageParts[0].Split("/")[1].Split(";")[0];
+            string blobName = $"{typeof(TEntity).Name}/{fileName}.{contentType}";
+            return new FileData
+            {
+                Content = imageParts[1],
+                FileName = blobName,
+            };
+        }
+
+        public static string GetContentType(this string fileName)
+        {
+            if (!Provider.TryGetContentType(fileName, out string contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+
+            return contentType;
         }
     }
 }

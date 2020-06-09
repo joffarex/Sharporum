@@ -79,7 +79,6 @@ namespace Violetum.ApplicationCore.Services
         {
             User user = await _userValidators.GetUserByIdOrThrow(userId);
 
-            createCategoryDto.Image = await BaseHelpers.UploadImageToBucketAndGetUrl(createCategoryDto.Image);
             var category = _mapper.Map<Category>(createCategoryDto);
             category.Author = user;
 
@@ -107,7 +106,6 @@ namespace Violetum.ApplicationCore.Services
             UpdateCategoryImageDto updateCategoryImageDto)
         {
             var category = _mapper.Map<Category>(categoryViewModel);
-            category.Image = await BaseHelpers.UploadImageToBucketAndGetUrl(updateCategoryImageDto.Image);
 
             await _categoryRepository.UpdateCategory(category);
 
@@ -118,7 +116,8 @@ namespace Violetum.ApplicationCore.Services
         {
             await RemoveCategoryRoles(categoryViewModel.Id);
 
-            return await _categoryRepository.DeleteCategory(_mapper.Map<Category>(categoryViewModel)) > 0;
+            Category category = _categoryValidators.GetCategoryByIdOrThrow(categoryViewModel.Id, x => x);
+            return await _categoryRepository.DeleteCategory(category) > 0;
         }
 
         public async Task AddModerator(CategoryViewModel categoryViewModel, AddModeratorDto addModeratorDto)
@@ -151,6 +150,7 @@ namespace Violetum.ApplicationCore.Services
         private async Task RemoveCategoryRoles(string categoryId)
         {
             string roleBase = $"{nameof(Category)}/{categoryId}";
+
             var roles = new List<string>
             {
                 $"{roleBase}/{Roles.Admin}",
@@ -166,6 +166,12 @@ namespace Violetum.ApplicationCore.Services
                 }
 
                 IdentityRole role = await _roleManager.FindByNameAsync(roleName);
+
+                if (role == null)
+                {
+                    continue;
+                }
+
                 IdentityResult identityResult = await _roleManager.DeleteAsync(role);
 
                 if (!identityResult.Succeeded)

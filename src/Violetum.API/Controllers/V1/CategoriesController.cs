@@ -11,8 +11,10 @@ using Violetum.API.Authorization;
 using Violetum.ApplicationCore.Contracts.V1;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Category;
+using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.ViewModels.Category;
+using Violetum.Domain.Entities;
 using Violetum.Domain.Models;
 using Violetum.Domain.Models.SearchParams;
 
@@ -22,13 +24,16 @@ namespace Violetum.API.Controllers.V1
     public class CategoriesController : ControllerBase
     {
         private readonly IAuthorizationService _authorizationService;
+        private readonly IBlobService _blobService;
         private readonly ICategoryService _categoryService;
         private readonly HttpContext _httpContext;
 
-        public CategoriesController(ICategoryService categoryService, IHttpContextAccessor httpContextAccessor,
+        public CategoriesController(ICategoryService categoryService, IBlobService blobService,
+            IHttpContextAccessor httpContextAccessor,
             IAuthorizationService authorizationService)
         {
             _categoryService = categoryService;
+            _blobService = blobService;
             _httpContext = httpContextAccessor.HttpContext;
             _authorizationService = authorizationService;
         }
@@ -70,6 +75,10 @@ namespace Violetum.API.Controllers.V1
         public async Task<IActionResult> Create([FromBody] CreateCategoryDto createCategoryDto)
         {
             string userId = _httpContext.User.FindFirstValue("sub");
+
+            FileData data = BaseHelpers.GetFileData<Category>(createCategoryDto.Image, createCategoryDto.Name);
+            await _blobService.UploadImageBlob(data.Content, data.FileName);
+            createCategoryDto.Image = data.FileName;
 
             CategoryViewModel category = await _categoryService.CreateCategory(userId, createCategoryDto);
 
@@ -146,6 +155,10 @@ namespace Violetum.API.Controllers.V1
                     PolicyConstants.UpdateCategoryRolePolicy);
             if (authorizationResult.Succeeded)
             {
+                FileData data = BaseHelpers.GetFileData<Category>(updateCategoryImageDto.Image, categoryViewModel.Name);
+                await _blobService.UploadImageBlob(data.Content, data.FileName);
+                updateCategoryImageDto.Image = data.FileName;
+
                 CategoryViewModel category =
                     await _categoryService.UpdateCategoryImage(categoryViewModel, updateCategoryImageDto);
 
@@ -165,7 +178,7 @@ namespace Violetum.API.Controllers.V1
         /// </summary>
         /// <param name="categoryId"></param>
         /// <returns></returns>
-        /// <response code="200">Updates category</response>
+        /// <response code="200">Deletes category</response>
         /// <response code="400">Unable to delete category due to role removal process</response>
         [HttpDelete(ApiRoutes.Categories.Delete)]
         [ProducesResponseType(typeof(ActionSuccessResponse), (int) HttpStatusCode.Created)]
@@ -178,6 +191,8 @@ namespace Violetum.API.Controllers.V1
                 await _authorizationService.AuthorizeAsync(User, category, PolicyConstants.DeleteCategoryRolePolicy);
             if (authorizationResult.Succeeded)
             {
+                await _blobService.DeleteBlob(category.Image);
+
                 await _categoryService.DeleteCategory(category);
 
                 return Ok(new ActionSuccessResponse {Message = "OK"});

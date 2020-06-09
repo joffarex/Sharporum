@@ -5,6 +5,7 @@ using System.IO;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using AutoMapper;
+using Azure.Storage.Blobs;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -23,6 +24,8 @@ using Violetum.API.Authorization.Comment.Requirements;
 using Violetum.API.Authorization.Post.Handlers;
 using Violetum.API.Authorization.Post.Requirements;
 using Violetum.API.Filters;
+using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.Services;
 using Violetum.Domain.Models;
 
 namespace Violetum.API.Installers
@@ -114,6 +117,11 @@ namespace Violetum.API.Installers
             services.AddScoped<IAuthorizationHandler, CanUpdatePostHandler>();
             services.AddScoped<IAuthorizationHandler, CanDeleteCommentHandler>();
             services.AddScoped<IAuthorizationHandler, CanUpdateCommentHandler>();
+
+            services.AddSingleton(x =>
+                new BlobServiceClient(configuration.GetValue<string>("AzureBlobStorageConnectionString")));
+
+            services.AddSingleton<IBlobService, BlobService>();
 
             services.AddHttpClient();
 
