@@ -1,14 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
+        <UserSecretsId>e8d82ab9-f9af-4327-a077-a35e1217809c</UserSecretsId>
     </PropertyGroup>
-
     <PropertyGroup>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);1591</NoWarn>
     </PropertyGroup>
-
     <ItemGroup>
         <PackageReference Include="AutoMapper" Version="9.0.0"/>
         <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0"/>
@@ -19,10 +18,8 @@
         <PackageReference Include="Serilog.AspNetCore" Version="3.2.0"/>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="5.4.1"/>
     </ItemGroup>
-
     <ItemGroup>
         <ProjectReference Include="..\Violetum.ApplicationCore\Violetum.ApplicationCore.csproj"/>
         <ProjectReference Include="..\Violetum.Infrastructure\Violetum.Infrastructure.csproj"/>
     </ItemGroup>
-
 </Project>
