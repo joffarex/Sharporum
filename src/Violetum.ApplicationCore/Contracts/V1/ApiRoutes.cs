@@ -38,15 +38,15 @@
             public const string Vote = Base + "/comments/{commentId}/vote";
         }
 
-        public static class Profiles
+        public static class Users
         {
-            public const string Get = Base + "/profiles/{profileId}";
-            public const string Update = Base + "/profiles/{profileId}";
-            public const string UpdateImage = Base + "/profiles/{profileId}/image";
-            public const string GetFollowers = Base + "/profiles/{profileId}/followers";
-            public const string GetFollowing = Base + "/profiles/{profileId}/following";
-            public const string Follow = Base + "/profiles/{userToFollowId}/follow";
-            public const string Unfollow = Base + "/profiles/{userToUnfollowId}/unfollow";
+            public const string Get = Base + "/users/{userId}";
+            public const string Update = Base + "/users";
+            public const string UpdateImage = Base + "/users/image";
+            public const string GetFollowers = Base + "/users/{userId}/followers";
+            public const string GetFollowing = Base + "/users/{userId}/following";
+            public const string Follow = Base + "/users/{userToFollowId}/follow";
+            public const string Unfollow = Base + "/users/{userToUnfollowId}/unfollow";
         }
     }
 }

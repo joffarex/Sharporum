@@ -4,6 +4,6 @@ namespace Violetum.ApplicationCore.ViewModels.Follower
 {
     public class FollowingViewModel
     {
-        public UserViewModel UserToFollow { get; set; }
+        public UserBaseViewModel UserToFollow { get; set; }
     }
 }

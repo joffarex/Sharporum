@@ -1,12 +1,12 @@
 ﻿using FluentValidation;
-using Violetum.ApplicationCore.Dtos.Profile;
+using Violetum.ApplicationCore.Dtos.User;
 
-namespace Violetum.API.Validators.Profile
+namespace Violetum.API.Validators.User
 {
     [FluentValidator]
-    public class UpdateProfileDtoValidator : AbstractValidator<UpdateProfileDto>
+    public class UpdateUserDtoValidator : AbstractValidator<UpdateUserDto>
     {
-        public UpdateProfileDtoValidator()
+        public UpdateUserDtoValidator()
         {
             RuleFor(x => x.Email).NotEmpty().EmailAddress();
             RuleFor(x => x.UserName).NotEmpty().Matches("^[a-zA-Z0-9 ]*$");

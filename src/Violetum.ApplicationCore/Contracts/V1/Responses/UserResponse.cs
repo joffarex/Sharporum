@@ -2,8 +2,8 @@
 
 namespace Violetum.ApplicationCore.Contracts.V1.Responses
 {
-    public class ProfileResponse
+    public class UserResponse
     {
-        public ProfileViewModel Profile { get; set; }
+        public UserViewModel User { get; set; }
     }
 }

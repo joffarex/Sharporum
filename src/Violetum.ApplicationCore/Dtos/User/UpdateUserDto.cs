@@ -1,6 +1,6 @@
-﻿namespace Violetum.ApplicationCore.Dtos.Profile
+﻿namespace Violetum.ApplicationCore.Dtos.User
 {
-    public class UpdateProfileDto
+    public class UpdateUserDto
     {
         public string Email { get; set; }
         public string UserName { get; set; }

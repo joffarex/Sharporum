@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Violetum.ApplicationCore.Dtos.Profile;
+using Violetum.ApplicationCore.Dtos.User;
 using Violetum.ApplicationCore.ViewModels.User;
 using Violetum.Domain.Entities;
 
@@ -9,11 +9,11 @@ namespace Violetum.API.Profiles
     {
         public UserProfile()
         {
-            CreateMap<User, UserViewModel>();
+            CreateMap<User, UserBaseViewModel>();
+            CreateMap<UserBaseViewModel, User>();
             CreateMap<UserViewModel, User>();
-            CreateMap<ProfileViewModel, User>();
-            CreateMap<User, ProfileViewModel>();
-            CreateMap<ProfileViewModel, UpdateProfileDto>();
+            CreateMap<User, UserViewModel>();
+            CreateMap<UserViewModel, UpdateUserDto>();
         }
     }
 }

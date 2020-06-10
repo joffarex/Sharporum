@@ -2,7 +2,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Violetum.ApplicationCore.Attributes;
-using Violetum.ApplicationCore.Dtos.Profile;
+using Violetum.ApplicationCore.Dtos.User;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.Interfaces.Validators;
 using Violetum.ApplicationCore.ViewModels.User;
@@ -11,51 +11,51 @@ using Violetum.Domain.Entities;
 namespace Violetum.ApplicationCore.Services
 {
     [Service]
-    public class ProfileService : IProfileService
+    public class UserService : IUserService
     {
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
         private readonly IUserValidators _userValidators;
 
-        public ProfileService(UserManager<User> userManager, IMapper mapper, IUserValidators userValidators)
+        public UserService(UserManager<User> userManager, IMapper mapper, IUserValidators userValidators)
         {
             _userManager = userManager;
             _mapper = mapper;
             _userValidators = userValidators;
         }
 
-        public async Task<ProfileViewModel> GetProfile(string userId)
+        public async Task<UserViewModel> GetUser(string userId)
         {
             User user = await _userValidators.GetUserByIdOrThrow(userId);
 
-            return _mapper.Map<ProfileViewModel>(user);
+            return _mapper.Map<UserViewModel>(user);
         }
 
-        public async Task<ProfileViewModel> UpdateProfile(string userId,
-            UpdateProfileDto updateProfileDto)
+        public async Task<UserViewModel> UpdateUser(string userId,
+            UpdateUserDto updateUserDto)
         {
             User user = await _userValidators.GetUserByIdOrThrow(userId);
-            user.Email = updateProfileDto.Email;
-            user.UserName = updateProfileDto.UserName;
-            user.FirstName = updateProfileDto.FirstName;
-            user.LastName = updateProfileDto.LastName;
-            user.Gender = updateProfileDto.Gender;
-            user.BirthDate = updateProfileDto.Birthdate;
+            user.Email = updateUserDto.Email;
+            user.UserName = updateUserDto.UserName;
+            user.FirstName = updateUserDto.FirstName;
+            user.LastName = updateUserDto.LastName;
+            user.Gender = updateUserDto.Gender;
+            user.BirthDate = updateUserDto.Birthdate;
 
             await _userManager.UpdateAsync(user);
 
-            return _mapper.Map<ProfileViewModel>(user);
+            return _mapper.Map<UserViewModel>(user);
         }
 
-        public async Task<ProfileViewModel> UpdateProfileImage(string userId,
-            UpdateProfileImageDto updateProfileImageDto)
+        public async Task<UserViewModel> UpdateUserImage(string userId,
+            UpdateUserImageDto updateUserImageDto)
         {
             User user = await _userValidators.GetUserByIdOrThrow(userId);
-            user.Image = updateProfileImageDto.Image;
+            user.Image = updateUserImageDto.Image;
 
             await _userManager.UpdateAsync(user);
 
-            return _mapper.Map<ProfileViewModel>(user);
+            return _mapper.Map<UserViewModel>(user);
         }
     }
 }
