@@ -92,8 +92,7 @@ namespace Violetum.ApplicationCore.Services
         public async Task<CategoryViewModel> UpdateCategory(CategoryViewModel categoryViewModel,
             UpdateCategoryDto updateCategoryDto)
         {
-            var category = _mapper.Map<Category>(categoryViewModel);
-
+            Category category = _categoryValidators.GetCategoryByIdOrThrow(categoryViewModel.Id, x => x);
             category.Name = updateCategoryDto.Name;
             category.Description = updateCategoryDto.Description;
 
@@ -105,7 +104,8 @@ namespace Violetum.ApplicationCore.Services
         public async Task<CategoryViewModel> UpdateCategoryImage(CategoryViewModel categoryViewModel,
             UpdateCategoryImageDto updateCategoryImageDto)
         {
-            var category = _mapper.Map<Category>(categoryViewModel);
+            Category category = _categoryValidators.GetCategoryByIdOrThrow(categoryViewModel.Id, x => x);
+            category.Image = updateCategoryImageDto.Image;
 
             await _categoryRepository.UpdateCategory(category);
 

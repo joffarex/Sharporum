@@ -124,8 +124,7 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<PostViewModel> UpdatePost(PostViewModel postViewModel, UpdatePostDto updatePostDto)
         {
-            var post = _mapper.Map<Post>(postViewModel);
-
+            Post post = _postValidators.GetPostByIdOrThrow(postViewModel.Id, x => x);
             post.Title = updatePostDto.Title;
             post.Content = updatePostDto.Content;
 

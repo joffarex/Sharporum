@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Identity;
 using Violetum.ApplicationCore.Attributes;
 using Violetum.ApplicationCore.Dtos.Comment;
 using Violetum.ApplicationCore.Helpers;
@@ -23,19 +22,14 @@ namespace Violetum.ApplicationCore.Services
         private readonly ICommentRepository _commentRepository;
         private readonly ICommentValidators _commentValidators;
         private readonly IMapper _mapper;
-        private readonly IPostRepository _postRepository;
         private readonly IPostValidators _postValidators;
-        private readonly UserManager<User> _userManager;
         private readonly IUserValidators _userValidators;
         private readonly IVoteRepository _voteRepository;
 
-        public CommentService(ICommentRepository commentRepository, UserManager<User> userManager,
-            IPostRepository postRepository, IVoteRepository voteRepository, IMapper mapper,
+        public CommentService(ICommentRepository commentRepository, IVoteRepository voteRepository, IMapper mapper,
             ICommentValidators commentValidators, IUserValidators userValidators, IPostValidators postValidators)
         {
             _commentRepository = commentRepository;
-            _userManager = userManager;
-            _postRepository = postRepository;
             _voteRepository = voteRepository;
             _mapper = mapper;
             _commentValidators = commentValidators;
@@ -106,8 +100,7 @@ namespace Violetum.ApplicationCore.Services
         public async Task<CommentViewModel> UpdateComment(CommentViewModel commentViewModel,
             UpdateCommentDto updateCommentDto)
         {
-            var comment = _mapper.Map<Comment>(commentViewModel);
-
+            Comment comment = _commentValidators.GetCommentByIdOrThrow(commentViewModel.Id, x => x);
             comment.Content = updateCommentDto.Content;
 
             await _commentRepository.UpdateComment(comment);
