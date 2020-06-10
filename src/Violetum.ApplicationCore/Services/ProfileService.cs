@@ -1,20 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Violetum.ApplicationCore.Attributes;
 using Violetum.ApplicationCore.Dtos.Profile;
-using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.Interfaces.Validators;
 using Violetum.ApplicationCore.ViewModels.User;
-using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Entities;
 
 namespace Violetum.ApplicationCore.Services
 {
+    [Service]
     public class ProfileService : IProfileService
     {
         private readonly IMapper _mapper;
@@ -31,44 +27,24 @@ namespace Violetum.ApplicationCore.Services
         public async Task<ProfileViewModel> GetProfile(string userId)
         {
             User user = await _userValidators.GetUserByIdOrThrow(userId);
-            IList<Claim> userClaims = await _userManager.GetClaimsAsync(user);
 
-            return ProfileHelpers.MapUserWithClaimsToProfile(user, userClaims);
+            return _mapper.Map<ProfileViewModel>(user);
         }
 
         public async Task<ProfileViewModel> UpdateProfile(string userId,
             UpdateProfileDto updateProfileDto)
         {
             User user = await _userValidators.GetUserByIdOrThrow(userId);
-            IList<Claim> claims = await _userManager.GetClaimsAsync(user);
+            user.Email = updateProfileDto.Email;
+            user.UserName = updateProfileDto.UserName;
+            user.FirstName = updateProfileDto.FirstName;
+            user.LastName = updateProfileDto.LastName;
+            user.Gender = updateProfileDto.Gender;
+            user.BirthDate = updateProfileDto.Birthdate;
 
-            IdentityResult removeResult;
-            var removeSuccess = true;
-            if (claims.Count() > 0)
-            {
-                removeResult = await _userManager.RemoveClaimsAsync(user, claims);
-                removeSuccess = removeResult.Succeeded;
-            }
+            await _userManager.UpdateAsync(user);
 
-            if (!removeSuccess)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.InternalServerError,
-                    "Something went wrong during removing profile claims");
-            }
-
-            List<Claim> updatedClaims = ProfileHelpers.PopulateClaimsList(updateProfileDto);
-
-            IdentityResult updateResult = await _userManager.AddClaimsAsync(user, updatedClaims);
-
-            if (updateResult.Succeeded)
-            {
-                return ProfileHelpers.MapUserWithClaimsToProfile(user, updatedClaims);
-            }
-
-            // Recover old claims
-            await _userManager.AddClaimsAsync(user, claims);
-            throw new HttpStatusCodeException(HttpStatusCode.InternalServerError,
-                "Something went wrong during updating profile claims");
+            return _mapper.Map<ProfileViewModel>(user);
         }
     }
 }

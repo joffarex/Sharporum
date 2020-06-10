@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using IdentityModel;
+﻿using System.Linq;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
@@ -44,21 +41,12 @@ namespace Violetum.IdentityServer
                     UserName = "joffarex",
                     Email = "joffarex@gmail.com",
                     EmailConfirmed = true,
+                    FirstName = "Tornike",
+                    LastName = "Goshadze",
+                    Gender = "Male",
+                    BirthDate = "2001-01-26",
                 };
                 userManager.CreateAsync(user, "password").GetAwaiter().GetResult();
-
-                userManager.AddClaimsAsync(user, new List<Claim>
-                {
-                    new Claim(JwtClaimTypes.Name, "Tornike Goshadze"),
-                    new Claim(JwtClaimTypes.GivenName, "Tornike"),
-                    new Claim(JwtClaimTypes.FamilyName, "Goshadze"),
-                    new Claim(JwtClaimTypes.Picture,
-                        "https://avatars1.githubusercontent.com/u/41587092?s=460&u=bfed09c2f733b89c07e85739b6bdaaaaa6288149&v=4"),
-                    new Claim(JwtClaimTypes.Gender, "male"),
-                    new Claim(JwtClaimTypes.BirthDate, "2001-01-26"),
-                    // new Claim(JwtClaimTypes.EmailVerified, "true", ClaimValueTypes.Boolean), // TODO: implement
-                    new Claim(JwtClaimTypes.WebSite, "https://joffarex.com"),
-                }).GetAwaiter().GetResult();
 
                 RunMigrations(scope);
             }

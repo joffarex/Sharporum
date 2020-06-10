@@ -11,6 +11,8 @@ namespace Violetum.API.Profiles
         {
             CreateMap<User, UserViewModel>();
             CreateMap<UserViewModel, User>();
+            CreateMap<ProfileViewModel, User>();
+            CreateMap<User, ProfileViewModel>();
             CreateMap<ProfileViewModel, UpdateProfileDto>();
         }
     }

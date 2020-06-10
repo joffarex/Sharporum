@@ -343,6 +343,9 @@ namespace Violetum.Infrastructure.Migrations
                 b.Property<int>("AccessFailedCount")
                     .HasColumnType("int");
 
+                b.Property<string>("BirthDate")
+                    .HasColumnType("nvarchar(max)");
+
                 b.Property<string>("ConcurrencyStamp")
                     .IsConcurrencyToken()
                     .HasColumnType("nvarchar(max)");
@@ -353,6 +356,20 @@ namespace Violetum.Infrastructure.Migrations
 
                 b.Property<bool>("EmailConfirmed")
                     .HasColumnType("bit");
+
+                b.Property<string>("FirstName")
+                    .HasColumnType("nvarchar(max)");
+
+                b.Property<string>("Gender")
+                    .HasColumnType("nvarchar(max)");
+
+                b.Property<string>("Image")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("nvarchar(max)")
+                    .HasDefaultValue("Category/no-image.jpg");
+
+                b.Property<string>("LastName")
+                    .HasColumnType("nvarchar(max)");
 
                 b.Property<bool>("LockoutEnabled")
                     .HasColumnType("bit");
