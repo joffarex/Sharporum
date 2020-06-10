@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.StaticFiles;
+using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.Domain.Models;
+using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.ApplicationCore.Helpers
 {
@@ -25,6 +28,41 @@ namespace Violetum.ApplicationCore.Helpers
             }
 
             return orderByExpr;
+        }
+
+        public static bool IsPaginatonSearchParamsValid(BaseSearchParams searchParams,
+            out QueryStringErrorResponse errorResponse)
+        {
+            errorResponse = new QueryStringErrorResponse();
+            var errors = new List<QueryStringErrorModel>();
+            if ((searchParams.Limit > 50) || (searchParams.Limit <= 0))
+            {
+                errors.Add(new QueryStringErrorModel
+                {
+                    Message = "Limit must be between 0 and 50",
+                    QueryStringName = nameof(searchParams.Limit),
+                });
+            }
+
+            if (searchParams.CurrentPage <= 0)
+            {
+                errors.Add(new QueryStringErrorModel
+                {
+                    Message = "Current Page must not be negative",
+                    QueryStringName = nameof(searchParams.CurrentPage),
+                });
+            }
+
+            foreach (QueryStringErrorModel errorModel in errors.Select(error => new QueryStringErrorModel
+            {
+                QueryStringName = error.QueryStringName,
+                Message = error.Message,
+            }))
+            {
+                errorResponse.Errors.Add(errorModel);
+            }
+
+            return !errors.Any();
         }
 
         public static FileData GetFileData<TEntity>(string image, string fileName)

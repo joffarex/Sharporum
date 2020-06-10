@@ -49,6 +49,11 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetMany([FromQuery] CategorySearchParams searchParams)
         {
+            if (!BaseHelpers.IsPaginatonSearchParamsValid(searchParams, out QueryStringErrorResponse errorResponse))
+            {
+                return new BadRequestObjectResult(errorResponse);
+            }
+
             IEnumerable<CategoryViewModel> categories = await _categoryService.GetCategories(searchParams);
             int categoriesCount = await _categoryService.GetTotalCategoriesCount(searchParams);
 

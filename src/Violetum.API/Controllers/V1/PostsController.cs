@@ -11,6 +11,7 @@ using Violetum.API.Authorization;
 using Violetum.ApplicationCore.Contracts.V1;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Post;
+using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.ViewModels.Post;
 using Violetum.Domain.Models;
@@ -55,6 +56,11 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetMany([FromQuery] PostSearchParams searchParams)
         {
+            if (!BaseHelpers.IsPaginatonSearchParamsValid(searchParams, out QueryStringErrorResponse errorResponse))
+            {
+                return new BadRequestObjectResult(errorResponse);
+            }
+
             IEnumerable<PostViewModel> posts = await _postService.GetPosts(searchParams);
             int postsCount = await _postService.GetTotalPostsCount(searchParams);
 
@@ -103,6 +109,11 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public IActionResult NewsFeed([FromQuery] PostSearchParams searchParams)
         {
+            if (!BaseHelpers.IsPaginatonSearchParamsValid(searchParams, out QueryStringErrorResponse errorResponse))
+            {
+                return new BadRequestObjectResult(errorResponse);
+            }
+
             string userId = _httpContext.User.FindFirstValue("sub");
 
             IEnumerable<PostViewModel> posts = _postService.GetNewsFeedPosts(userId, searchParams);

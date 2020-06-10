@@ -11,6 +11,7 @@ using Violetum.API.Authorization;
 using Violetum.ApplicationCore.Contracts.V1;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Comment;
+using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.ViewModels.Comment;
 using Violetum.Domain.Models;
@@ -44,6 +45,11 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetMany([FromQuery] CommentSearchParams searchParams)
         {
+            if (!BaseHelpers.IsPaginatonSearchParamsValid(searchParams, out QueryStringErrorResponse errorResponse))
+            {
+                return new BadRequestObjectResult(errorResponse);
+            }
+
             IEnumerable<CommentViewModel> comments = await _commentService.GetComments(searchParams);
             int commentsCount = await _commentService.GetTotalCommentsCount(searchParams);
 

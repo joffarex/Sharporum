@@ -1,21 +1,17 @@
-﻿namespace Violetum.Domain.Models.SearchParams
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Violetum.Domain.Models.SearchParams
 {
     public abstract class BaseSearchParams
     {
         public string SortBy { get; set; } = "CreatedAt";
         public string OrderByDir { get; set; } = "desc";
 
-        public int CurrentPage
-        {
-            get => CurrentPage;
-            set => CurrentPage = value < 1 ? 1 : value;
-        }
+        [Range(1, int.MaxValue, ErrorMessage = "The field {0} must be lower than {1}.")]
+        public int CurrentPage { get; set; } = 1;
 
-        public int Limit
-        {
-            get => Limit;
-            set => Limit = value > 100 ? 100 : value;
-        }
+        [Range(1, 50, ErrorMessage = "The field {0} must be lower than {1}.")]
+        public int Limit { get; set; } = 20;
 
         public int Offset => Limit * (CurrentPage - 1);
     }
