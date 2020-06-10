@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Violetum.Domain.Entities;
@@ -20,36 +23,39 @@ namespace Violetum.Infrastructure.Repositories
             _context = context;
         }
 
-        public TResult GetPost<TResult>(Func<Post, bool> condition, Func<Post, TResult> selector)
+        public TResult GetPost<TResult>(Expression<Func<TResult, bool>> condition,
+            IConfigurationProvider configurationProvider) where TResult : class
         {
             return _context.Posts
                 .Include(x => x.Author)
                 .Include(x => x.Category)
+                .ProjectTo<TResult>(configurationProvider)
                 .Where(condition)
-                .Select(selector)
                 .FirstOrDefault();
         }
 
-        public IEnumerable<TResult> GetPosts<TResult, TKey>(Func<Post, bool> condition,
-            Func<Post, TResult> selector, Func<TResult, TKey> keySelector, PostSearchParams searchParams)
+        public IEnumerable<TResult> GetPosts<TResult>(PostSearchParams searchParams,
+            IConfigurationProvider configurationProvider) where TResult : class
         {
-            IEnumerable<Post> query = _context.Posts
+            IIncludableQueryable<Post, ICollection<PostVote>> query = _context.Posts
                 .Include(x => x.Category)
                 .Include(x => x.Author)
-                .Include(x => x.PostVotes)
-                .Where(condition)
-                .Skip(searchParams.Offset)
-                .Take(searchParams.Limit);
+                .Include(x => x.PostVotes);
 
-            return searchParams.OrderByDir.ToUpper() == "DESC"
-                ? query
-                    .Select(selector)
-                    .OrderByDescending(keySelector)
-                    .ToList()
-                : query
-                    .Select(selector)
-                    .OrderBy(keySelector)
-                    .ToList();
+            IQueryable<Post> whereParams = WhereConditionPredicate(query, searchParams);
+
+            IOrderedQueryable<TResult> orderedQuery = searchParams.OrderByDir.ToUpper() == "DESC"
+                ? whereParams
+                    .ProjectTo<TResult>(configurationProvider)
+                    .OrderByDescending(searchParams.SortBy)
+                : whereParams
+                    .ProjectTo<TResult>(configurationProvider)
+                    .OrderBy(searchParams.SortBy);
+
+            return orderedQuery
+                .Skip(searchParams.Offset)
+                .Take(searchParams.Limit)
+                .ToList();
         }
 
         public IEnumerable<string> GetUserFollowings(string userId)
@@ -60,11 +66,13 @@ namespace Violetum.Infrastructure.Repositories
                 .ToList();
         }
 
-        public int GetPostCount(Func<Post, bool> condition)
+        public int GetPostCount(PostSearchParams searchParams, IConfigurationProvider configurationProvider)
         {
-            return _context.Posts.Where(condition).Count();
-        }
+            DbSet<Post> query = _context.Posts;
+            IQueryable<Post> whereParams = WhereConditionPredicate(query, searchParams);
 
+            return whereParams.Count();
+        }
 
         public Task<int> CreatePost(Post post)
         {
@@ -88,17 +96,29 @@ namespace Violetum.Infrastructure.Repositories
             return DeleteEntity(post);
         }
 
-        public int GetPostVoteSum(string postId)
+        private static IQueryable<Post> WhereConditionPredicate(IQueryable<Post> query, PostSearchParams searchParams)
         {
-            var voteSum = _context.PostVotes
-                .Where(x => x.PostId == postId)
-                .GroupBy(x => x.PostId)
-                .Select(x => new
-                {
-                    Sum = x.Sum(y => y.Direction),
-                }).FirstOrDefault();
+            if (!string.IsNullOrEmpty(searchParams.CategoryName))
+            {
+                query = query.Where(x => x.Category.Name == searchParams.CategoryName);
+            }
 
-            return voteSum == null ? 0 : voteSum.Sum;
+            if (!string.IsNullOrEmpty(searchParams.PostTitle))
+            {
+                query = query.Where(x => x.Title.Contains(searchParams.PostTitle));
+            }
+
+            if (!string.IsNullOrEmpty(searchParams.UserId))
+            {
+                query = query.Where(x => x.AuthorId == searchParams.UserId);
+            }
+
+            if (searchParams.Followers != null)
+            {
+                query = query.Where(x => searchParams.Followers.Contains(x.AuthorId));
+            }
+
+            return query;
         }
     }
 }

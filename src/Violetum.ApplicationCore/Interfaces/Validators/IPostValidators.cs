@@ -1,10 +1,10 @@
 ﻿using System;
-using Violetum.Domain.Entities;
+using System.Linq.Expressions;
 
 namespace Violetum.ApplicationCore.Interfaces.Validators
 {
     public interface IPostValidators
     {
-        TResult GetPostByIdOrThrow<TResult>(string postId, Func<Post, TResult> selector);
+        TResult GetPostOrThrow<TResult>(Expression<Func<TResult, bool>> condition) where TResult : class;
     }
 }

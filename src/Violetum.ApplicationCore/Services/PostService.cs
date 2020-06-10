@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -40,7 +39,7 @@ namespace Violetum.ApplicationCore.Services
 
         public PostViewModel GetPost(string postId)
         {
-            return _postValidators.GetPostByIdOrThrow(postId, x => AttachVotesToPostViewModel(x));
+            return _postValidators.GetPostOrThrow<PostViewModel>(x => x.Id == postId);
         }
 
         public async Task<IEnumerable<PostViewModel>> GetPosts(PostSearchParams searchParams)
@@ -55,12 +54,7 @@ namespace Violetum.ApplicationCore.Services
                 _categoryValidators.GetCategoryByNameOrThrow(searchParams.CategoryName, x => x);
             }
 
-            return _postRepository.GetPosts(
-                x => PostHelpers.WhereConditionPredicate(searchParams, x),
-                x => AttachVotesToPostViewModel(x),
-                BaseHelpers.GetOrderByExpression<PostViewModel>(searchParams.SortBy),
-                searchParams
-            );
+            return _postRepository.GetPosts<PostViewModel>(searchParams, PostHelpers.GetPostMapperConfiguration());
         }
 
         public IEnumerable<PostViewModel> GetNewsFeedPosts(string userId, PostSearchParams searchParams)
@@ -70,14 +64,8 @@ namespace Violetum.ApplicationCore.Services
                 _categoryValidators.GetCategoryByNameOrThrow(searchParams.CategoryName, x => x);
             }
 
-            IEnumerable<string> followers = _postRepository.GetUserFollowings(userId);
-
-            return _postRepository.GetPosts(
-                x => PostHelpers.WhereConditionPredicate(searchParams, x, followers),
-                x => AttachVotesToPostViewModel(x),
-                BaseHelpers.GetOrderByExpression<PostViewModel>(searchParams.SortBy),
-                searchParams
-            );
+            searchParams.Followers = _postRepository.GetUserFollowings(userId);
+            return _postRepository.GetPosts<PostViewModel>(searchParams, PostHelpers.GetPostMapperConfiguration());
         }
 
         public async Task<int> GetTotalPostsCount(PostSearchParams searchParams)
@@ -92,8 +80,7 @@ namespace Violetum.ApplicationCore.Services
                 await _userValidators.GetUserByIdOrThrow(searchParams.UserId);
             }
 
-            return _postRepository.GetPostCount(x =>
-                PostHelpers.WhereConditionPredicate(searchParams, x));
+            return _postRepository.GetPostCount(searchParams, PostHelpers.GetPostMapperConfiguration());
         }
 
         public int GetTotalPostsCountInNewsFeed(string userId, PostSearchParams searchParams)
@@ -103,10 +90,8 @@ namespace Violetum.ApplicationCore.Services
                 _categoryValidators.GetCategoryByNameOrThrow(searchParams.CategoryName, x => x);
             }
 
-            IEnumerable<string> followers = _postRepository.GetUserFollowings(userId);
-
-            return _postRepository.GetPostCount(x =>
-                PostHelpers.WhereConditionPredicate(searchParams, x, followers));
+            searchParams.Followers = _postRepository.GetUserFollowings(userId);
+            return _postRepository.GetPostCount(searchParams, PostHelpers.GetPostMapperConfiguration());
         }
 
         public async Task<PostViewModel> CreatePost(string userId, CreatePostDto createPostDto)
@@ -125,7 +110,7 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<PostViewModel> UpdatePost(PostViewModel postViewModel, UpdatePostDto updatePostDto)
         {
-            Post post = _postValidators.GetPostByIdOrThrow(postViewModel.Id, x => x);
+            var post = _postValidators.GetPostOrThrow<Post>(x => x.Id == postViewModel.Id);
             post.Title = updatePostDto.Title;
             post.Content = updatePostDto.Content;
 
@@ -144,7 +129,7 @@ namespace Violetum.ApplicationCore.Services
             try
             {
                 User user = await _userValidators.GetUserByIdOrThrow(userId);
-                Post post = _postValidators.GetPostByIdOrThrow(postId, x => x);
+                var post = _postValidators.GetPostOrThrow<Post>(x => x.Id == postId);
 
                 var postVote =
                     _voteRepository.GetEntityVote<PostVote>(
@@ -182,20 +167,6 @@ namespace Violetum.ApplicationCore.Services
             {
                 throw new HttpStatusCodeException(HttpStatusCode.UnprocessableEntity, e.Message);
             }
-        }
-
-        public int GetPostVoteSum(string postId)
-        {
-            Post post = _postValidators.GetPostByIdOrThrow(postId, x => x);
-
-            return _postRepository.GetPostVoteSum(post.Id);
-        }
-
-        private PostViewModel AttachVotesToPostViewModel(Post x)
-        {
-            var postViewModel = _mapper.Map<PostViewModel>(x);
-            postViewModel.VoteCount = x.PostVotes.Sum(y => y.Direction);
-            return postViewModel;
         }
     }
 }
