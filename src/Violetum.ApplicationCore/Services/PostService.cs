@@ -80,7 +80,7 @@ namespace Violetum.ApplicationCore.Services
                 await _userValidators.GetUserByIdOrThrow(searchParams.UserId);
             }
 
-            return _postRepository.GetPostCount(searchParams, PostHelpers.GetPostMapperConfiguration());
+            return _postRepository.GetPostCount(searchParams);
         }
 
         public int GetTotalPostsCountInNewsFeed(string userId, PostSearchParams searchParams)
@@ -91,7 +91,7 @@ namespace Violetum.ApplicationCore.Services
             }
 
             searchParams.Followers = _postRepository.GetUserFollowings(userId);
-            return _postRepository.GetPostCount(searchParams, PostHelpers.GetPostMapperConfiguration());
+            return _postRepository.GetPostCount(searchParams);
         }
 
         public async Task<PostViewModel> CreatePost(string userId, CreatePostDto createPostDto)

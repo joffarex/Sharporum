@@ -19,7 +19,7 @@ namespace Violetum.Domain.Infrastructure
 
         IEnumerable<string> GetUserFollowings(string userId);
 
-        int GetPostCount(PostSearchParams searchParams, IConfigurationProvider configurationProvider);
+        int GetPostCount(PostSearchParams searchParams);
 
         Task<int> CreatePost(Post post);
         Task<int> UpdatePost(Post post);

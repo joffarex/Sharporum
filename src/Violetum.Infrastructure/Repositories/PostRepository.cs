@@ -67,7 +67,7 @@ namespace Violetum.Infrastructure.Repositories
                 .ToList();
         }
 
-        public int GetPostCount(PostSearchParams searchParams, IConfigurationProvider configurationProvider)
+        public int GetPostCount(PostSearchParams searchParams)
         {
             DbSet<Post> query = _context.Posts;
             IQueryable<Post> whereParams = WhereConditionPredicate(query, searchParams);
