@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq.Expressions;
 using System.Net;
 using Violetum.ApplicationCore.Attributes;
+using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Interfaces.Validators;
 using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Entities;
@@ -18,13 +20,12 @@ namespace Violetum.ApplicationCore.Validators
             _commentRepository = commentRepository;
         }
 
-        public TResult GetCommentByIdOrThrow<TResult>(string commentId, Func<Comment, TResult> selector)
+        public TResult GetCommentOrThrow<TResult>(Expression<Func<TResult, bool>> condition) where TResult : class
         {
-            TResult comment = _commentRepository.GetComment(x => x.Id == commentId, selector);
+            TResult comment = _commentRepository.GetComment(condition, CommentHelpers.GetCommentMapperConfiguration());
             if (comment == null)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound,
-                    $"{nameof(Comment)}:{commentId} not found");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Comment)} not found");
             }
 
             return comment;

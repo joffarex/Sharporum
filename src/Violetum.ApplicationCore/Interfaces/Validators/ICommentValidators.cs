@@ -1,10 +1,10 @@
 ﻿using System;
-using Violetum.Domain.Entities;
+using System.Linq.Expressions;
 
 namespace Violetum.ApplicationCore.Interfaces.Validators
 {
     public interface ICommentValidators
     {
-        TResult GetCommentByIdOrThrow<TResult>(string commentId, Func<Comment, TResult> selector);
+        TResult GetCommentOrThrow<TResult>(Expression<Func<TResult, bool>> condition) where TResult : class;
     }
 }

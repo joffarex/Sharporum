@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -40,7 +39,7 @@ namespace Violetum.ApplicationCore.Services
 
         public CommentViewModel GetComment(string commentId)
         {
-            return _commentValidators.GetCommentByIdOrThrow(commentId, x => AttachVotesToCommentViewModel(x));
+            return _commentValidators.GetCommentOrThrow<CommentViewModel>(x => x.Id == commentId);
         }
 
         public async Task<IEnumerable<CommentViewModel>> GetComments(CommentSearchParams searchParams)
@@ -50,12 +49,8 @@ namespace Violetum.ApplicationCore.Services
                 await _userValidators.GetUserByIdOrThrow(searchParams.UserId);
             }
 
-            return _commentRepository.GetComments(
-                x => CommentHelpers.WhereConditionPredicate(searchParams.UserId, searchParams.PostId, x),
-                x => AttachVotesToCommentViewModel(x),
-                BaseHelpers.GetOrderByExpression<CommentViewModel>(searchParams.SortBy),
-                searchParams
-            );
+            return _commentRepository.GetComments<CommentViewModel>(searchParams,
+                CommentHelpers.GetCommentMapperConfiguration());
         }
 
         public async Task<int> GetTotalCommentsCount(CommentSearchParams searchParams)
@@ -67,22 +62,21 @@ namespace Violetum.ApplicationCore.Services
 
             if (!string.IsNullOrEmpty(searchParams.PostId))
             {
-                _postValidators.GetPostByIdOrThrow(searchParams.PostId, x => x);
+                _postValidators.GetPostOrThrow<Post>(x => x.Id == searchParams.PostId);
             }
 
-            return _commentRepository.GetTotalCommentsCount(
-                x => CommentHelpers.WhereConditionPredicate(searchParams.UserId, searchParams.PostId, x)
-            );
+            return _commentRepository.GetCommentsCount(searchParams);
         }
 
         public async Task<CommentViewModel> CreateComment(string userId, CreateCommentDto createCommentDto)
         {
             User user = await _userValidators.GetUserByIdOrThrow(userId);
-            Post post = _postValidators.GetPostByIdOrThrow(createCommentDto.PostId, x => x);
+            var post = _postValidators.GetPostOrThrow<Post>(x => x.Id == createCommentDto.PostId);
 
             if (!string.IsNullOrEmpty(createCommentDto.ParentId))
             {
-                Comment parentComment = _commentValidators.GetCommentByIdOrThrow(createCommentDto.ParentId, x => x);
+                var parentComment =
+                    _commentValidators.GetCommentOrThrow<Comment>(x => x.Id == createCommentDto.ParentId);
                 if (parentComment.Post.Id != post.Id)
                 {
                     throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "This operation is not allowed");
@@ -101,7 +95,7 @@ namespace Violetum.ApplicationCore.Services
         public async Task<CommentViewModel> UpdateComment(CommentViewModel commentViewModel,
             UpdateCommentDto updateCommentDto)
         {
-            Comment comment = _commentValidators.GetCommentByIdOrThrow(commentViewModel.Id, x => x);
+            var comment = _commentValidators.GetCommentOrThrow<Comment>(x => x.Id == commentViewModel.Id);
             comment.Content = updateCommentDto.Content;
 
             await _commentRepository.UpdateComment(comment);
@@ -119,7 +113,7 @@ namespace Violetum.ApplicationCore.Services
             try
             {
                 User user = await _userValidators.GetUserByIdOrThrow(userId);
-                Comment comment = _commentValidators.GetCommentByIdOrThrow(commentId, x => x);
+                var comment = _commentValidators.GetCommentOrThrow<Comment>(x => x.Id == commentId);
 
                 var commentVote =
                     _voteRepository.GetEntityVote<CommentVote>(
@@ -157,13 +151,6 @@ namespace Violetum.ApplicationCore.Services
             {
                 throw new HttpStatusCodeException(HttpStatusCode.UnprocessableEntity, e.Message);
             }
-        }
-
-        private CommentViewModel AttachVotesToCommentViewModel(Comment x)
-        {
-            var commentViewModel = _mapper.Map<CommentViewModel>(x);
-            commentViewModel.VoteCount = x.CommentVotes.Sum(y => y.Direction);
-            return commentViewModel;
         }
     }
 }

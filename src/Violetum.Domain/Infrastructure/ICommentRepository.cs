@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
+using AutoMapper;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Models.SearchParams;
 
@@ -8,17 +10,17 @@ namespace Violetum.Domain.Infrastructure
 {
     public interface ICommentRepository
     {
-        TResult GetComment<TResult>(Func<Comment, bool> condition, Func<Comment, TResult> selector);
+        TResult GetComment<TResult>(Expression<Func<TResult, bool>> condition,
+            IConfigurationProvider configurationProvider)
+            where TResult : class;
 
-        IEnumerable<TResult> GetComments<TResult, TKey>(Func<Comment, bool> condition,
-            Func<Comment, TResult> selector, Func<TResult, TKey> keySelector, CommentSearchParams searchParams);
+        IEnumerable<TResult> GetComments<TResult>(CommentSearchParams searchParams,
+            IConfigurationProvider configurationProvider) where TResult : class;
 
-        int GetTotalCommentsCount(Func<Comment, bool> condition);
+        int GetCommentsCount(CommentSearchParams searchParams);
 
         Task<int> CreateComment(Comment comment);
         Task<int> UpdateComment(Comment comment);
         Task<int> DeleteComment(Comment comment);
-
-        int GetCommentVoteSum(string commentId);
     }
 }
