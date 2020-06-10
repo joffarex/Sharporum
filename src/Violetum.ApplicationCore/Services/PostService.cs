@@ -57,7 +57,7 @@ namespace Violetum.ApplicationCore.Services
             return _postRepository.GetPosts(
                 x => PostHelpers.WhereConditionPredicate(searchParams, x),
                 x => AttachVotesToPostViewModel(x),
-                BaseHelpers.GetOrderByExpression<PostViewModel>(searchParams.SortBy),
+                BaseHelpers.GetOrderByExpression<Post>(searchParams.SortBy),
                 searchParams
             );
         }
@@ -74,7 +74,7 @@ namespace Violetum.ApplicationCore.Services
             return _postRepository.GetPosts(
                 x => PostHelpers.WhereConditionPredicate(searchParams, x, followers),
                 x => AttachVotesToPostViewModel(x),
-                BaseHelpers.GetOrderByExpression<PostViewModel>(searchParams.SortBy),
+                BaseHelpers.GetOrderByExpression<Post>(searchParams.SortBy),
                 searchParams
             );
         }

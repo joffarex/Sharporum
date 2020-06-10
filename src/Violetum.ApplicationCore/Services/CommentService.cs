@@ -52,7 +52,7 @@ namespace Violetum.ApplicationCore.Services
             return _commentRepository.GetComments(
                 x => CommentHelpers.WhereConditionPredicate(searchParams.UserId, searchParams.PostId, x),
                 x => AttachVotesToCommentViewModel(x),
-                BaseHelpers.GetOrderByExpression<CommentViewModel>(searchParams.SortBy),
+                BaseHelpers.GetOrderByExpression<Comment>(searchParams.SortBy),
                 searchParams
             );
         }

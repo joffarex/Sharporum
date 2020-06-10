@@ -35,17 +35,17 @@ namespace Violetum.Infrastructure.Repositories
         {
             return _context.Categories
                 .Include(x => x.Author)
-                .AsEnumerable()
                 .Where(condition)
-                .Select(selector)
                 .Skip(searchParams.Offset)
                 .Take(searchParams.Limit)
+                .AsEnumerable()
+                .Select(selector)
                 .ToList();
         }
 
         public int GetTotalCommentsCount(Func<Category, bool> condition)
         {
-            return _context.Categories.AsEnumerable().Where(condition).Count();
+            return _context.Categories.Where(condition).Count();
         }
 
         public Task<int> CreateCategory(Category category)
