@@ -8,10 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 using Violetum.ApplicationCore.Contracts.V1;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Profile;
+using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.ViewModels.Follower;
 using Violetum.ApplicationCore.ViewModels.User;
-using Violetum.Domain.CustomExceptions;
+using Violetum.Domain.Entities;
 using Violetum.Domain.Models;
 
 namespace Violetum.API.Controllers.V1
@@ -19,15 +20,18 @@ namespace Violetum.API.Controllers.V1
     [Produces("application/json")]
     public class ProfilesController : ControllerBase
     {
+        private readonly IBlobService _blobService;
         private readonly IFollowerService _followerService;
         private readonly HttpContext _httpContext;
         private readonly IProfileService _profileService;
 
         public ProfilesController(IProfileService profileService, IFollowerService followerService,
+            IBlobService blobService,
             IHttpContextAccessor httpContextAccessor)
         {
             _profileService = profileService;
             _followerService = followerService;
+            _blobService = blobService;
             _httpContext = httpContextAccessor.HttpContext;
         }
 
@@ -52,12 +56,10 @@ namespace Violetum.API.Controllers.V1
         /// <param name="updateProfileDto"></param>
         /// <response code="200">Updates user's profile</response>
         /// <response code="400">Unable to update user's profile due to validation errors</response>
-        /// <response code="500">Unable to remove profile claims</response>
         [HttpPut(ApiRoutes.Profiles.Update)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(ProfileResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> Update([FromRoute] string profileId,
             [FromBody] UpdateProfileDto updateProfileDto)
         {
@@ -65,10 +67,41 @@ namespace Violetum.API.Controllers.V1
 
             if (profileId != userId)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.Unauthorized, $"Unauthorized User:{userId}");
+                return new UnauthorizedResult();
             }
 
             ProfileViewModel profile = await _profileService.UpdateProfile(userId, updateProfileDto);
+
+            return Ok(new ProfileResponse {Profile = profile});
+        }
+
+        /// <summary>
+        ///     Updates user's profile image
+        /// </summary>
+        /// <param name="profileId"></param>
+        /// <param name="updateProfileImageDto"></param>
+        /// <response code="200">Updates user's profile image</response>
+        /// <response code="400">Unable to update user's profile due to validation errors</response>
+        [HttpPut(ApiRoutes.Profiles.UpdateImage)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [ProducesResponseType(typeof(ProfileResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> UpdateImage([FromRoute] string profileId,
+            [FromBody] UpdateProfileImageDto updateProfileImageDto)
+        {
+            string userId = _httpContext.User.FindFirstValue("sub");
+
+            if (profileId != userId)
+            {
+                return new UnauthorizedResult();
+            }
+
+            FileData data = BaseHelpers.GetFileData<User>(updateProfileImageDto.Image, userId);
+            await _blobService.UploadImageBlob(data.Content, data.FileName);
+            updateProfileImageDto.Image = data.FileName;
+
+            ProfileViewModel profile = await _profileService.UpdateProfileImage(userId, updateProfileImageDto);
 
             return Ok(new ProfileResponse {Profile = profile});
         }

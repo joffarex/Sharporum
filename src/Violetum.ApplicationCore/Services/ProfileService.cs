@@ -46,5 +46,16 @@ namespace Violetum.ApplicationCore.Services
 
             return _mapper.Map<ProfileViewModel>(user);
         }
+
+        public async Task<ProfileViewModel> UpdateProfileImage(string userId,
+            UpdateProfileImageDto updateProfileImageDto)
+        {
+            User user = await _userValidators.GetUserByIdOrThrow(userId);
+            user.Image = updateProfileImageDto.Image;
+
+            await _userManager.UpdateAsync(user);
+
+            return _mapper.Map<ProfileViewModel>(user);
+        }
     }
 }

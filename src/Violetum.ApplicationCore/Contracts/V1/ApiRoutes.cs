@@ -42,6 +42,7 @@
         {
             public const string Get = Base + "/profiles/{profileId}";
             public const string Update = Base + "/profiles/{profileId}";
+            public const string UpdateImage = Base + "/profiles/{profileId}/image";
             public const string GetFollowers = Base + "/profiles/{profileId}/followers";
             public const string GetFollowing = Base + "/profiles/{profileId}/following";
             public const string Follow = Base + "/profiles/{userToFollowId}/follow";

@@ -8,5 +8,6 @@ namespace Violetum.ApplicationCore.Interfaces.Services
     {
         Task<ProfileViewModel> GetProfile(string id);
         Task<ProfileViewModel> UpdateProfile(string userId, UpdateProfileDto updateProfileDto);
+        Task<ProfileViewModel> UpdateProfileImage(string userId, UpdateProfileImageDto updateProfileImageDto);
     }
 }
