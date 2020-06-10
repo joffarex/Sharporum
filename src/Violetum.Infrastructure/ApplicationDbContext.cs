@@ -30,6 +30,7 @@ namespace Violetum.Infrastructure
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Category>(entity => { entity.HasIndex(x => x.Name).IsUnique(); });
+            modelBuilder.Entity<Category>().Property(entity => entity.Image).HasDefaultValue("Category/no-image.jpg");
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())

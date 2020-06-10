@@ -81,10 +81,6 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            FileData data = BaseHelpers.GetFileData<Category>(createCategoryDto.Image, createCategoryDto.Name);
-            await _blobService.UploadImageBlob(data.Content, data.FileName);
-            createCategoryDto.Image = data.FileName;
-
             CategoryViewModel category = await _categoryService.CreateCategory(userId, createCategoryDto);
 
             return Created(HttpContext.Request.GetDisplayUrl(), new CategoryResponse {Category = category});
@@ -160,7 +156,7 @@ namespace Violetum.API.Controllers.V1
                     PolicyConstants.UpdateCategoryRolePolicy);
             if (authorizationResult.Succeeded)
             {
-                FileData data = BaseHelpers.GetFileData<Category>(updateCategoryImageDto.Image, categoryViewModel.Name);
+                FileData data = BaseHelpers.GetFileData<Category>(updateCategoryImageDto.Image, categoryViewModel.Id);
                 await _blobService.UploadImageBlob(data.Content, data.FileName);
                 updateCategoryImageDto.Image = data.FileName;
 
@@ -196,7 +192,10 @@ namespace Violetum.API.Controllers.V1
                 await _authorizationService.AuthorizeAsync(User, category, PolicyConstants.DeleteCategoryRolePolicy);
             if (authorizationResult.Succeeded)
             {
-                await _blobService.DeleteBlob(category.Image);
+                if (!category.Image.Equals("Category/no-image.jpg"))
+                {
+                    await _blobService.DeleteBlob(category.Image);
+                }
 
                 await _categoryService.DeleteCategory(category);
 

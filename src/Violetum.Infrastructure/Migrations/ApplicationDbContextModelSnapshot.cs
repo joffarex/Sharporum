@@ -14,7 +14,7 @@ namespace Violetum.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.2")
+                .HasAnnotation("ProductVersion", "3.1.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -166,7 +166,9 @@ namespace Violetum.Infrastructure.Migrations
                     .HasColumnType("ntext");
 
                 b.Property<string>("Image")
-                    .HasColumnType("nvarchar(max)");
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("nvarchar(max)")
+                    .HasDefaultValue("Category/no-image.jpg");
 
                 b.Property<string>("Name")
                     .HasColumnType("nvarchar(450)");
@@ -463,14 +465,14 @@ namespace Violetum.Infrastructure.Migrations
                     .HasForeignKey("AuthorId");
 
                 b.HasOne("Violetum.Domain.Entities.Post", "Post")
-                    .WithMany()
+                    .WithMany("Comments")
                     .HasForeignKey("PostId");
             });
 
             modelBuilder.Entity("Violetum.Domain.Entities.CommentVote", b =>
             {
                 b.HasOne("Violetum.Domain.Entities.Comment", "Comment")
-                    .WithMany()
+                    .WithMany("CommentVotes")
                     .HasForeignKey("CommentId");
 
                 b.HasOne("Violetum.Domain.Entities.User", "User")
@@ -496,14 +498,14 @@ namespace Violetum.Infrastructure.Migrations
                     .HasForeignKey("AuthorId");
 
                 b.HasOne("Violetum.Domain.Entities.Category", "Category")
-                    .WithMany()
+                    .WithMany("Posts")
                     .HasForeignKey("CategoryId");
             });
 
             modelBuilder.Entity("Violetum.Domain.Entities.PostVote", b =>
             {
                 b.HasOne("Violetum.Domain.Entities.Post", "Post")
-                    .WithMany()
+                    .WithMany("PostVotes")
                     .HasForeignKey("PostId");
 
                 b.HasOne("Violetum.Domain.Entities.User", "User")
