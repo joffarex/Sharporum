@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Query;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
 using Violetum.Domain.Models.SearchParams;
+using Violetum.Infrastructure.Extensions;
 
 namespace Violetum.Infrastructure.Repositories
 {
