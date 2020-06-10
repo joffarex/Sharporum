@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -52,7 +53,7 @@ namespace Violetum.ApplicationCore.Services
             return _commentRepository.GetComments(
                 x => CommentHelpers.WhereConditionPredicate(searchParams.UserId, searchParams.PostId, x),
                 x => AttachVotesToCommentViewModel(x),
-                BaseHelpers.GetOrderByExpression<Comment>(searchParams.SortBy),
+                BaseHelpers.GetOrderByExpression<CommentViewModel>(searchParams.SortBy),
                 searchParams
             );
         }
@@ -161,7 +162,7 @@ namespace Violetum.ApplicationCore.Services
         private CommentViewModel AttachVotesToCommentViewModel(Comment x)
         {
             var commentViewModel = _mapper.Map<CommentViewModel>(x);
-            commentViewModel.VoteCount = _commentRepository.GetCommentVoteSum(x.Id);
+            commentViewModel.VoteCount = x.CommentVotes.Sum(y => y.Direction);
             return commentViewModel;
         }
     }

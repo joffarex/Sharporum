@@ -23,7 +23,6 @@ namespace Violetum.Infrastructure.Repositories
             return _context.Followers
                 .Include(x => x.FollowerUser)
                 .Where(x => x.UserToFollowId == userId)
-                .AsEnumerable()
                 .Select(selector)
                 .ToList();
         }
@@ -33,7 +32,6 @@ namespace Violetum.Infrastructure.Repositories
             return _context.Followers
                 .Include(x => x.UserToFollow)
                 .Where(x => x.FollowerUserId == userId)
-                .AsEnumerable()
                 .Select(selector)
                 .ToList();
         }

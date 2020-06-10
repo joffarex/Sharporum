@@ -31,22 +31,23 @@ namespace Violetum.Infrastructure.Repositories
         }
 
         public IEnumerable<TResult> GetComments<TResult, TKey>(Func<Comment, bool> condition,
-            Func<Comment, TResult> selector, Func<Comment, TKey> keySelector, CommentSearchParams searchParams)
+            Func<Comment, TResult> selector, Func<TResult, TKey> keySelector, CommentSearchParams searchParams)
         {
             IEnumerable<Comment> query = _context.Comments
                 .Include(x => x.Author)
+                .Include(x => x.CommentVotes)
                 .Where(condition)
                 .Skip(searchParams.Offset)
                 .Take(searchParams.Limit);
 
             return searchParams.OrderByDir.ToUpper() == "DESC"
-                ? query.OrderByDescending(keySelector)
-                    .AsEnumerable()
+                ? query
                     .Select(selector)
+                    .OrderByDescending(keySelector)
                     .ToList()
-                : query.OrderBy(keySelector)
-                    .AsEnumerable()
+                : query
                     .Select(selector)
+                    .OrderBy(keySelector)
                     .ToList();
         }
 

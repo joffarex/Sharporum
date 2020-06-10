@@ -38,7 +38,6 @@ namespace Violetum.Infrastructure.Repositories
                 .Where(condition)
                 .Skip(searchParams.Offset)
                 .Take(searchParams.Limit)
-                .AsEnumerable()
                 .Select(selector)
                 .ToList();
         }

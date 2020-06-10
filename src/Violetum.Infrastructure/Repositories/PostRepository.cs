@@ -31,23 +31,24 @@ namespace Violetum.Infrastructure.Repositories
         }
 
         public IEnumerable<TResult> GetPosts<TResult, TKey>(Func<Post, bool> condition,
-            Func<Post, TResult> selector, Func<Post, TKey> keySelector, PostSearchParams searchParams)
+            Func<Post, TResult> selector, Func<TResult, TKey> keySelector, PostSearchParams searchParams)
         {
             IEnumerable<Post> query = _context.Posts
                 .Include(x => x.Category)
                 .Include(x => x.Author)
+                .Include(x => x.PostVotes)
                 .Where(condition)
                 .Skip(searchParams.Offset)
                 .Take(searchParams.Limit);
 
             return searchParams.OrderByDir.ToUpper() == "DESC"
-                ? query.OrderByDescending(keySelector)
-                    .AsEnumerable()
+                ? query
                     .Select(selector)
+                    .OrderByDescending(keySelector)
                     .ToList()
-                : query.OrderBy(keySelector)
-                    .AsEnumerable()
+                : query
                     .Select(selector)
+                    .OrderBy(keySelector)
                     .ToList();
         }
 

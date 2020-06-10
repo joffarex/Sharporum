@@ -11,7 +11,7 @@ namespace Violetum.Domain.Infrastructure
         TResult GetPost<TResult>(Func<Post, bool> condition, Func<Post, TResult> selector);
 
         IEnumerable<TResult> GetPosts<TResult, TKey>(Func<Post, bool> condition, Func<Post, TResult> selector,
-            Func<Post, TKey> keySelector, PostSearchParams searchParams);
+            Func<TResult, TKey> keySelector, PostSearchParams searchParams);
 
         IEnumerable<string> GetUserFollowings(string userId);
 

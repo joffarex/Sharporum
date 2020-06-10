@@ -11,7 +11,7 @@ namespace Violetum.Domain.Infrastructure
         TResult GetComment<TResult>(Func<Comment, bool> condition, Func<Comment, TResult> selector);
 
         IEnumerable<TResult> GetComments<TResult, TKey>(Func<Comment, bool> condition,
-            Func<Comment, TResult> selector, Func<Comment, TKey> keySelector, CommentSearchParams searchParams);
+            Func<Comment, TResult> selector, Func<TResult, TKey> keySelector, CommentSearchParams searchParams);
 
         int GetTotalCommentsCount(Func<Comment, bool> condition);
 

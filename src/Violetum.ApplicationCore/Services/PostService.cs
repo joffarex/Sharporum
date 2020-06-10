@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -57,7 +58,7 @@ namespace Violetum.ApplicationCore.Services
             return _postRepository.GetPosts(
                 x => PostHelpers.WhereConditionPredicate(searchParams, x),
                 x => AttachVotesToPostViewModel(x),
-                BaseHelpers.GetOrderByExpression<Post>(searchParams.SortBy),
+                BaseHelpers.GetOrderByExpression<PostViewModel>(searchParams.SortBy),
                 searchParams
             );
         }
@@ -74,7 +75,7 @@ namespace Violetum.ApplicationCore.Services
             return _postRepository.GetPosts(
                 x => PostHelpers.WhereConditionPredicate(searchParams, x, followers),
                 x => AttachVotesToPostViewModel(x),
-                BaseHelpers.GetOrderByExpression<Post>(searchParams.SortBy),
+                BaseHelpers.GetOrderByExpression<PostViewModel>(searchParams.SortBy),
                 searchParams
             );
         }
@@ -193,7 +194,7 @@ namespace Violetum.ApplicationCore.Services
         private PostViewModel AttachVotesToPostViewModel(Post x)
         {
             var postViewModel = _mapper.Map<PostViewModel>(x);
-            postViewModel.VoteCount = GetPostVoteSum(x.Id);
+            postViewModel.VoteCount = x.PostVotes.Sum(y => y.Direction);
             return postViewModel;
         }
     }
