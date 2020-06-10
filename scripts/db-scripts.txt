@@ -9,3 +9,7 @@ dotnet ef database update -c ConfigurationDbContext
 dotnet ef migrations add init -c ApplicationDbContext -o Migrations --startup-project ../Violetum.Web
 
 dotnet ef database update -c ApplicationDbContext --startup-project ../Violetum.Web
+
+dotnet ef migrations add init -c ApplicationDbContext -o Migrations --startup-project ../Violetum.API
+
+dotnet ef database update -c ApplicationDbContext --startup-project ../Violetum.API
