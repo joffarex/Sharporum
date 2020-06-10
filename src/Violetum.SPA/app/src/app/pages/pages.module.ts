@@ -18,7 +18,7 @@ import {JwBootstrapSwitchNg2Module} from 'jw-bootstrap-switch-ng2';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 
 import {IndexComponent} from './index/index.component';
-import {ProfileComponent} from './profile/profile.component';
+import {UserComponent} from './user/user.component';
 import {PostsComponent} from './posts/posts.component';
 import {SharedModule} from '../shared/shared.module';
 import {CategoriesComponent} from './categories/categories.component';
@@ -50,7 +50,7 @@ import {CommentComponent} from './comments/comment/comment.component';
   ],
   declarations: [
     IndexComponent,
-    ProfileComponent,
+    UserComponent,
     PostsComponent,
     PostComponent,
     CategoriesComponent,
@@ -61,7 +61,7 @@ import {CommentComponent} from './comments/comment/comment.component';
   ],
   exports: [
     IndexComponent,
-    ProfileComponent,
+    UserComponent,
     PostsComponent,
     PostComponent,
     CategoriesComponent,

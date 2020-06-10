@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy, Input} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 
 @Component({
   selector: 'app-posts',
@@ -41,11 +41,11 @@ export class PostsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const body = document.getElementsByTagName('body')[0];
-    body.classList.add('profile-page');
+    body.classList.add('user-page');
   }
 
   ngOnDestroy() {
     const body = document.getElementsByTagName('body')[0];
-    body.classList.remove('profile-page');
+    body.classList.remove('user-page');
   }
 }

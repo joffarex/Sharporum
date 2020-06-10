@@ -29,12 +29,12 @@ export class CommentsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const body = document.getElementsByTagName('body')[0];
-    body.classList.add('profile-page');
+    body.classList.add('user-page');
   }
 
   ngOnDestroy() {
     const body = document.getElementsByTagName('body')[0];
-    body.classList.remove('profile-page');
+    body.classList.remove('user-page');
   }
 
 }
