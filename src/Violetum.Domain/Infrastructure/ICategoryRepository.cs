@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using AutoMapper;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Models.SearchParams;
 
@@ -9,14 +10,14 @@ namespace Violetum.Domain.Infrastructure
 {
     public interface ICategoryRepository
     {
-        TResult GetCategory<TResult>(Expression<Func<Category, bool>> condition,
-            Func<Category, TResult> selector);
+        TResult GetCategory<TResult>(Expression<Func<TResult, bool>> condition,
+            IConfigurationProvider configurationProvider)
+            where TResult : class;
 
-        IEnumerable<TResult> GetCategories<TResult>(Func<Category, bool> condition,
-            Func<Category, TResult> selector,
-            CategorySearchParams searchParams);
+        IEnumerable<TResult> GetCategories<TResult>(CategorySearchParams searchParams,
+            IConfigurationProvider configurationProvider) where TResult : class;
 
-        int GetTotalCommentsCount(Func<Category, bool> condition);
+        int GetCategoryCount(CategorySearchParams searchParams);
 
         Task<int> CreateCategory(Category category);
         Task<int> UpdateCategory(Category category);

@@ -51,7 +51,7 @@ namespace Violetum.ApplicationCore.Services
 
             if (!string.IsNullOrEmpty(searchParams.CategoryName))
             {
-                _categoryValidators.GetCategoryByNameOrThrow(searchParams.CategoryName, x => x);
+                _categoryValidators.GetCategoryOrThrow<Category>(x => x.Name == searchParams.CategoryName);
             }
 
             return _postRepository.GetPosts<PostViewModel>(searchParams, PostHelpers.GetPostMapperConfiguration());
@@ -61,7 +61,7 @@ namespace Violetum.ApplicationCore.Services
         {
             if (!string.IsNullOrEmpty(searchParams.CategoryName))
             {
-                _categoryValidators.GetCategoryByNameOrThrow(searchParams.CategoryName, x => x);
+                _categoryValidators.GetCategoryOrThrow<Category>(x => x.Name == searchParams.CategoryName);
             }
 
             searchParams.Followers = _postRepository.GetUserFollowings(userId);
@@ -72,7 +72,7 @@ namespace Violetum.ApplicationCore.Services
         {
             if (!string.IsNullOrEmpty(searchParams.CategoryName))
             {
-                _categoryValidators.GetCategoryByNameOrThrow(searchParams.CategoryName, x => x);
+                _categoryValidators.GetCategoryOrThrow<Category>(x => x.Name == searchParams.CategoryName);
             }
 
             if (!string.IsNullOrEmpty(searchParams.UserId))
@@ -87,7 +87,7 @@ namespace Violetum.ApplicationCore.Services
         {
             if (!string.IsNullOrEmpty(searchParams.CategoryName))
             {
-                _categoryValidators.GetCategoryByNameOrThrow(searchParams.CategoryName, x => x);
+                _categoryValidators.GetCategoryOrThrow<Category>(x => x.Name == searchParams.CategoryName);
             }
 
             searchParams.Followers = _postRepository.GetUserFollowings(userId);
@@ -97,7 +97,7 @@ namespace Violetum.ApplicationCore.Services
         public async Task<PostViewModel> CreatePost(string userId, CreatePostDto createPostDto)
         {
             User user = await _userValidators.GetUserByIdOrThrow(userId);
-            Category category = _categoryValidators.GetCategoryByIdOrThrow(createPostDto.CategoryId, x => x);
+            var category = _categoryValidators.GetCategoryOrThrow<Category>(x => x.Id == createPostDto.CategoryId);
 
             var post = _mapper.Map<Post>(createPostDto);
             post.Author = user;

@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
 using Violetum.Domain.Models.SearchParams;
@@ -20,31 +23,36 @@ namespace Violetum.Infrastructure.Repositories
             _context = context;
         }
 
-        public TResult GetCategory<TResult>(Expression<Func<Category, bool>> condition,
-            Func<Category, TResult> selector)
+        public TResult GetCategory<TResult>(Expression<Func<TResult, bool>> condition,
+            IConfigurationProvider configurationProvider) where TResult : class
         {
             return _context.Categories
                 .Include(x => x.Author)
+                .ProjectTo<TResult>(configurationProvider)
                 .Where(condition)
-                .Select(selector)
                 .FirstOrDefault();
         }
 
-        public IEnumerable<TResult> GetCategories<TResult>(Func<Category, bool> condition,
-            Func<Category, TResult> selector, CategorySearchParams searchParams)
+        public IEnumerable<TResult> GetCategories<TResult>(CategorySearchParams searchParams,
+            IConfigurationProvider configurationProvider) where TResult : class
         {
-            return _context.Categories
-                .Include(x => x.Author)
-                .Where(condition)
+            IIncludableQueryable<Category, User> query = _context.Categories
+                .Include(x => x.Author);
+
+            IQueryable<Category> whereParams = WhereConditionPredicate(query, searchParams);
+
+            return whereParams
+                .ProjectTo<TResult>(configurationProvider)
                 .Skip(searchParams.Offset)
                 .Take(searchParams.Limit)
-                .Select(selector)
                 .ToList();
         }
 
-        public int GetTotalCommentsCount(Func<Category, bool> condition)
+        public int GetCategoryCount(CategorySearchParams searchParams)
         {
-            return _context.Categories.Where(condition).Count();
+            DbSet<Category> query = _context.Categories;
+            IQueryable<Category> whereParams = WhereConditionPredicate(query, searchParams);
+            return whereParams.Count();
         }
 
         public Task<int> CreateCategory(Category category)
@@ -60,6 +68,22 @@ namespace Violetum.Infrastructure.Repositories
         public Task<int> DeleteCategory(Category category)
         {
             return DeleteEntity(category);
+        }
+
+        private static IQueryable<Category> WhereConditionPredicate(IQueryable<Category> query,
+            CategorySearchParams searchParams)
+        {
+            if (!string.IsNullOrEmpty(searchParams.CategoryName))
+            {
+                query = query.Where(c => c.Name.Contains(searchParams.CategoryName));
+            }
+
+            if (!string.IsNullOrEmpty(searchParams.UserId))
+            {
+                query = query.Where(c => c.AuthorId == searchParams.UserId);
+            }
+
+            return query;
         }
     }
 }

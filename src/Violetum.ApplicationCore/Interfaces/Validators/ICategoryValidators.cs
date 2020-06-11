@@ -1,11 +1,10 @@
 ﻿using System;
-using Violetum.Domain.Entities;
+using System.Linq.Expressions;
 
 namespace Violetum.ApplicationCore.Interfaces.Validators
 {
     public interface ICategoryValidators
     {
-        TResult GetCategoryByIdOrThrow<TResult>(string categoryId, Func<Category, TResult> selector);
-        TResult GetCategoryByNameOrThrow<TResult>(string categoryName, Func<Category, TResult> selector);
+        TResult GetCategoryOrThrow<TResult>(Expression<Func<TResult, bool>> condition) where TResult : class;
     }
 }
