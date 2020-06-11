@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Violetum.ApplicationCore.Attributes;
+using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.Interfaces.Validators;
 using Violetum.ApplicationCore.ViewModels.Follower;
@@ -33,7 +34,8 @@ namespace Violetum.ApplicationCore.Services
             User user = await _userValidators.GetUserByIdOrThrow(userId);
 
             IEnumerable<FollowerViewModel> userFollowers =
-                _followerRepository.GetUserFollowers(userId, x => _mapper.Map<FollowerViewModel>(x));
+                _followerRepository.GetUserFollowing<FollowerViewModel>(userId,
+                    UserHelpers.GetFollowerMapperConfiguration());
 
             return new UserFollowersViewModel
             {
@@ -47,7 +49,8 @@ namespace Violetum.ApplicationCore.Services
             User user = await _userValidators.GetUserByIdOrThrow(userId);
 
             IEnumerable<FollowingViewModel> userFollowings =
-                _followerRepository.GetUserFollowing(userId, x => _mapper.Map<FollowingViewModel>(x));
+                _followerRepository.GetUserFollowing<FollowingViewModel>(userId,
+                    UserHelpers.GetFollowerMapperConfiguration());
 
             return new UserFollowingViewModel
             {
