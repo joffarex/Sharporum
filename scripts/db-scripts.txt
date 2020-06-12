@@ -13,3 +13,8 @@ dotnet ef database update -c ApplicationDbContext --startup-project ../Violetum.
 dotnet ef migrations add init -c ApplicationDbContext -o Migrations --startup-project ../Violetum.API
 
 dotnet ef database update -c ApplicationDbContext --startup-project ../Violetum.API
+
+
+SELECT Name from sys.Databases
+docker exec -it db-server "bash"
+/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "Joffarex6944"

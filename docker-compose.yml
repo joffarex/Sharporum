@@ -1,0 +1,52 @@
+﻿version: "3.5"
+
+networks:
+    localdev:
+
+services:
+    main-api:
+        build:
+            context: .
+            dockerfile: src/Violetum.API/Dockerfile
+        restart: always
+        ports:
+            - "5001:5001"
+        environment:
+            ASPNETCORE_ENVIRONMENT: "Development"
+            ASPNETCORE_URLS: "http://+:5001"
+        depends_on:
+            - db-server
+        networks:
+            - localdev
+        volumes:
+            - ./tmp:/app/tmp
+
+    identityserver:
+        build:
+            context: .
+            dockerfile: src/Violetum.IdentityServer/Dockerfile
+        restart: always
+        ports:
+            - "5000:5000"
+        environment:
+            ASPNETCORE_ENVIRONMENT: "Development"
+            ASPNETCORE_URLS: "http://+:5000"
+        depends_on:
+            - db-server
+            - main-api
+        networks:
+            - localdev
+        volumes:
+            - ./tmp:/app/tmp
+
+    db-server:
+        image: "mcr.microsoft.com/mssql/server:2019-CU3-ubuntu-18.04"
+        container_name: db-server
+        environment:
+            ACCEPT_EULA: "Y"
+            SA_PASSWORD: "Joffarex6944"
+        ports:
+            - "1400:1433"
+        networks:
+            - localdev
+        

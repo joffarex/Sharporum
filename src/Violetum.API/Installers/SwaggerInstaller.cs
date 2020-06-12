@@ -30,6 +30,7 @@ namespace Violetum.API.Installers
                                 new Uri(
                                     "http://localhost:5000/connect/authorize",
                                     UriKind.Absolute),
+                            TokenUrl = new Uri("http://localhost:5000/connect/token", UriKind.Absolute),
                             Scopes = new Dictionary<string, string>
                             {
                                 {"Violetum.API", "API to use issued tokens"},

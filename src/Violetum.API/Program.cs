@@ -1,15 +1,19 @@
 using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
+using Violetum.Infrastructure;
 
 namespace Violetum.API
 {
     public class Program
     {
-        public static int Main(string[] args)
+        public static async Task Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
@@ -25,16 +29,20 @@ namespace Violetum.API
                 .CreateLogger();
             try
             {
+                IHost host = CreateHostBuilder(args).Build();
+
                 Log.Information("Getting the Violetum.API running...");
 
-                CreateHostBuilder(args).Build().Run();
+                using (IServiceScope scope = host.Services.CreateScope())
+                {
+                    await RunMigrations(scope);
+                }
 
-                return 0;
+                host.Run();
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex, "Host terminated unexpectedly");
-                return 1;
             }
             finally
             {
@@ -50,6 +58,11 @@ namespace Violetum.API
                     webBuilder.UseStartup<Startup>();
                     webBuilder.UseSerilog();
                 });
+        }
+
+        private static async Task RunMigrations(IServiceScope scope)
+        {
+            await scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.MigrateAsync();
         }
     }
 }
