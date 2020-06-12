@@ -78,6 +78,7 @@ namespace Violetum.IdentityServer
                     options.Events.RaiseInformationEvents = true;
                     options.Events.RaiseFailureEvents = true;
                     options.Events.RaiseSuccessEvents = true;
+                    options.IssuerUri = "http://10.0.75.1:5000";
                 })
                 .AddAspNetIdentity<User>()
                 .AddConfigurationStore(options =>

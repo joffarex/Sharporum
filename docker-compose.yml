@@ -2,7 +2,6 @@
 
 networks:
     localdev:
-        name: localdev
 
 services:
     main-api:
@@ -22,7 +21,7 @@ services:
         volumes:
             - ./tmp:/app/tmp
 
-    identity-server:
+    identityserver:
         build:
             context: .
             dockerfile: src/Violetum.IdentityServer/Dockerfile

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
@@ -35,6 +36,8 @@ namespace Violetum.API.Installers
         public void InstallServices(IServiceCollection services, IConfiguration configuration,
             IWebHostEnvironment environment)
         {
+            IdentityModelEventSource.ShowPII = true;
+
             services.AddHttpContextAccessor();
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
@@ -63,7 +66,7 @@ namespace Violetum.API.Installers
                 })
                 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
                 {
-                    options.Authority = "http://localhost:5000";
+                    options.Authority = "http://identityserver:5000";
                     options.RequireHttpsMetadata = false;
 
                     options.Audience = "Violetum.API";
