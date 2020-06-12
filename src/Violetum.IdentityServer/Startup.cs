@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using IdentityServer4.Services;
@@ -67,7 +68,8 @@ namespace Violetum.IdentityServer
             });
 
             string assembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
-            string filePath = Path.Combine(_environment.ContentRootPath, "../../cert.pfx");
+            string filePath = Path.Combine(_environment.ContentRootPath, "tmp/cert.pfx");
+            Console.WriteLine($"{filePath}");
             var certificate = new X509Certificate2(filePath, "password");
 
             services.AddIdentityServer(options =>

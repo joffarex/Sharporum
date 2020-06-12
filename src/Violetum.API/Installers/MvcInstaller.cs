@@ -38,7 +38,8 @@ namespace Violetum.API.Installers
             services.AddHttpContextAccessor();
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
-            string filePath = Path.Combine(environment.ContentRootPath, "../../cert.pfx");
+            string filePath = Path.Combine(environment.ContentRootPath, "tmp/cert.pfx");
+            Console.WriteLine($"{filePath}");
             var certificate = new X509Certificate2(filePath, "password");
 
             var optionsTokenValidationParameters = new TokenValidationParameters
