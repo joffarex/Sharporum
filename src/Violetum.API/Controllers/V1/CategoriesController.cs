@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Authorization;
+using Violetum.API.Filters;
 using Violetum.ApplicationCore.Contracts.V1;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Category;
@@ -45,6 +46,7 @@ namespace Violetum.API.Controllers.V1
         /// <response code="200">Returns categories</response>
         /// <response code="404">Unable to find user with provided "UserId"</response>
         [HttpGet(ApiRoutes.Categories.GetMany)]
+        [Cached(120)]
         [ProducesResponseType(typeof(GetManyResponse<CategoryViewModel>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetMany([FromQuery] CategorySearchParams searchParams)
@@ -93,6 +95,7 @@ namespace Violetum.API.Controllers.V1
         /// <response code="200">Returns category</response>
         /// <response code="404">Unable to find category with provided "categoryId"</response>
         [HttpGet(ApiRoutes.Categories.Get)]
+        [Cached(120)]
         [ProducesResponseType(typeof(CategoryResponse), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public IActionResult Get([FromRoute] string categoryId)

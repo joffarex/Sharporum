@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Authorization;
+using Violetum.API.Filters;
 using Violetum.ApplicationCore.Contracts.V1;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Comment;
@@ -41,6 +42,7 @@ namespace Violetum.API.Controllers.V1
         /// <response code="200">Returns comments</response>
         /// <response code="404">Unable to find user with provided "UserId" / post with provided "PostId"</response>
         [HttpGet(ApiRoutes.Comments.GetMany)]
+        [Cached(60)]
         [ProducesResponseType(typeof(GetManyResponse<CommentViewModel>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetMany([FromQuery] CommentSearchParams searchParams)
@@ -92,6 +94,7 @@ namespace Violetum.API.Controllers.V1
         /// <response code="200">Returns comment</response>
         /// <response code="404">Unable to find comment with provided "commentId"</response>
         [HttpGet(ApiRoutes.Comments.Get)]
+        [Cached(60)]
         [ProducesResponseType(typeof(CommentResponse), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public IActionResult Get([FromRoute] string commentId)

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Violetum.API.Filters;
 using Violetum.ApplicationCore.Contracts.V1;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.User;
@@ -42,6 +43,7 @@ namespace Violetum.API.Controllers.V1
         /// <response code="200">Returns user</response>
         /// <response code="404">Unable to find user with provided "userId"</response>
         [HttpGet(ApiRoutes.Users.Get)]
+        [Cached(120)]
         [ProducesResponseType(typeof(UserResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get([FromRoute] string userId)

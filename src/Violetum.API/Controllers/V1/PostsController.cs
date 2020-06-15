@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Authorization;
+using Violetum.API.Filters;
 using Violetum.ApplicationCore.Contracts.V1;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Post;
@@ -52,6 +53,7 @@ namespace Violetum.API.Controllers.V1
         ///     provided "PostTitle
         /// </response>
         [HttpGet(ApiRoutes.Posts.GetMany)]
+        [Cached(60)]
         [ProducesResponseType(typeof(GetManyResponse<PostViewModel>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetMany([FromQuery] PostSearchParams searchParams)
@@ -104,6 +106,7 @@ namespace Violetum.API.Controllers.V1
         ///     provided "PostTitle
         /// </response>
         [HttpGet(ApiRoutes.Posts.NewsFeed)]
+        [Cached(180)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(GetManyResponse<PostViewModel>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
@@ -134,6 +137,7 @@ namespace Violetum.API.Controllers.V1
         /// <response code="200">Returns post</response>
         /// <response code="404">Unable to find post with provided "postId"</response>
         [HttpGet(ApiRoutes.Posts.Get)]
+        [Cached(60)]
         [ProducesResponseType(typeof(PostResponse), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public IActionResult Get([FromRoute] string postId)
