@@ -16,6 +16,7 @@ services:
             ASPNETCORE_URLS: "http://+:5001"
         depends_on:
             - db-server
+            - redis
         networks:
             - localdev
         volumes:
@@ -47,6 +48,15 @@ services:
             SA_PASSWORD: "Joffarex6944"
         ports:
             - "1400:1433"
+        networks:
+            - localdev
+
+    redis:
+        image: "redis:alpine"
+        container_name: redis
+        command: redis-server --requirepass Joffarex6944
+        ports:
+            - "6379:6379"
         networks:
             - localdev
         
