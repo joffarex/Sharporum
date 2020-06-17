@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
+using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
 using Violetum.Domain.Models.SearchParams;
@@ -72,6 +74,13 @@ namespace Violetum.Infrastructure.Repositories
 
         public Task<int> DeleteCategory(Category category)
         {
+            var posts = _context.Posts.Where(x => x.CategoryId == category.Id).ToList();
+            if (posts.Any())
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.UnprocessableEntity,
+                    $"Can not delete category while there are still posts in it");
+            }
+
             return DeleteEntity(category);
         }
 
