@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -16,30 +16,26 @@ namespace Violetum.ApplicationCore.Services
     [Service]
     public class BlobService : IBlobService
     {
-        private readonly BlobServiceClient _blobServiceClient;
+        private readonly BlobContainerClient _containerClient;
 
         public BlobService(BlobServiceClient blobServiceClient)
         {
-            _blobServiceClient = blobServiceClient;
+            _containerClient = blobServiceClient.GetBlobContainerClient("pictures");
         }
 
         public async Task<BlobInfo> GetBlob(string name)
         {
-            BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient("pictures");
-            BlobClient blobClient = containerClient.GetBlobClient(name);
+            BlobClient blobClient = _containerClient.GetBlobClient(name);
             Response<BlobDownloadInfo> blobDownloadInfo = await blobClient.DownloadAsync();
-            //"categories/41587092.jpg"
 
             return new BlobInfo(blobDownloadInfo.Value.Content, blobDownloadInfo.Value.ContentType);
         }
 
         public async Task<IEnumerable<string>> ListBlobs()
         {
-            BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient("pictures");
-
             var items = new List<string>();
 
-            await foreach (BlobItem blobItem in containerClient.GetBlobsAsync())
+            await foreach (BlobItem blobItem in _containerClient.GetBlobsAsync())
             {
                 items.Add(blobItem.Name);
             }
@@ -49,16 +45,14 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task UploadFileBlob(string filePath, string fileName)
         {
-            BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient("pictures");
-            BlobClient blobClient = containerClient.GetBlobClient(fileName);
+            BlobClient blobClient = _containerClient.GetBlobClient(fileName);
 
             await blobClient.UploadAsync(filePath, new BlobHttpHeaders {ContentType = filePath.GetContentType()});
         }
 
         public async Task UploadContentBlob(string content, string fileName)
         {
-            BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient("pictures");
-            BlobClient blobClient = containerClient.GetBlobClient(fileName);
+            BlobClient blobClient = _containerClient.GetBlobClient(fileName);
 
             byte[] bytes = Encoding.UTF8.GetBytes(content);
             await using var memoryStream = new MemoryStream(bytes);
@@ -68,8 +62,7 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task UploadImageBlob(string content, string fileName)
         {
-            BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient("pictures");
-            BlobClient blobClient = containerClient.GetBlobClient(fileName);
+            BlobClient blobClient = _containerClient.GetBlobClient(fileName);
 
             byte[] bytes = Convert.FromBase64String(content);
             await using var memoryStream = new MemoryStream(bytes);
@@ -79,8 +72,7 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task DeleteBlob(string blobName)
         {
-            BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient("pictures");
-            BlobClient blobClient = containerClient.GetBlobClient(blobName);
+            BlobClient blobClient = _containerClient.GetBlobClient(blobName);
 
             await blobClient.DeleteIfExistsAsync();
         }
