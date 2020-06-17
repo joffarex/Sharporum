@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using Violetum.Domain.Entities;
+using Violetum.Domain.Models;
 using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.Domain.Infrastructure
@@ -24,5 +25,9 @@ namespace Violetum.Domain.Infrastructure
         Task<int> CreateComment(Comment comment);
         Task<int> UpdateComment(Comment comment);
         Task<int> DeleteComment(Comment comment);
+
+        List<Ranks> GetCommentRanks();
+
+        int GetUserCommentRank(string userId);
     }
 }

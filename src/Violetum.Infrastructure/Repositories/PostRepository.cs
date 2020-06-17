@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
+using Violetum.Domain.Models;
 using Violetum.Domain.Models.SearchParams;
 using Violetum.Infrastructure.Extensions;
 
@@ -104,6 +105,27 @@ namespace Violetum.Infrastructure.Repositories
             _context.Posts.RemoveRange(votes);
 
             return DeleteEntity(post);
+        }
+
+        public List<Ranks> GetPostRanks()
+        {
+            List<Ranks> userPostVotes = _context.PostVotes
+                .GroupBy(x => x.UserId, (key, vote) =>
+                    new Ranks
+                    {
+                        UserId = key,
+                        Rank = vote.Sum(x => x.Direction),
+                    })
+                .ToList();
+
+            return userPostVotes;
+        }
+
+        public int GetUserPostRank(string userId)
+        {
+            return _context.PostVotes
+                .GroupBy(x => x.UserId, (key, vote) => vote.Sum(x => x.Direction))
+                .FirstOrDefault();
         }
 
         private static IQueryable<Post> WhereConditionPredicate(IQueryable<Post> query, PostSearchParams searchParams)

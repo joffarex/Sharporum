@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -48,7 +49,10 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get([FromRoute] string userId)
         {
-            return Ok(new UserResponse {User = await _userService.GetUser(userId)});
+            UserViewModel user = await _userService.GetUser(userId);
+            IEnumerable<UserRank> userRanks = _userService.GetUserRanks(userId);
+
+            return Ok(new UserResponse {User = user, Ranks = userRanks});
         }
 
         /// <summary>
@@ -165,6 +169,28 @@ namespace Violetum.API.Controllers.V1
             await _followerService.UnfollowUser(userId, userToUnfollowId);
 
             return Ok(new ActionSuccessResponse {Message = "OK"});
+        }
+
+        /// <summary>
+        /// Returns User's by post rank
+        /// </summary>
+        /// <response code="200">Returns User's by post rank</response>
+        [HttpGet(ApiRoutes.Users.PostRanks)]
+        [ProducesResponseType(typeof(UserRanksResponse), (int) HttpStatusCode.OK)]
+        public IActionResult PostRanks()
+        {
+            return Ok(new UserRanksResponse {Ranks = _userService.GetPostRanks()});
+        }
+
+        /// <summary>
+        /// Returns User's by comment rank
+        /// </summary>
+        /// <response code="200">Returns User's by comment rank</response>
+        [HttpGet(ApiRoutes.Users.CommentRanks)]
+        [ProducesResponseType(typeof(UserRanksResponse), (int) HttpStatusCode.OK)]
+        public IActionResult CommentRanks()
+        {
+            return Ok(new UserRanksResponse {Ranks = _userService.GetCommentRanks()});
         }
     }
 }

@@ -47,6 +47,8 @@
             public const string GetFollowing = Base + "/users/{userId}/following";
             public const string Follow = Base + "/users/{userToFollowId}/follow";
             public const string Unfollow = Base + "/users/{userToUnfollowId}/unfollow";
+            public const string PostRanks = Base + "/users/ranks/posts";
+            public const string CommentRanks = Base + "/users/ranks/comments";
         }
     }
 }

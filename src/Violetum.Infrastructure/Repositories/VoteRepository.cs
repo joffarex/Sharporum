@@ -34,16 +34,5 @@ namespace Violetum.Infrastructure.Repositories
         {
             return UpdateEntity(entityVote);
         }
-
-        public IEnumerable<Ph> GetUserEntityVoteCount()
-        {
-            List<Ph> y = _context.Set<PostVote>().GroupBy(x => x.UserId, (key, vote) => new Ph
-            {
-                UserId = key,
-                Sum = vote.Sum(x => x.Direction),
-            }).ToList();
-
-            return y;
-        }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using Violetum.Domain.Entities;
+using Violetum.Domain.Models;
 using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.Domain.Infrastructure
@@ -26,5 +27,8 @@ namespace Violetum.Domain.Infrastructure
         Task<int> CreatePost(Post post);
         Task<int> UpdatePost(Post post);
         Task<int> DeletePost(Post post);
+
+        List<Ranks> GetPostRanks();
+        int GetUserPostRank(string userId);
     }
 }
