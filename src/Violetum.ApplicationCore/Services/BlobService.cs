@@ -23,7 +23,7 @@ namespace Violetum.ApplicationCore.Services
             _containerClient = blobServiceClient.GetBlobContainerClient("pictures");
         }
 
-        public async Task<BlobInfo> GetBlob(string name)
+        public async Task<BlobInfo> GetBlobAsync(string name)
         {
             BlobClient blobClient = _containerClient.GetBlobClient(name);
             Response<BlobDownloadInfo> blobDownloadInfo = await blobClient.DownloadAsync();
@@ -31,7 +31,7 @@ namespace Violetum.ApplicationCore.Services
             return new BlobInfo(blobDownloadInfo.Value.Content, blobDownloadInfo.Value.ContentType);
         }
 
-        public async Task<IEnumerable<string>> ListBlobs()
+        public async Task<IEnumerable<string>> ListBlobsAsync()
         {
             var items = new List<string>();
 
@@ -43,14 +43,14 @@ namespace Violetum.ApplicationCore.Services
             return items;
         }
 
-        public async Task UploadFileBlob(string filePath, string fileName)
+        public async Task UploadFileBlobAsync(string filePath, string fileName)
         {
             BlobClient blobClient = _containerClient.GetBlobClient(fileName);
 
             await blobClient.UploadAsync(filePath, new BlobHttpHeaders {ContentType = filePath.GetContentType()});
         }
 
-        public async Task UploadContentBlob(string content, string fileName)
+        public async Task UploadContentBlobAsync(string content, string fileName)
         {
             BlobClient blobClient = _containerClient.GetBlobClient(fileName);
 
@@ -60,7 +60,7 @@ namespace Violetum.ApplicationCore.Services
             await blobClient.UploadAsync(memoryStream, new BlobHttpHeaders {ContentType = fileName.GetContentType()});
         }
 
-        public async Task UploadImageBlob(string content, string fileName)
+        public async Task UploadImageBlobAsync(string content, string fileName)
         {
             BlobClient blobClient = _containerClient.GetBlobClient(fileName);
 
@@ -70,7 +70,7 @@ namespace Violetum.ApplicationCore.Services
             await blobClient.UploadAsync(memoryStream, new BlobHttpHeaders {ContentType = fileName.GetContentType()});
         }
 
-        public async Task DeleteBlob(string blobName)
+        public async Task DeleteBlobAsync(string blobName)
         {
             BlobClient blobClient = _containerClient.GetBlobClient(blobName);
 

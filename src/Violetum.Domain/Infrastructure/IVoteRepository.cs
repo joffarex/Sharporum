@@ -11,7 +11,7 @@ namespace Violetum.Domain.Infrastructure
         TEntityVote GetEntityVote<TEntityVote>(Expression<Func<TEntityVote, bool>> condition,
             Func<TEntityVote, TEntityVote> selector) where TEntityVote : class;
 
-        Task<int> VoteEntity<TEntityVote>(TEntityVote entityVote) where TEntityVote : class;
-        Task<int> UpdateEntityVote<TEntityVote>(TEntityVote entityVote) where TEntityVote : class;
+        Task VoteEntityAsync<TEntityVote>(TEntityVote entityVote) where TEntityVote : class;
+        Task UpdateEntityVoteAsync<TEntityVote>(TEntityVote entityVote) where TEntityVote : class;
     }
 }

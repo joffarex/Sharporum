@@ -57,8 +57,8 @@ namespace Violetum.API.Controllers.V1
                 return new BadRequestObjectResult(errorResponse);
             }
 
-            IEnumerable<CategoryViewModel> categories = await _categoryService.GetCategories(searchParams);
-            int categoriesCount = await _categoryService.GetTotalCategoriesCount(searchParams);
+            IEnumerable<CategoryViewModel> categories = await _categoryService.GetCategoriesAsync(searchParams);
+            int categoriesCount = await _categoryService.GetCategoriesCountAsync(searchParams);
 
             return Ok(new GetManyResponse<CategoryViewModel>
             {
@@ -84,7 +84,7 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            string categoryId = await _categoryService.CreateCategory(userId, createCategoryDto);
+            string categoryId = await _categoryService.CreateCategoryAsync(userId, createCategoryDto);
 
             return Created($"{HttpContext.Request.GetDisplayUrl()}/{categoryId}",
                 new CreatedResponse {Id = categoryId});
@@ -127,7 +127,7 @@ namespace Violetum.API.Controllers.V1
             if (authorizationResult.Succeeded)
             {
                 CategoryViewModel categoryViewModel =
-                    await _categoryService.UpdateCategory(category, updateCategoryDto);
+                    await _categoryService.UpdateCategoryAsync(category, updateCategoryDto);
 
                 return Ok(new CategoryResponse {Category = categoryViewModel});
             }
@@ -157,11 +157,11 @@ namespace Violetum.API.Controllers.V1
             if (authorizationResult.Succeeded)
             {
                 FileData data = BaseHelpers.GetFileData<Category>(updateCategoryImageDto.Image, category.Id);
-                await _blobService.UploadImageBlob(data.Content, data.FileName);
+                await _blobService.UploadImageBlobAsync(data.Content, data.FileName);
                 updateCategoryImageDto.Image = data.FileName;
 
                 CategoryViewModel categoryViewModel =
-                    await _categoryService.UpdateCategoryImage(category, updateCategoryImageDto);
+                    await _categoryService.UpdateCategoryImageAsync(category, updateCategoryImageDto);
 
                 return Ok(new CategoryResponse {Category = categoryViewModel});
             }
@@ -189,10 +189,10 @@ namespace Violetum.API.Controllers.V1
             {
                 if (!category.Image.Equals("Category/no-image.jpg"))
                 {
-                    await _blobService.DeleteBlob(category.Image);
+                    await _blobService.DeleteBlobAsync(category.Image);
                 }
 
-                await _categoryService.DeleteCategory(category);
+                await _categoryService.DeleteCategoryAsync(category);
 
                 return Ok();
             }
@@ -219,7 +219,7 @@ namespace Violetum.API.Controllers.V1
                 await _authorizationService.AuthorizeAsync(User, category, PolicyConstants.AddModeratorRolePolicy);
             if (authorizationResult.Succeeded)
             {
-                await _categoryService.AddModerator(category, addModeratorDto);
+                await _categoryService.AddModeratorAsync(category, addModeratorDto);
 
                 return Ok();
             }

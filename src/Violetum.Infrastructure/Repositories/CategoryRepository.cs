@@ -62,17 +62,17 @@ namespace Violetum.Infrastructure.Repositories
             return whereParams.Count();
         }
 
-        public Task<int> CreateCategory(Category category)
+        public async Task CreateCategoryAsync(Category category)
         {
-            return CreateEntity(category);
+            await CreateEntityAsync(category);
         }
 
-        public Task<int> UpdateCategory(Category category)
+        public async Task UpdateCategoryAsync(Category category)
         {
-            return UpdateEntity(category);
+            await UpdateEntityAsync(category);
         }
 
-        public Task<int> DeleteCategory(Category category)
+        public async Task DeleteCategoryAsync(Category category)
         {
             var posts = _context.Posts.Where(x => x.CategoryId == category.Id).ToList();
             if (posts.Any())
@@ -81,7 +81,7 @@ namespace Violetum.Infrastructure.Repositories
                     $"Can not delete category while there are still posts in it");
             }
 
-            return DeleteEntity(category);
+            await DeleteEntityAsync(category);
         }
 
         private static IQueryable<Category> WhereConditionPredicate(IQueryable<Category> query,

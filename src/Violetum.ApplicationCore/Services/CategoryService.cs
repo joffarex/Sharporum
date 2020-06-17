@@ -54,70 +54,70 @@ namespace Violetum.ApplicationCore.Services
             return _categoryValidators.GetCategoryOrThrow(x => x.Id == categoryId);
         }
 
-        public async Task<IEnumerable<CategoryViewModel>> GetCategories(CategorySearchParams searchParams)
+        public async Task<IEnumerable<CategoryViewModel>> GetCategoriesAsync(CategorySearchParams searchParams)
         {
             if (!string.IsNullOrEmpty(searchParams.UserId))
             {
-                await _userValidators.GetUserByIdOrThrow(searchParams.UserId);
+                await _userValidators.GetUserByIdOrThrowAsync(searchParams.UserId);
             }
 
             return _categoryRepository.GetCategories<CategoryViewModel>(searchParams,
                 CategoryHelpers.GetCategoryMapperConfiguration());
         }
 
-        public async Task<int> GetTotalCategoriesCount(CategorySearchParams searchParams)
+        public async Task<int> GetCategoriesCountAsync(CategorySearchParams searchParams)
         {
             if (!string.IsNullOrEmpty(searchParams.UserId))
             {
-                await _userValidators.GetUserByIdOrThrow(searchParams.UserId);
+                await _userValidators.GetUserByIdOrThrowAsync(searchParams.UserId);
             }
 
             return _categoryRepository.GetCategoryCount(searchParams);
         }
 
-        public async Task<string> CreateCategory(string userId, CreateCategoryDto createCategoryDto)
+        public async Task<string> CreateCategoryAsync(string userId, CreateCategoryDto createCategoryDto)
         {
-            User user = await _userValidators.GetUserByIdOrThrow(userId);
+            User user = await _userValidators.GetUserByIdOrThrowAsync(userId);
 
             var category = _mapper.Map<Category>(createCategoryDto);
             category.Author = user;
 
-            await _categoryRepository.CreateCategory(category);
+            await _categoryRepository.CreateCategoryAsync(category);
 
-            await CreateCategoryAdminRole(user, category.Id);
+            await CreateCategoryAdminRoleAsync(user, category.Id);
 
             return category.Id;
         }
 
-        public async Task<CategoryViewModel> UpdateCategory(Category category,
+        public async Task<CategoryViewModel> UpdateCategoryAsync(Category category,
             UpdateCategoryDto updateCategoryDto)
         {
             category.Name = updateCategoryDto.Name;
             category.Description = updateCategoryDto.Description;
 
-            await _categoryRepository.UpdateCategory(category);
+            await _categoryRepository.UpdateCategoryAsync(category);
 
             return _mapper.Map<CategoryViewModel>(category);
         }
 
-        public async Task<CategoryViewModel> UpdateCategoryImage(Category category,
+        public async Task<CategoryViewModel> UpdateCategoryImageAsync(Category category,
             UpdateCategoryImageDto updateCategoryImageDto)
         {
             category.Image = updateCategoryImageDto.Image;
 
-            await _categoryRepository.UpdateCategory(category);
+            await _categoryRepository.UpdateCategoryAsync(category);
 
             return _mapper.Map<CategoryViewModel>(category);
         }
 
-        public async Task DeleteCategory(Category category)
+        public async Task DeleteCategoryAsync(Category category)
         {
-            await RemoveCategoryRoles(category.Id);
+            await RemoveCategoryRolesAsync(category.Id);
 
-            await _categoryRepository.DeleteCategory(category);
+            await _categoryRepository.DeleteCategoryAsync(category);
         }
 
-        public async Task AddModerator(Category category, AddModeratorDto addModeratorDto)
+        public async Task AddModeratorAsync(Category category, AddModeratorDto addModeratorDto)
         {
             string roleName = $"{nameof(Category)}/{category.Id}/{Roles.Moderator}";
             if (!await _roleManager.RoleExistsAsync(roleName))
@@ -129,7 +129,7 @@ namespace Violetum.ApplicationCore.Services
             await _userManager.AddToRoleAsync(newModerator, roleName);
         }
 
-        private async Task CreateCategoryAdminRole(User user, string categoryId)
+        private async Task CreateCategoryAdminRoleAsync(User user, string categoryId)
         {
             string roleName = $"{nameof(Category)}/{categoryId}/{Roles.Admin}";
             if (!await _roleManager.RoleExistsAsync(roleName))
@@ -144,7 +144,7 @@ namespace Violetum.ApplicationCore.Services
             await _userManager.AddToRoleAsync(user, roleName);
         }
 
-        private async Task RemoveCategoryRoles(string categoryId)
+        private async Task RemoveCategoryRolesAsync(string categoryId)
         {
             string roleBase = $"{nameof(Category)}/{categoryId}";
 

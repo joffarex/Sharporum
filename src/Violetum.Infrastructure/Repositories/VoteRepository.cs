@@ -25,14 +25,14 @@ namespace Violetum.Infrastructure.Repositories
             return _context.Set<TEntityVote>().Where(condition).FirstOrDefault();
         }
 
-        public Task<int> VoteEntity<TEntityVote>(TEntityVote entityVote) where TEntityVote : class
+        public async Task VoteEntityAsync<TEntityVote>(TEntityVote entityVote) where TEntityVote : class
         {
-            return CreateEntity(entityVote);
+            await CreateEntityAsync(entityVote);
         }
 
-        public Task<int> UpdateEntityVote<TEntityVote>(TEntityVote entityVote) where TEntityVote : class
+        public async Task UpdateEntityVoteAsync<TEntityVote>(TEntityVote entityVote) where TEntityVote : class
         {
-            return UpdateEntity(entityVote);
+            await UpdateEntityAsync(entityVote);
         }
     }
 }

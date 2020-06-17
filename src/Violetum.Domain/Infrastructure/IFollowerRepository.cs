@@ -15,7 +15,7 @@ namespace Violetum.Domain.Infrastructure
 
         bool IsAuthenticatedUserFollower(string userToFollowId, string authenticatedUserId);
 
-        Task<int> FollowUser(Follower follower);
-        Task<int> UnfollowUser(string userToFollowId, string followerUserId);
+        Task FollowUserAsync(Follower follower);
+        Task UnfollowUserAsync(string userToFollowId, string followerUserId);
     }
 }

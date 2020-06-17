@@ -29,9 +29,9 @@ namespace Violetum.ApplicationCore.Services
             _userValidators = userValidators;
         }
 
-        public async Task<UserFollowersViewModel> GetUserFollowers(string userId)
+        public async Task<UserFollowersViewModel> GetUserFollowersAsync(string userId)
         {
-            User user = await _userValidators.GetUserByIdOrThrow(userId);
+            User user = await _userValidators.GetUserByIdOrThrowAsync(userId);
 
             IEnumerable<FollowerViewModel> userFollowers =
                 _followerRepository.GetUserFollowing<FollowerViewModel>(userId,
@@ -44,9 +44,9 @@ namespace Violetum.ApplicationCore.Services
             };
         }
 
-        public async Task<UserFollowingViewModel> GetUserFollowing(string userId)
+        public async Task<UserFollowingViewModel> GetUserFollowingAsync(string userId)
         {
-            User user = await _userValidators.GetUserByIdOrThrow(userId);
+            User user = await _userValidators.GetUserByIdOrThrowAsync(userId);
 
             IEnumerable<FollowingViewModel> userFollowings =
                 _followerRepository.GetUserFollowing<FollowingViewModel>(userId,
@@ -64,10 +64,10 @@ namespace Violetum.ApplicationCore.Services
             return _followerRepository.IsAuthenticatedUserFollower(userToFollowId, authenticatedUserId);
         }
 
-        public async Task FollowUser(string userId, string userToFollowId)
+        public async Task FollowUserAsync(string userId, string userToFollowId)
         {
-            User followerUser = await _userValidators.GetUserByIdOrThrow(userId);
-            User userToFollow = await _userValidators.GetUserByIdOrThrow(userToFollowId);
+            User followerUser = await _userValidators.GetUserByIdOrThrowAsync(userId);
+            User userToFollow = await _userValidators.GetUserByIdOrThrowAsync(userToFollowId);
 
             var follower = new Follower
             {
@@ -75,15 +75,15 @@ namespace Violetum.ApplicationCore.Services
                 FollowerUserId = followerUser.Id,
             };
 
-            await _followerRepository.FollowUser(follower);
+            await _followerRepository.FollowUserAsync(follower);
         }
 
-        public async Task UnfollowUser(string userId, string userToUnfollowId)
+        public async Task UnfollowUserAsync(string userId, string userToUnfollowId)
         {
-            User followerUser = await _userValidators.GetUserByIdOrThrow(userId);
-            User userToUnfollow = await _userValidators.GetUserByIdOrThrow(userToUnfollowId);
+            User followerUser = await _userValidators.GetUserByIdOrThrowAsync(userId);
+            User userToUnfollow = await _userValidators.GetUserByIdOrThrowAsync(userToUnfollowId);
 
-            await _followerRepository.UnfollowUser(userToUnfollow.Id, followerUser.Id);
+            await _followerRepository.UnfollowUserAsync(userToUnfollow.Id, followerUser.Id);
         }
     }
 }

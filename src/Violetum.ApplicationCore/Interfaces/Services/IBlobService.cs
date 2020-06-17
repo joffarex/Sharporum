@@ -6,11 +6,11 @@ namespace Violetum.ApplicationCore.Interfaces.Services
 {
     public interface IBlobService
     {
-        public Task<BlobInfo> GetBlob(string name);
-        public Task<IEnumerable<string>> ListBlobs();
-        public Task UploadFileBlob(string filePath, string fileName);
-        public Task UploadContentBlob(string content, string fileName);
-        public Task UploadImageBlob(string content, string fileName);
-        public Task DeleteBlob(string blobName);
+        public Task<BlobInfo> GetBlobAsync(string name);
+        public Task<IEnumerable<string>> ListBlobsAsync();
+        public Task UploadFileBlobAsync(string filePath, string fileName);
+        public Task UploadContentBlobAsync(string content, string fileName);
+        public Task UploadImageBlobAsync(string content, string fileName);
+        public Task DeleteBlobAsync(string blobName);
     }
 }

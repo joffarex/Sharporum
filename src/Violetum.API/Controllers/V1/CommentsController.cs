@@ -54,8 +54,8 @@ namespace Violetum.API.Controllers.V1
                 return new BadRequestObjectResult(errorResponse);
             }
 
-            IEnumerable<CommentViewModel> comments = await _commentService.GetComments(searchParams);
-            int commentsCount = await _commentService.GetTotalCommentsCount(searchParams);
+            IEnumerable<CommentViewModel> comments = await _commentService.GetCommentsAsync(searchParams);
+            int commentsCount = await _commentService.GetCommentsCountAsync(searchParams);
 
             return Ok(new GetManyResponse<CommentViewModel>
             {
@@ -84,7 +84,7 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            string commentId = await _commentService.CreateComment(userId, createCommentDto);
+            string commentId = await _commentService.CreateCommentAsync(userId, createCommentDto);
 
             return Created($"{HttpContext.Request.GetDisplayUrl()}/{commentId}", new CreatedResponse {Id = commentId});
         }
@@ -125,7 +125,7 @@ namespace Violetum.API.Controllers.V1
                 await _authorizationService.AuthorizeAsync(User, comment, PolicyConstants.UpdateCommentRolePolicy);
             if (authorizationResult.Succeeded)
             {
-                CommentViewModel commentViewModel = await _commentService.UpdateComment(comment, updateCommentDto);
+                CommentViewModel commentViewModel = await _commentService.UpdateCommentAsync(comment, updateCommentDto);
 
                 return Ok(new CommentResponse {Comment = commentViewModel});
             }
@@ -148,7 +148,7 @@ namespace Violetum.API.Controllers.V1
                 await _authorizationService.AuthorizeAsync(User, comment, PolicyConstants.UpdateCommentRolePolicy);
             if (authorizationResult.Succeeded)
             {
-                await _commentService.DeleteComment(comment);
+                await _commentService.DeleteCommentAsync(comment);
 
                 return Ok();
             }
@@ -171,7 +171,7 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            await _commentService.VoteComment(commentId, userId, commentVoteDto);
+            await _commentService.VoteCommentAsync(commentId, userId, commentVoteDto);
 
             return Ok();
         }

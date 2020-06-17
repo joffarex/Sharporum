@@ -8,9 +8,9 @@ namespace Violetum.ApplicationCore.Interfaces.Services
 {
     public interface IUserService
     {
-        Task<UserViewModel> GetUser(string userId);
-        Task<UserViewModel> UpdateUser(string userId, UpdateUserDto updateUserDto);
-        Task<UserViewModel> UpdateUserImage(string userId, UpdateUserImageDto updateUserImageDto);
+        Task<UserViewModel> GetUserAsync(string userId);
+        Task<UserViewModel> UpdateUserAsync(string userId, UpdateUserDto updateUserDto);
+        Task<UserViewModel> UpdateUserImageAsync(string userId, UpdateUserImageDto updateUserImageDto);
 
         IEnumerable<UserRank> GetUserRanks(string userId);
 

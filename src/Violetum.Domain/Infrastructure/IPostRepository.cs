@@ -24,9 +24,9 @@ namespace Violetum.Domain.Infrastructure
 
         int GetPostCount(PostSearchParams searchParams);
 
-        Task<int> CreatePost(Post post);
-        Task<int> UpdatePost(Post post);
-        Task<int> DeletePost(Post post);
+        Task CreatePostAsync(Post post);
+        Task UpdatePostAsync(Post post);
+        Task DeletePostAsync(Post post);
 
         List<Ranks> GetPostRanks();
         int GetUserPostRank(string userId);

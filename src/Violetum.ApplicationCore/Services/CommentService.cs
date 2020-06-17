@@ -47,22 +47,22 @@ namespace Violetum.ApplicationCore.Services
             return _commentValidators.GetCommentOrThrow(x => x.Id == commentId);
         }
 
-        public async Task<IEnumerable<CommentViewModel>> GetComments(CommentSearchParams searchParams)
+        public async Task<IEnumerable<CommentViewModel>> GetCommentsAsync(CommentSearchParams searchParams)
         {
             if (!string.IsNullOrEmpty(searchParams.UserId))
             {
-                await _userValidators.GetUserByIdOrThrow(searchParams.UserId);
+                await _userValidators.GetUserByIdOrThrowAsync(searchParams.UserId);
             }
 
             return _commentRepository.GetComments<CommentViewModel>(searchParams,
                 CommentHelpers.GetCommentMapperConfiguration());
         }
 
-        public async Task<int> GetTotalCommentsCount(CommentSearchParams searchParams)
+        public async Task<int> GetCommentsCountAsync(CommentSearchParams searchParams)
         {
             if (!string.IsNullOrEmpty(searchParams.UserId))
             {
-                await _userValidators.GetUserByIdOrThrow(searchParams.UserId);
+                await _userValidators.GetUserByIdOrThrowAsync(searchParams.UserId);
             }
 
             if (!string.IsNullOrEmpty(searchParams.PostId))
@@ -73,9 +73,9 @@ namespace Violetum.ApplicationCore.Services
             return _commentRepository.GetCommentsCount(searchParams);
         }
 
-        public async Task<string> CreateComment(string userId, CreateCommentDto createCommentDto)
+        public async Task<string> CreateCommentAsync(string userId, CreateCommentDto createCommentDto)
         {
-            User user = await _userValidators.GetUserByIdOrThrow(userId);
+            User user = await _userValidators.GetUserByIdOrThrowAsync(userId);
             Post post = _postValidators.GetPostOrThrow(x => x.Id == createCommentDto.PostId);
 
             if (!string.IsNullOrEmpty(createCommentDto.ParentId))
@@ -92,30 +92,30 @@ namespace Violetum.ApplicationCore.Services
             comment.Author = user;
             comment.Post = post;
 
-            await _commentRepository.CreateComment(comment);
+            await _commentRepository.CreateCommentAsync(comment);
 
             return comment.Id;
         }
 
-        public async Task<CommentViewModel> UpdateComment(Comment comment, UpdateCommentDto updateCommentDto)
+        public async Task<CommentViewModel> UpdateCommentAsync(Comment comment, UpdateCommentDto updateCommentDto)
         {
             comment.Content = updateCommentDto.Content;
 
-            await _commentRepository.UpdateComment(comment);
+            await _commentRepository.UpdateCommentAsync(comment);
 
             return _mapper.Map<CommentViewModel>(comment);
         }
 
-        public async Task DeleteComment(Comment comment)
+        public async Task DeleteCommentAsync(Comment comment)
         {
-            await _commentRepository.DeleteComment(comment);
+            await _commentRepository.DeleteCommentAsync(comment);
         }
 
-        public async Task VoteComment(string commentId, string userId, CommentVoteDto commentVoteDto)
+        public async Task VoteCommentAsync(string commentId, string userId, CommentVoteDto commentVoteDto)
         {
             try
             {
-                User user = await _userValidators.GetUserByIdOrThrow(userId);
+                User user = await _userValidators.GetUserByIdOrThrowAsync(userId);
                 Comment comment = _commentValidators.GetCommentOrThrow(x => x.Id == commentId);
 
                 var commentVote =
@@ -127,7 +127,7 @@ namespace Violetum.ApplicationCore.Services
                     commentVote.Direction =
                         commentVote.Direction == commentVoteDto.Direction ? 0 : commentVoteDto.Direction;
 
-                    await _voteRepository.UpdateEntityVote(commentVote);
+                    await _voteRepository.UpdateEntityVoteAsync(commentVote);
                 }
                 else
                 {
@@ -138,7 +138,7 @@ namespace Violetum.ApplicationCore.Services
                         Direction = commentVoteDto.Direction,
                     };
 
-                    await _voteRepository.VoteEntity(newCommentVote);
+                    await _voteRepository.VoteEntityAsync(newCommentVote);
                 }
             }
             catch (ValidationException e)

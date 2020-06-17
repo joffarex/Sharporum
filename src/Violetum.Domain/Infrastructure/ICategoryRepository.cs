@@ -21,8 +21,8 @@ namespace Violetum.Domain.Infrastructure
 
         int GetCategoryCount(CategorySearchParams searchParams);
 
-        Task<int> CreateCategory(Category category);
-        Task<int> UpdateCategory(Category category);
-        Task<int> DeleteCategory(Category category);
+        Task CreateCategoryAsync(Category category);
+        Task UpdateCategoryAsync(Category category);
+        Task DeleteCategoryAsync(Category category);
     }
 }

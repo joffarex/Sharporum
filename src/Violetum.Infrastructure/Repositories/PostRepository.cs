@@ -85,17 +85,17 @@ namespace Violetum.Infrastructure.Repositories
             return whereParams.Count();
         }
 
-        public Task<int> CreatePost(Post post)
+        public async Task CreatePostAsync(Post post)
         {
-            return CreateEntity(post);
+            await CreateEntityAsync(post);
         }
 
-        public Task<int> UpdatePost(Post post)
+        public async Task UpdatePostAsync(Post post)
         {
-            return UpdateEntity(post);
+            await UpdateEntityAsync(post);
         }
 
-        public Task<int> DeletePost(Post post)
+        public async Task DeletePostAsync(Post post)
         {
             IQueryable<Comment> comments = _context.Comments.Where(x => x.PostId == post.Id);
             _context.Comments.RemoveRange(comments);
@@ -104,7 +104,7 @@ namespace Violetum.Infrastructure.Repositories
                 .Include(x => x.PostVotes);
             _context.Posts.RemoveRange(votes);
 
-            return DeleteEntity(post);
+            await DeleteEntityAsync(post);
         }
 
         public List<Ranks> GetPostRanks()

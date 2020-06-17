@@ -75,23 +75,23 @@ namespace Violetum.Infrastructure.Repositories
             return whereParams.Count();
         }
 
-        public Task<int> CreateComment(Comment comment)
+        public async Task CreateCommentAsync(Comment comment)
         {
-            return CreateEntity(comment);
+            await CreateEntityAsync(comment);
         }
 
-        public Task<int> UpdateComment(Comment comment)
+        public async Task UpdateCommentAsync(Comment comment)
         {
-            return UpdateEntity(comment);
+            await UpdateEntityAsync(comment);
         }
 
-        public Task<int> DeleteComment(Comment comment)
+        public async Task DeleteCommentAsync(Comment comment)
         {
             IIncludableQueryable<Comment, IEnumerable<CommentVote>> votes =
                 _context.Comments.Where(x => x.Id == comment.Id).Include(x => x.CommentVotes);
             _context.Comments.RemoveRange(votes);
 
-            return DeleteEntity(comment);
+            await DeleteEntityAsync(comment);
         }
 
         public List<Ranks> GetCommentRanks()

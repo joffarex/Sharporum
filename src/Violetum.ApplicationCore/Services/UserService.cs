@@ -34,17 +34,17 @@ namespace Violetum.ApplicationCore.Services
             _commentRepository = commentRepository;
         }
 
-        public async Task<UserViewModel> GetUser(string userId)
+        public async Task<UserViewModel> GetUserAsync(string userId)
         {
-            User user = await _userValidators.GetUserByIdOrThrow(userId);
+            User user = await _userValidators.GetUserByIdOrThrowAsync(userId);
 
             return _mapper.Map<UserViewModel>(user);
         }
 
-        public async Task<UserViewModel> UpdateUser(string userId,
+        public async Task<UserViewModel> UpdateUserAsync(string userId,
             UpdateUserDto updateUserDto)
         {
-            User user = await _userValidators.GetUserByIdOrThrow(userId);
+            User user = await _userValidators.GetUserByIdOrThrowAsync(userId);
             user.Email = updateUserDto.Email;
             user.UserName = updateUserDto.UserName;
             user.FirstName = updateUserDto.FirstName;
@@ -57,10 +57,10 @@ namespace Violetum.ApplicationCore.Services
             return _mapper.Map<UserViewModel>(user);
         }
 
-        public async Task<UserViewModel> UpdateUserImage(string userId,
+        public async Task<UserViewModel> UpdateUserImageAsync(string userId,
             UpdateUserImageDto updateUserImageDto)
         {
-            User user = await _userValidators.GetUserByIdOrThrow(userId);
+            User user = await _userValidators.GetUserByIdOrThrowAsync(userId);
             user.Image = updateUserImageDto.Image;
 
             await _userManager.UpdateAsync(user);

@@ -22,9 +22,9 @@ namespace Violetum.Domain.Infrastructure
 
         int GetCommentsCount(CommentSearchParams searchParams);
 
-        Task<int> CreateComment(Comment comment);
-        Task<int> UpdateComment(Comment comment);
-        Task<int> DeleteComment(Comment comment);
+        Task CreateCommentAsync(Comment comment);
+        Task UpdateCommentAsync(Comment comment);
+        Task DeleteCommentAsync(Comment comment);
 
         List<Ranks> GetCommentRanks();
 

@@ -11,11 +11,11 @@ namespace Violetum.ApplicationCore.Interfaces.Services
     {
         CommentViewModel GetComment(string commentId);
         Comment GetCommentEntity(string commentId);
-        Task<IEnumerable<CommentViewModel>> GetComments(CommentSearchParams searchParams);
-        Task<int> GetTotalCommentsCount(CommentSearchParams searchParams);
-        Task<string> CreateComment(string userId, CreateCommentDto createCommentDto);
-        Task<CommentViewModel> UpdateComment(Comment comment, UpdateCommentDto updateCommentDto);
-        Task DeleteComment(Comment comment);
-        Task VoteComment(string commentId, string userId, CommentVoteDto commentVoteDto);
+        Task<IEnumerable<CommentViewModel>> GetCommentsAsync(CommentSearchParams searchParams);
+        Task<int> GetCommentsCountAsync(CommentSearchParams searchParams);
+        Task<string> CreateCommentAsync(string userId, CreateCommentDto createCommentDto);
+        Task<CommentViewModel> UpdateCommentAsync(Comment comment, UpdateCommentDto updateCommentDto);
+        Task DeleteCommentAsync(Comment comment);
+        Task VoteCommentAsync(string commentId, string userId, CommentVoteDto commentVoteDto);
     }
 }

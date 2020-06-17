@@ -46,18 +46,18 @@ namespace Violetum.Infrastructure.Repositories
                 .FirstOrDefault(x => x.FollowerUserId == authenticatedUserId) != null;
         }
 
-        public Task<int> FollowUser(Follower follower)
+        public async Task FollowUserAsync(Follower follower)
         {
-            return CreateEntity(follower);
+            await CreateEntityAsync(follower);
         }
 
-        public Task<int> UnfollowUser(string userToFollowId, string followerUserId)
+        public async Task UnfollowUserAsync(string userToFollowId, string followerUserId)
         {
             Follower f = _context.Followers
                 .Where(x => x.UserToFollowId == userToFollowId)
                 .FirstOrDefault(x => x.FollowerUserId == followerUserId);
 
-            return DeleteEntity(f);
+            await DeleteEntityAsync(f);
         }
     }
 }

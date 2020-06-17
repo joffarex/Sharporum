@@ -49,7 +49,7 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get([FromRoute] string userId)
         {
-            UserViewModel user = await _userService.GetUser(userId);
+            UserViewModel user = await _userService.GetUserAsync(userId);
             IEnumerable<UserRank> userRanks = _userService.GetUserRanks(userId);
 
             return Ok(new UserResponse {User = user, Ranks = userRanks});
@@ -70,7 +70,7 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            UserViewModel user = await _userService.UpdateUser(userId, updateUserDto);
+            UserViewModel user = await _userService.UpdateUserAsync(userId, updateUserDto);
 
             return Ok(new UserResponse {User = user});
         }
@@ -91,10 +91,10 @@ namespace Violetum.API.Controllers.V1
             string userId = _httpContext.User.FindFirstValue("sub");
 
             FileData data = BaseHelpers.GetFileData<User>(updateUserImageDto.Image, userId);
-            await _blobService.UploadImageBlob(data.Content, data.FileName);
+            await _blobService.UploadImageBlobAsync(data.Content, data.FileName);
             updateUserImageDto.Image = data.FileName;
 
-            UserViewModel user = await _userService.UpdateUserImage(userId, updateUserImageDto);
+            UserViewModel user = await _userService.UpdateUserImageAsync(userId, updateUserImageDto);
 
             return Ok(new UserResponse {User = user});
         }
@@ -112,7 +112,7 @@ namespace Violetum.API.Controllers.V1
         {
             return Ok(new FollowersResponse<UserFollowersViewModel>
             {
-                Followers = await _followerService.GetUserFollowers(userId),
+                Followers = await _followerService.GetUserFollowersAsync(userId),
             });
         }
 
@@ -129,7 +129,7 @@ namespace Violetum.API.Controllers.V1
         {
             return Ok(new FollowersResponse<UserFollowingViewModel>
             {
-                Followers = await _followerService.GetUserFollowing(userId),
+                Followers = await _followerService.GetUserFollowingAsync(userId),
             });
         }
 
@@ -147,7 +147,7 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            await _followerService.FollowUser(userId, userToFollowId);
+            await _followerService.FollowUserAsync(userId, userToFollowId);
 
             return Ok(new ActionSuccessResponse {Message = "OK"});
         }
@@ -166,7 +166,7 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            await _followerService.UnfollowUser(userId, userToUnfollowId);
+            await _followerService.UnfollowUserAsync(userId, userToUnfollowId);
 
             return Ok(new ActionSuccessResponse {Message = "OK"});
         }

@@ -5,12 +5,12 @@ namespace Violetum.ApplicationCore.Interfaces.Services
 {
     public interface IFollowerService
     {
-        Task<UserFollowersViewModel> GetUserFollowers(string userId);
-        Task<UserFollowingViewModel> GetUserFollowing(string userId);
+        Task<UserFollowersViewModel> GetUserFollowersAsync(string userId);
+        Task<UserFollowingViewModel> GetUserFollowingAsync(string userId);
 
         bool IsAuthenticatedUserFollower(string userToFollowId, string authenticatedUserId);
 
-        Task FollowUser(string userId, string userToFollowId);
-        Task UnfollowUser(string userId, string userToUnfollowId);
+        Task FollowUserAsync(string userId, string userToFollowId);
+        Task UnfollowUserAsync(string userId, string userToUnfollowId);
     }
 }

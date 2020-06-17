@@ -65,8 +65,8 @@ namespace Violetum.API.Controllers.V1
                 return new BadRequestObjectResult(errorResponse);
             }
 
-            IEnumerable<PostViewModel> posts = await _postService.GetPosts(searchParams);
-            int postsCount = await _postService.GetTotalPostsCount(searchParams);
+            IEnumerable<PostViewModel> posts = await _postService.GetPostsAsync(searchParams);
+            int postsCount = await _postService.GetPostsCountAsync(searchParams);
 
             return Ok(new GetManyResponse<PostViewModel>
             {
@@ -92,7 +92,7 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            string postId = await _postService.CreatePost(userId, createPostDto);
+            string postId = await _postService.CreatePostAsync(userId, createPostDto);
 
             return Created($"{HttpContext.Request.GetDisplayUrl()}/{postId}", new CreatedResponse {Id = postId});
         }
@@ -121,7 +121,7 @@ namespace Violetum.API.Controllers.V1
             string userId = _httpContext.User.FindFirstValue("sub");
 
             IEnumerable<PostViewModel> posts = _postService.GetNewsFeedPosts(userId, searchParams);
-            int postsCount = _postService.GetTotalPostsCountInNewsFeed(userId, searchParams);
+            int postsCount = _postService.GetPostsCountInNewsFeed(userId, searchParams);
 
             return Ok(new GetManyResponse<PostViewModel>
             {
@@ -166,7 +166,7 @@ namespace Violetum.API.Controllers.V1
                 await _authorizationService.AuthorizeAsync(User, post, PolicyConstants.UpdatePostRolePolicy);
             if (authorizationResult.Succeeded)
             {
-                PostViewModel postViewModel = await _postService.UpdatePost(post, updatePostDto);
+                PostViewModel postViewModel = await _postService.UpdatePostAsync(post, updatePostDto);
 
                 return Ok(new PostResponse {Post = postViewModel});
             }
@@ -189,7 +189,7 @@ namespace Violetum.API.Controllers.V1
                 await _authorizationService.AuthorizeAsync(User, post, PolicyConstants.DeletePostRolePolicy);
             if (authorizationResult.Succeeded)
             {
-                await _postService.DeletePost(post);
+                await _postService.DeletePostAsync(post);
 
                 return Ok();
             }
@@ -212,7 +212,7 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            await _postService.VotePost(postId, userId, postVoteDto);
+            await _postService.VotePostAsync(postId, userId, postVoteDto);
 
             return Ok();
         }

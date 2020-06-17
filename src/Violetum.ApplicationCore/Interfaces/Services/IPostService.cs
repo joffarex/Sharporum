@@ -11,14 +11,14 @@ namespace Violetum.ApplicationCore.Interfaces.Services
     {
         PostViewModel GetPost(string postId);
         Post GetPostEntity(string postId);
-        Task<IEnumerable<PostViewModel>> GetPosts(PostSearchParams searchParams);
+        Task<IEnumerable<PostViewModel>> GetPostsAsync(PostSearchParams searchParams);
         IEnumerable<PostViewModel> GetNewsFeedPosts(string userId, PostSearchParams searchParams);
-        Task<int> GetTotalPostsCount(PostSearchParams searchParams);
-        int GetTotalPostsCountInNewsFeed(string userId, PostSearchParams searchParams);
+        Task<int> GetPostsCountAsync(PostSearchParams searchParams);
+        int GetPostsCountInNewsFeed(string userId, PostSearchParams searchParams);
 
-        Task<string> CreatePost(string userId, CreatePostDto createPostDto);
-        Task<PostViewModel> UpdatePost(Post post, UpdatePostDto updatePostDto);
-        Task DeletePost(Post post);
-        Task VotePost(string postId, string userId, PostVoteDto postVoteDto);
+        Task<string> CreatePostAsync(string userId, CreatePostDto createPostDto);
+        Task<PostViewModel> UpdatePostAsync(Post post, UpdatePostDto updatePostDto);
+        Task DeletePostAsync(Post post);
+        Task VotePostAsync(string postId, string userId, PostVoteDto postVoteDto);
     }
 }

@@ -12,16 +12,17 @@ namespace Violetum.ApplicationCore.Interfaces.Services
         CategoryViewModel GetCategoryById(string categoryId);
         CategoryViewModel GetCategoryByName(string categoryName);
         Category GetCategoryEntity(string categoryId);
-        Task<IEnumerable<CategoryViewModel>> GetCategories(CategorySearchParams searchParams);
-        Task<int> GetTotalCategoriesCount(CategorySearchParams searchParams);
+        Task<IEnumerable<CategoryViewModel>> GetCategoriesAsync(CategorySearchParams searchParams);
+        Task<int> GetCategoriesCountAsync(CategorySearchParams searchParams);
 
-        Task<string> CreateCategory(string userId, CreateCategoryDto createCategoryDto);
+        Task<string> CreateCategoryAsync(string userId, CreateCategoryDto createCategoryDto);
 
-        Task<CategoryViewModel> UpdateCategory(Category category, UpdateCategoryDto updateCategoryDto);
+        Task<CategoryViewModel> UpdateCategoryAsync(Category category, UpdateCategoryDto updateCategoryDto);
 
-        Task<CategoryViewModel> UpdateCategoryImage(Category category, UpdateCategoryImageDto updateCategoryImageDto);
+        Task<CategoryViewModel> UpdateCategoryImageAsync(Category category,
+            UpdateCategoryImageDto updateCategoryImageDto);
 
-        Task DeleteCategory(Category category);
-        Task AddModerator(Category category, AddModeratorDto addModeratorDto);
+        Task DeleteCategoryAsync(Category category);
+        Task AddModeratorAsync(Category category, AddModeratorDto addModeratorDto);
     }
 }

@@ -9,24 +9,24 @@ namespace Violetum.Infrastructure.Repositories
     {
         private readonly ApplicationDbContext _context;
 
-        public BaseRepository(ApplicationDbContext context)
+        protected BaseRepository(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        public Task<int> CreateEntity<TEntity>(TEntity entity) where TEntity : class
+        public async Task CreateEntityAsync<TEntity>(TEntity entity) where TEntity : class
         {
             if (entity == null)
             {
                 throw new HttpStatusCodeException(HttpStatusCode.BadRequest, $"Can not add empty {nameof(TEntity)}");
             }
 
-            _context.Set<TEntity>().Add(entity);
+            await _context.Set<TEntity>().AddAsync(entity);
 
-            return _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
 
-        public Task<int> UpdateEntity<TEntity>(TEntity entity) where TEntity : class
+        public async Task UpdateEntityAsync<TEntity>(TEntity entity) where TEntity : class
         {
             if (entity == null)
             {
@@ -35,10 +35,10 @@ namespace Violetum.Infrastructure.Repositories
 
             _context.Set<TEntity>().Update(entity);
 
-            return _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
 
-        public Task<int> DeleteEntity<TEntity>(TEntity entity) where TEntity : class
+        public async Task DeleteEntityAsync<TEntity>(TEntity entity) where TEntity : class
         {
             if (entity == null)
             {
@@ -47,7 +47,7 @@ namespace Violetum.Infrastructure.Repositories
 
             _context.Set<TEntity>().Remove(entity);
 
-            return _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
     }
 }
