@@ -4,7 +4,7 @@ networks:
     localdev:
 
 services:
-    main-api:
+    api:
         build:
             context: .
             dockerfile: src/Violetum.API/Dockerfile
@@ -15,7 +15,7 @@ services:
             ASPNETCORE_ENVIRONMENT: "Development"
             ASPNETCORE_URLS: "http://+:5001"
         depends_on:
-            - db-server
+            - mssql
             - redis
         networks:
             - localdev
@@ -33,16 +33,16 @@ services:
             ASPNETCORE_ENVIRONMENT: "Development"
             ASPNETCORE_URLS: "http://+:5000"
         depends_on:
-            - db-server
-            - main-api
+            - mssql
+            - api
         networks:
             - localdev
         volumes:
             - ./tmp:/app/tmp
 
-    db-server:
+    mssql:
         image: "mcr.microsoft.com/mssql/server:2019-CU3-ubuntu-18.04"
-        container_name: db-server
+        container_name: mssql
         environment:
             ACCEPT_EULA: "Y"
             SA_PASSWORD: "Joffarex6944"

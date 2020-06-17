@@ -16,5 +16,5 @@ dotnet ef database update -c ApplicationDbContext --startup-project ../Violetum.
 
 
 SELECT Name from sys.Databases
-docker exec -it db-server "bash"
+docker exec -it mssql "bash"
 /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "Joffarex6944"
