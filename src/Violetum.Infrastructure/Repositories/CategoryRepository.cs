@@ -33,6 +33,11 @@ namespace Violetum.Infrastructure.Repositories
                 .FirstOrDefault();
         }
 
+        public Category GetCategory(Expression<Func<Category, bool>> condition)
+        {
+            return _context.Categories.Include(x => x.Author).Where(condition).FirstOrDefault();
+        }
+
         public IEnumerable<TResult> GetCategories<TResult>(CategorySearchParams searchParams,
             IConfigurationProvider configurationProvider) where TResult : class
         {

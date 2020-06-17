@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
@@ -42,6 +42,11 @@ namespace Violetum.ApplicationCore.Services
             return _commentValidators.GetCommentOrThrow<CommentViewModel>(x => x.Id == commentId);
         }
 
+        public Comment GetCommentEntity(string commentId)
+        {
+            return _commentValidators.GetCommentOrThrow(x => x.Id == commentId);
+        }
+
         public async Task<IEnumerable<CommentViewModel>> GetComments(CommentSearchParams searchParams)
         {
             if (!string.IsNullOrEmpty(searchParams.UserId))
@@ -62,21 +67,21 @@ namespace Violetum.ApplicationCore.Services
 
             if (!string.IsNullOrEmpty(searchParams.PostId))
             {
-                _postValidators.GetPostOrThrow<Post>(x => x.Id == searchParams.PostId);
+                _postValidators.GetPostOrThrow(x => x.Id == searchParams.PostId);
             }
 
             return _commentRepository.GetCommentsCount(searchParams);
         }
 
-        public async Task<CommentViewModel> CreateComment(string userId, CreateCommentDto createCommentDto)
+        public async Task<string> CreateComment(string userId, CreateCommentDto createCommentDto)
         {
             User user = await _userValidators.GetUserByIdOrThrow(userId);
-            var post = _postValidators.GetPostOrThrow<Post>(x => x.Id == createCommentDto.PostId);
+            Post post = _postValidators.GetPostOrThrow(x => x.Id == createCommentDto.PostId);
 
             if (!string.IsNullOrEmpty(createCommentDto.ParentId))
             {
-                var parentComment =
-                    _commentValidators.GetCommentOrThrow<Comment>(x => x.Id == createCommentDto.ParentId);
+                Comment parentComment =
+                    _commentValidators.GetCommentOrThrow(x => x.Id == createCommentDto.ParentId);
                 if (parentComment.Post.Id != post.Id)
                 {
                     throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "This operation is not allowed");
@@ -89,13 +94,11 @@ namespace Violetum.ApplicationCore.Services
 
             await _commentRepository.CreateComment(comment);
 
-            return _mapper.Map<CommentViewModel>(comment);
+            return comment.Id;
         }
 
-        public async Task<CommentViewModel> UpdateComment(CommentViewModel commentViewModel,
-            UpdateCommentDto updateCommentDto)
+        public async Task<CommentViewModel> UpdateComment(Comment comment, UpdateCommentDto updateCommentDto)
         {
-            var comment = _commentValidators.GetCommentOrThrow<Comment>(x => x.Id == commentViewModel.Id);
             comment.Content = updateCommentDto.Content;
 
             await _commentRepository.UpdateComment(comment);
@@ -103,9 +106,9 @@ namespace Violetum.ApplicationCore.Services
             return _mapper.Map<CommentViewModel>(comment);
         }
 
-        public async Task<bool> DeleteComment(CommentViewModel commentViewModel)
+        public async Task DeleteComment(Comment comment)
         {
-            return await _commentRepository.DeleteComment(_mapper.Map<Comment>(commentViewModel)) > 0;
+            await _commentRepository.DeleteComment(comment);
         }
 
         public async Task VoteComment(string commentId, string userId, CommentVoteDto commentVoteDto)
@@ -113,7 +116,7 @@ namespace Violetum.ApplicationCore.Services
             try
             {
                 User user = await _userValidators.GetUserByIdOrThrow(userId);
-                var comment = _commentValidators.GetCommentOrThrow<Comment>(x => x.Id == commentId);
+                Comment comment = _commentValidators.GetCommentOrThrow(x => x.Id == commentId);
 
                 var commentVote =
                     _voteRepository.GetEntityVote<CommentVote>(
@@ -121,14 +124,8 @@ namespace Violetum.ApplicationCore.Services
 
                 if (commentVote != null)
                 {
-                    if (commentVote.Direction == commentVoteDto.Direction)
-                    {
-                        commentVote.Direction = 0;
-                    }
-                    else
-                    {
-                        commentVote.Direction = commentVoteDto.Direction;
-                    }
+                    commentVote.Direction =
+                        commentVote.Direction == commentVoteDto.Direction ? 0 : commentVoteDto.Direction;
 
                     await _voteRepository.UpdateEntityVote(commentVote);
                 }
@@ -140,9 +137,6 @@ namespace Violetum.ApplicationCore.Services
                         UserId = user.Id,
                         Direction = commentVoteDto.Direction,
                     };
-
-                    newCommentVote.User = user;
-                    newCommentVote.Comment = comment;
 
                     await _voteRepository.VoteEntity(newCommentVote);
                 }

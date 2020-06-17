@@ -4,22 +4,22 @@ using IdentityModel;
 using Microsoft.AspNetCore.Authorization;
 using Violetum.API.Authorization.Post.Requirements;
 using Violetum.ApplicationCore.Helpers;
-using Violetum.ApplicationCore.ViewModels.Post;
 using Violetum.Domain.Models;
 
 namespace Violetum.API.Authorization.Post.Handlers
 {
-    public class CanDeletePostHandler : AuthorizationHandler<CanDeletePostAuthorizationRequirement, PostViewModel>
+    public class
+        CanDeletePostHandler : AuthorizationHandler<CanDeletePostAuthorizationRequirement, Domain.Entities.Post>
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
             CanDeletePostAuthorizationRequirement requirement,
-            PostViewModel post)
+            Domain.Entities.Post post)
         {
-            string roleBase = $"{nameof(Category)}/{post.Category.Id}";
+            string roleBase = $"{nameof(Category)}/{post.CategoryId}";
 
             if (context.User.HasClaim(JwtClaimTypes.Role, $"{roleBase}/{Roles.Admin}") ||
                 context.User.HasClaim(JwtClaimTypes.Role, $"{roleBase}/{Roles.Moderator}") ||
-                PostHelpers.UserOwnsPost(context.User.FindFirstValue("sub"), post.Author.Id))
+                PostHelpers.UserOwnsPost(context.User.FindFirstValue("sub"), post.AuthorId))
             {
                 context.Succeed(requirement);
                 return Task.CompletedTask;

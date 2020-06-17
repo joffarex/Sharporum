@@ -43,8 +43,7 @@ namespace Violetum.Infrastructure.Repositories
         {
             return _context.Followers
                 .Where(x => x.UserToFollowId == userToFollowId)
-                .Where(x => x.FollowerUserId == authenticatedUserId)
-                .FirstOrDefault() != null;
+                .FirstOrDefault(x => x.FollowerUserId == authenticatedUserId) != null;
         }
 
         public Task<int> FollowUser(Follower follower)
@@ -56,8 +55,7 @@ namespace Violetum.Infrastructure.Repositories
         {
             Follower f = _context.Followers
                 .Where(x => x.UserToFollowId == userToFollowId)
-                .Where(x => x.FollowerUserId == followerUserId)
-                .FirstOrDefault();
+                .FirstOrDefault(x => x.FollowerUserId == followerUserId);
 
             return DeleteEntity(f);
         }

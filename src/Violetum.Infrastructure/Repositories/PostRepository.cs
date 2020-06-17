@@ -35,6 +35,15 @@ namespace Violetum.Infrastructure.Repositories
                 .FirstOrDefault();
         }
 
+        public Post GetPost(Expression<Func<Post, bool>> condition)
+        {
+            return _context.Posts
+                .Include(x => x.Author)
+                .Include(x => x.Category)
+                .Where(condition)
+                .FirstOrDefault();
+        }
+
         public IEnumerable<TResult> GetPosts<TResult>(PostSearchParams searchParams,
             IConfigurationProvider configurationProvider) where TResult : class
         {
@@ -87,9 +96,9 @@ namespace Violetum.Infrastructure.Repositories
 
         public Task<int> DeletePost(Post post)
         {
-            IIncludableQueryable<Post, IEnumerable<Comment>> comments =
-                _context.Posts.Where(x => x.Id == post.Id).Include(x => x.Comments);
-            _context.Posts.RemoveRange(comments);
+            IQueryable<Comment> comments = _context.Comments.Where(x => x.PostId == post.Id);
+            _context.Comments.RemoveRange(comments);
+
             IIncludableQueryable<Post, IEnumerable<PostVote>> votes = _context.Posts.Where(x => x.Id == post.Id)
                 .Include(x => x.PostVotes);
             _context.Posts.RemoveRange(votes);

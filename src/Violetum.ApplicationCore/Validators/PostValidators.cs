@@ -30,5 +30,16 @@ namespace Violetum.ApplicationCore.Validators
 
             return post;
         }
+
+        public Post GetPostOrThrow(Expression<Func<Post, bool>> condition)
+        {
+            Post post = _postRepository.GetPost(condition);
+            if (post == null)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Post)} not found");
+            }
+
+            return post;
+        }
     }
 }

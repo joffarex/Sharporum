@@ -30,5 +30,16 @@ namespace Violetum.ApplicationCore.Validators
 
             return comment;
         }
+
+        public Comment GetCommentOrThrow(Expression<Func<Comment, bool>> condition)
+        {
+            Comment comment = _commentRepository.GetComment(condition);
+            if (comment == null)
+            {
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"{nameof(Comment)} not found");
+            }
+
+            return comment;
+        }
     }
 }

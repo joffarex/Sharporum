@@ -35,6 +35,15 @@ namespace Violetum.Infrastructure.Repositories
                 .FirstOrDefault();
         }
 
+        public Comment GetComment(Expression<Func<Comment, bool>> condition)
+        {
+            return _context.Comments
+                .Include(x => x.Post)
+                .Include(x => x.Author)
+                .Where(condition)
+                .FirstOrDefault();
+        }
+
         public IEnumerable<TResult> GetComments<TResult>(CommentSearchParams searchParams,
             IConfigurationProvider configurationProvider) where TResult : class
         {

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Authorization;
 using Violetum.API.Filters;
+using Violetum.API.Helpers;
 using Violetum.ApplicationCore.Contracts.V1;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Category;
@@ -76,16 +77,17 @@ namespace Violetum.API.Controllers.V1
         /// <response code="404">Unable to find user with provided "AuthorId"</response>
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost(ApiRoutes.Categories.Create)]
-        [ProducesResponseType(typeof(CategoryResponse), (int) HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(CreatedResponse), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Create([FromBody] CreateCategoryDto createCategoryDto)
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            CategoryViewModel category = await _categoryService.CreateCategory(userId, createCategoryDto);
+            string categoryId = await _categoryService.CreateCategory(userId, createCategoryDto);
 
-            return Created(HttpContext.Request.GetDisplayUrl(), new CategoryResponse {Category = category});
+            return Created($"{HttpContext.Request.GetDisplayUrl()}/{categoryId}",
+                new CreatedResponse {Id = categoryId});
         }
 
         /// <summary>
@@ -117,25 +119,20 @@ namespace Violetum.API.Controllers.V1
         public async Task<IActionResult> Update([FromRoute] string categoryId,
             [FromBody] UpdateCategoryDto updateCategoryDto)
         {
-            CategoryViewModel categoryViewModel = _categoryService.GetCategoryById(categoryId);
+            Category category = _categoryService.GetCategoryEntity(categoryId);
 
             AuthorizationResult authorizationResult =
-                await _authorizationService.AuthorizeAsync(User, categoryViewModel,
+                await _authorizationService.AuthorizeAsync(User, category,
                     PolicyConstants.UpdateCategoryRolePolicy);
             if (authorizationResult.Succeeded)
             {
-                CategoryViewModel category =
-                    await _categoryService.UpdateCategory(categoryViewModel, updateCategoryDto);
+                CategoryViewModel categoryViewModel =
+                    await _categoryService.UpdateCategory(category, updateCategoryDto);
 
-                return Ok(new CategoryResponse {Category = category});
+                return Ok(new CategoryResponse {Category = categoryViewModel});
             }
 
-            if (User.Identity.IsAuthenticated)
-            {
-                return new ForbidResult();
-            }
-
-            return new ChallengeResult();
+            return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
         }
 
         /// <summary>
@@ -152,29 +149,24 @@ namespace Violetum.API.Controllers.V1
         public async Task<IActionResult> UpdateImage([FromRoute] string categoryId,
             [FromBody] UpdateCategoryImageDto updateCategoryImageDto)
         {
-            CategoryViewModel categoryViewModel = _categoryService.GetCategoryById(categoryId);
+            Category category = _categoryService.GetCategoryEntity(categoryId);
 
             AuthorizationResult authorizationResult =
-                await _authorizationService.AuthorizeAsync(User, categoryViewModel,
+                await _authorizationService.AuthorizeAsync(User, category,
                     PolicyConstants.UpdateCategoryRolePolicy);
             if (authorizationResult.Succeeded)
             {
-                FileData data = BaseHelpers.GetFileData<Category>(updateCategoryImageDto.Image, categoryViewModel.Id);
+                FileData data = BaseHelpers.GetFileData<Category>(updateCategoryImageDto.Image, category.Id);
                 await _blobService.UploadImageBlob(data.Content, data.FileName);
                 updateCategoryImageDto.Image = data.FileName;
 
-                CategoryViewModel category =
-                    await _categoryService.UpdateCategoryImage(categoryViewModel, updateCategoryImageDto);
+                CategoryViewModel categoryViewModel =
+                    await _categoryService.UpdateCategoryImage(category, updateCategoryImageDto);
 
-                return Ok(new CategoryResponse {Category = category});
+                return Ok(new CategoryResponse {Category = categoryViewModel});
             }
 
-            if (User.Identity.IsAuthenticated)
-            {
-                return new ForbidResult();
-            }
-
-            return new ChallengeResult();
+            return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
         }
 
         /// <summary>
@@ -185,11 +177,11 @@ namespace Violetum.API.Controllers.V1
         /// <response code="200">Deletes category</response>
         /// <response code="400">Unable to delete category due to role removal process</response>
         [HttpDelete(ApiRoutes.Categories.Delete)]
-        [ProducesResponseType(typeof(ActionSuccessResponse), (int) HttpStatusCode.Created)]
+        [ProducesResponseType((int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Delete([FromRoute] string categoryId)
         {
-            CategoryViewModel category = _categoryService.GetCategoryById(categoryId);
+            Category category = _categoryService.GetCategoryEntity(categoryId);
 
             AuthorizationResult authorizationResult =
                 await _authorizationService.AuthorizeAsync(User, category, PolicyConstants.DeleteCategoryRolePolicy);
@@ -202,15 +194,10 @@ namespace Violetum.API.Controllers.V1
 
                 await _categoryService.DeleteCategory(category);
 
-                return Ok(new ActionSuccessResponse {Message = "OK"});
+                return Ok();
             }
 
-            if (User.Identity.IsAuthenticated)
-            {
-                return new ForbidResult();
-            }
-
-            return new ChallengeResult();
+            return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
         }
 
         /// <summary>
@@ -226,7 +213,7 @@ namespace Violetum.API.Controllers.V1
         public async Task<IActionResult> AddModerator([FromRoute] string categoryId,
             [FromBody] AddModeratorDto addModeratorDto)
         {
-            CategoryViewModel category = _categoryService.GetCategoryById(categoryId);
+            Category category = _categoryService.GetCategoryEntity(categoryId);
 
             AuthorizationResult authorizationResult =
                 await _authorizationService.AuthorizeAsync(User, category, PolicyConstants.AddModeratorRolePolicy);
@@ -234,15 +221,10 @@ namespace Violetum.API.Controllers.V1
             {
                 await _categoryService.AddModerator(category, addModeratorDto);
 
-                return Ok(new ActionSuccessResponse {Message = "OK"});
+                return Ok();
             }
 
-            if (User.Identity.IsAuthenticated)
-            {
-                return new ForbidResult();
-            }
-
-            return new ChallengeResult();
+            return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
         }
     }
 }

@@ -9,12 +9,14 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Authorization;
 using Violetum.API.Filters;
+using Violetum.API.Helpers;
 using Violetum.ApplicationCore.Contracts.V1;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Post;
 using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.ViewModels.Post;
+using Violetum.Domain.Entities;
 using Violetum.Domain.Models;
 using Violetum.Domain.Models.SearchParams;
 
@@ -83,18 +85,17 @@ namespace Violetum.API.Controllers.V1
         /// <response code="404">Unable to find user with provided "AuthorId"/ category with provided "CategoryId"</response>
         [HttpPost(ApiRoutes.Posts.Create)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [ProducesResponseType(typeof(PostResponse), (int) HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(CreatedResponse), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Create([FromBody] CreatePostDto createPostDto)
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            PostViewModel post = await _postService.CreatePost(userId, createPostDto);
+            string postId = await _postService.CreatePost(userId, createPostDto);
 
-            return Created(HttpContext.Request.GetDisplayUrl(), new PostResponse {Post = post});
+            return Created($"{HttpContext.Request.GetDisplayUrl()}/{postId}", new CreatedResponse {Id = postId});
         }
-
 
         /// <summary>
         ///     Returns newsfeed
@@ -159,23 +160,18 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Update([FromRoute] string postId, [FromBody] UpdatePostDto updatePostDto)
         {
-            PostViewModel postViewModel = _postService.GetPost(postId);
+            Post post = _postService.GetPostEntity(postId);
 
             AuthorizationResult authorizationResult =
-                await _authorizationService.AuthorizeAsync(User, postViewModel, PolicyConstants.UpdatePostRolePolicy);
+                await _authorizationService.AuthorizeAsync(User, post, PolicyConstants.UpdatePostRolePolicy);
             if (authorizationResult.Succeeded)
             {
-                PostViewModel post = await _postService.UpdatePost(postViewModel, updatePostDto);
+                PostViewModel postViewModel = await _postService.UpdatePost(post, updatePostDto);
 
-                return Ok(new PostResponse {Post = post});
+                return Ok(new PostResponse {Post = postViewModel});
             }
 
-            if (User.Identity.IsAuthenticated)
-            {
-                return new ForbidResult();
-            }
-
-            return new ChallengeResult();
+            return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
         }
 
         /// <summary>
@@ -184,10 +180,10 @@ namespace Violetum.API.Controllers.V1
         /// <param name="postId"></param>
         /// <response code="200">Deletes post</response>
         [HttpDelete(ApiRoutes.Posts.Delete)]
-        [ProducesResponseType(typeof(ActionSuccessResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
         public async Task<IActionResult> Delete([FromRoute] string postId)
         {
-            PostViewModel post = _postService.GetPost(postId);
+            Post post = _postService.GetPostEntity(postId);
 
             AuthorizationResult authorizationResult =
                 await _authorizationService.AuthorizeAsync(User, post, PolicyConstants.DeletePostRolePolicy);
@@ -195,15 +191,10 @@ namespace Violetum.API.Controllers.V1
             {
                 await _postService.DeletePost(post);
 
-                return Ok(new ActionSuccessResponse {Message = "OK"});
+                return Ok();
             }
 
-            if (User.Identity.IsAuthenticated)
-            {
-                return new ForbidResult();
-            }
-
-            return new ChallengeResult();
+            return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
         }
 
         /// <summary>
@@ -215,7 +206,7 @@ namespace Violetum.API.Controllers.V1
         /// <response code="422">Unable to vote post due to validation errors</response>
         [HttpPost(ApiRoutes.Posts.Vote)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [ProducesResponseType(typeof(ActionSuccessResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.UnprocessableEntity)]
         public async Task<IActionResult> Vote([FromRoute] string postId, [FromBody] PostVoteDto postVoteDto)
         {
@@ -223,7 +214,7 @@ namespace Violetum.API.Controllers.V1
 
             await _postService.VotePost(postId, userId, postVoteDto);
 
-            return Ok(new ActionSuccessResponse {Message = "OK"});
+            return Ok();
         }
     }
 }

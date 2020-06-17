@@ -14,6 +14,8 @@ namespace Violetum.Domain.Infrastructure
             IConfigurationProvider configurationProvider)
             where TResult : class;
 
+        Comment GetComment(Expression<Func<Comment, bool>> condition);
+
         IEnumerable<TResult> GetComments<TResult>(CommentSearchParams searchParams,
             IConfigurationProvider configurationProvider) where TResult : class;
 

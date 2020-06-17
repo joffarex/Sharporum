@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Violetum.ApplicationCore.ViewModels.Category;
+using Violetum.ApplicationCore.ViewModels.Post;
 using Violetum.ApplicationCore.ViewModels.User;
 using Violetum.Domain.Entities;
 
@@ -19,6 +20,7 @@ namespace Violetum.ApplicationCore.Helpers
                 cfg.CreateMap<Category, CategoryViewModel>();
 
                 cfg.CreateMap<User, UserBaseViewModel>();
+                cfg.CreateMap<Category, PostCategoryViewModel>();
             });
         }
     }

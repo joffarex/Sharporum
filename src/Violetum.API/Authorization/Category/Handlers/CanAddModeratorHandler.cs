@@ -2,17 +2,16 @@
 using IdentityModel;
 using Microsoft.AspNetCore.Authorization;
 using Violetum.API.Authorization.Category.Requirements;
-using Violetum.ApplicationCore.ViewModels.Category;
 using Violetum.Domain.Models;
 
 namespace Violetum.API.Authorization.Category.Handlers
 {
     public class
-        CanAddModeratorHandler : AuthorizationHandler<CanAddModeratorAuthorizationRequirement, CategoryViewModel>
+        CanAddModeratorHandler : AuthorizationHandler<CanAddModeratorAuthorizationRequirement, Domain.Entities.Category>
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
             CanAddModeratorAuthorizationRequirement requirement,
-            CategoryViewModel category)
+            Domain.Entities.Category category)
         {
             string roleBase = $"{nameof(Category)}/{category.Id}";
 

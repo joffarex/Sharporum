@@ -14,6 +14,8 @@ namespace Violetum.Domain.Infrastructure
             IConfigurationProvider configurationProvider)
             where TResult : class;
 
+        Post GetPost(Expression<Func<Post, bool>> condition);
+
         IEnumerable<TResult> GetPosts<TResult>(PostSearchParams searchParams,
             IConfigurationProvider configurationProvider) where TResult : class;
 

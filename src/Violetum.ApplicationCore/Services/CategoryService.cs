@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -49,6 +49,11 @@ namespace Violetum.ApplicationCore.Services
             return _categoryValidators.GetCategoryOrThrow<CategoryViewModel>(x => x.Name == categoryName);
         }
 
+        public Category GetCategoryEntity(string categoryId)
+        {
+            return _categoryValidators.GetCategoryOrThrow(x => x.Id == categoryId);
+        }
+
         public async Task<IEnumerable<CategoryViewModel>> GetCategories(CategorySearchParams searchParams)
         {
             if (!string.IsNullOrEmpty(searchParams.UserId))
@@ -70,7 +75,7 @@ namespace Violetum.ApplicationCore.Services
             return _categoryRepository.GetCategoryCount(searchParams);
         }
 
-        public async Task<CategoryViewModel> CreateCategory(string userId, CreateCategoryDto createCategoryDto)
+        public async Task<string> CreateCategory(string userId, CreateCategoryDto createCategoryDto)
         {
             User user = await _userValidators.GetUserByIdOrThrow(userId);
 
@@ -81,13 +86,12 @@ namespace Violetum.ApplicationCore.Services
 
             await CreateCategoryAdminRole(user, category.Id);
 
-            return _mapper.Map<CategoryViewModel>(category);
+            return category.Id;
         }
 
-        public async Task<CategoryViewModel> UpdateCategory(CategoryViewModel categoryViewModel,
+        public async Task<CategoryViewModel> UpdateCategory(Category category,
             UpdateCategoryDto updateCategoryDto)
         {
-            var category = _categoryValidators.GetCategoryOrThrow<Category>(x => x.Id == categoryViewModel.Id);
             category.Name = updateCategoryDto.Name;
             category.Description = updateCategoryDto.Description;
 
@@ -96,10 +100,9 @@ namespace Violetum.ApplicationCore.Services
             return _mapper.Map<CategoryViewModel>(category);
         }
 
-        public async Task<CategoryViewModel> UpdateCategoryImage(CategoryViewModel categoryViewModel,
+        public async Task<CategoryViewModel> UpdateCategoryImage(Category category,
             UpdateCategoryImageDto updateCategoryImageDto)
         {
-            var category = _categoryValidators.GetCategoryOrThrow<Category>(x => x.Id == categoryViewModel.Id);
             category.Image = updateCategoryImageDto.Image;
 
             await _categoryRepository.UpdateCategory(category);
@@ -107,17 +110,16 @@ namespace Violetum.ApplicationCore.Services
             return _mapper.Map<CategoryViewModel>(category);
         }
 
-        public async Task<bool> DeleteCategory(CategoryViewModel categoryViewModel)
+        public async Task DeleteCategory(Category category)
         {
-            await RemoveCategoryRoles(categoryViewModel.Id);
+            await RemoveCategoryRoles(category.Id);
 
-            var category = _categoryValidators.GetCategoryOrThrow<Category>(x => x.Id == categoryViewModel.Id);
-            return await _categoryRepository.DeleteCategory(category) > 0;
+            await _categoryRepository.DeleteCategory(category);
         }
 
-        public async Task AddModerator(CategoryViewModel categoryViewModel, AddModeratorDto addModeratorDto)
+        public async Task AddModerator(Category category, AddModeratorDto addModeratorDto)
         {
-            string roleName = $"{nameof(Category)}/{categoryViewModel.Id}/{Roles.Moderator}";
+            string roleName = $"{nameof(Category)}/{category.Id}/{Roles.Moderator}";
             if (!await _roleManager.RoleExistsAsync(roleName))
             {
                 throw new HttpStatusCodeException(HttpStatusCode.BadRequest);

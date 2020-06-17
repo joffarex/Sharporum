@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -9,12 +9,14 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Authorization;
 using Violetum.API.Filters;
+using Violetum.API.Helpers;
 using Violetum.ApplicationCore.Contracts.V1;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Comment;
 using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.ViewModels.Comment;
+using Violetum.Domain.Entities;
 using Violetum.Domain.Models;
 using Violetum.Domain.Models.SearchParams;
 
@@ -75,16 +77,16 @@ namespace Violetum.API.Controllers.V1
         /// </response>
         [HttpPost(ApiRoutes.Comments.Create)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [ProducesResponseType(typeof(CommentResponse), (int) HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(CreatedResponse), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Create([FromBody] CreateCommentDto createCommentDto)
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            CommentViewModel comment = await _commentService.CreateComment(userId, createCommentDto);
+            string commentId = await _commentService.CreateComment(userId, createCommentDto);
 
-            return Created(HttpContext.Request.GetDisplayUrl(), new CommentResponse {Comment = comment});
+            return Created($"{HttpContext.Request.GetDisplayUrl()}/{commentId}", new CreatedResponse {Id = commentId});
         }
 
         /// <summary>
@@ -117,24 +119,18 @@ namespace Violetum.API.Controllers.V1
         public async Task<IActionResult> Update([FromRoute] string commentId,
             [FromBody] UpdateCommentDto updateCommentDto)
         {
-            CommentViewModel commentViewModel = _commentService.GetComment(commentId);
+            Comment comment = _commentService.GetCommentEntity(commentId);
 
             AuthorizationResult authorizationResult =
-                await _authorizationService.AuthorizeAsync(User, commentViewModel,
-                    PolicyConstants.UpdateCommentRolePolicy);
+                await _authorizationService.AuthorizeAsync(User, comment, PolicyConstants.UpdateCommentRolePolicy);
             if (authorizationResult.Succeeded)
             {
-                CommentViewModel comment = await _commentService.UpdateComment(commentViewModel, updateCommentDto);
+                CommentViewModel commentViewModel = await _commentService.UpdateComment(comment, updateCommentDto);
 
-                return Ok(new CommentResponse {Comment = comment});
+                return Ok(new CommentResponse {Comment = commentViewModel});
             }
 
-            if (User.Identity.IsAuthenticated)
-            {
-                return new ForbidResult();
-            }
-
-            return new ChallengeResult();
+            return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
         }
 
         /// <summary>
@@ -143,27 +139,21 @@ namespace Violetum.API.Controllers.V1
         /// <param name="commentId"></param>
         /// <response code="200">Deletes comment</response>
         [HttpDelete(ApiRoutes.Comments.Delete)]
-        [ProducesResponseType(typeof(ActionSuccessResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
         public async Task<IActionResult> Delete([FromRoute] string commentId)
         {
-            CommentViewModel comment = _commentService.GetComment(commentId);
+            Comment comment = _commentService.GetCommentEntity(commentId);
 
             AuthorizationResult authorizationResult =
-                await _authorizationService.AuthorizeAsync(User, comment,
-                    PolicyConstants.UpdateCommentRolePolicy);
+                await _authorizationService.AuthorizeAsync(User, comment, PolicyConstants.UpdateCommentRolePolicy);
             if (authorizationResult.Succeeded)
             {
                 await _commentService.DeleteComment(comment);
 
-                return Ok(new ActionSuccessResponse {Message = "OK"});
+                return Ok();
             }
 
-            if (User.Identity.IsAuthenticated)
-            {
-                return new ForbidResult();
-            }
-
-            return new ChallengeResult();
+            return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
         }
 
         /// <summary>
@@ -175,7 +165,7 @@ namespace Violetum.API.Controllers.V1
         /// <response code="422">Unable to vote comment due to validation errors</response>
         [HttpPost(ApiRoutes.Comments.Vote)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [ProducesResponseType(typeof(ActionSuccessResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.UnprocessableEntity)]
         public async Task<IActionResult> Vote([FromRoute] string commentId, [FromBody] CommentVoteDto commentVoteDto)
         {
@@ -183,7 +173,7 @@ namespace Violetum.API.Controllers.V1
 
             await _commentService.VoteComment(commentId, userId, commentVoteDto);
 
-            return Ok(new ActionSuccessResponse {Message = "OK"});
+            return Ok();
         }
     }
 }

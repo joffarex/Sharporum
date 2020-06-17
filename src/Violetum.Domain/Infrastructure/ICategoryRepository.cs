@@ -14,6 +14,8 @@ namespace Violetum.Domain.Infrastructure
             IConfigurationProvider configurationProvider)
             where TResult : class;
 
+        Category GetCategory(Expression<Func<Category, bool>> condition);
+
         IEnumerable<TResult> GetCategories<TResult>(CategorySearchParams searchParams,
             IConfigurationProvider configurationProvider) where TResult : class;
 
