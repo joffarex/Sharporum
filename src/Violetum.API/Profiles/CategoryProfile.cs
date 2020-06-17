@@ -11,7 +11,6 @@ namespace Violetum.API.Profiles
         public CategoryProfile()
         {
             CreateMap<Category, CategoryViewModel>();
-            CreateMap<CategoryViewModel, Category>();
             CreateMap<Category, PostCategoryViewModel>();
             CreateMap<CreateCategoryDto, Category>();
         }

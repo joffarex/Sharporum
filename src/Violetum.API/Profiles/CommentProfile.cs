@@ -17,7 +17,6 @@ namespace Violetum.API.Profiles
                         x => x.CommentVotes.Sum(y => y.Direction)
                     )
                 );
-            CreateMap<CommentViewModel, Comment>();
             CreateMap<CreateCommentDto, Comment>();
         }
     }

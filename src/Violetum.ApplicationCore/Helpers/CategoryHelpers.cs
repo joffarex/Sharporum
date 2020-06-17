@@ -20,7 +20,6 @@ namespace Violetum.ApplicationCore.Helpers
                 cfg.CreateMap<Category, CategoryViewModel>();
 
                 cfg.CreateMap<User, UserBaseViewModel>();
-                cfg.CreateMap<Category, PostCategoryViewModel>();
             });
         }
     }
