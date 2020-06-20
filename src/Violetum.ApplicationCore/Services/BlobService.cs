@@ -16,11 +16,12 @@ namespace Violetum.ApplicationCore.Services
     [Service]
     public class BlobService : IBlobService
     {
+        private const string BlobContainer = "pictures";
         private readonly BlobContainerClient _containerClient;
 
         public BlobService(BlobServiceClient blobServiceClient)
         {
-            _containerClient = blobServiceClient.GetBlobContainerClient("pictures");
+            _containerClient = blobServiceClient.GetBlobContainerClient(BlobContainer);
         }
 
         public async Task<BlobInfo> GetBlobAsync(string name)
