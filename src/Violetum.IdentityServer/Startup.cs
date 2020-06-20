@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Logging;
 using Violetum.Domain.Entities;
 using Violetum.IdentityServer.Services;
+using Violetum.IdentityServer.Settings;
 using Violetum.Infrastructure;
 
 namespace Violetum.IdentityServer
@@ -67,10 +68,17 @@ namespace Violetum.IdentityServer
                 config.LogoutPath = "/Auth/Logout";
             });
 
+            var certificateSettings = new CertificateSettings();
+            _configuration.GetSection(nameof(CertificateSettings)).Bind(certificateSettings);
+
             string assembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
-            string filePath = Path.Combine(_environment.ContentRootPath, "tmp/cert.pfx");
-            Console.WriteLine($"{filePath}");
-            var certificate = new X509Certificate2(filePath, "password");
+            string filePath = Path.Combine(_environment.ContentRootPath, certificateSettings.Path);
+            Console.WriteLine(filePath);
+            var certificate = new X509Certificate2(filePath, certificateSettings.Password);
+
+
+            var urlSettings = new UrlSettings();
+            _configuration.GetSection(nameof(UrlSettings)).Bind(urlSettings);
 
             services.AddIdentityServer(options =>
                 {
@@ -78,7 +86,7 @@ namespace Violetum.IdentityServer
                     options.Events.RaiseInformationEvents = true;
                     options.Events.RaiseFailureEvents = true;
                     options.Events.RaiseSuccessEvents = true;
-                    options.IssuerUri = "http://10.0.75.1:5000";
+                    options.IssuerUri = urlSettings.Issuer;
                 })
                 .AddAspNetIdentity<User>()
                 .AddConfigurationStore(options =>

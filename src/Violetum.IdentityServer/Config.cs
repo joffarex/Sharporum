@@ -1,7 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Models;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using Serilog;
+using Violetum.IdentityServer.Settings;
 
 namespace Violetum.IdentityServer
 {
@@ -22,8 +27,14 @@ namespace Violetum.IdentityServer
                 }),
             };
 
-        public static IEnumerable<Client> Clients =>
-            new List<Client>
+        public static IEnumerable<Client> Clients(IConfiguration configuration)
+        {
+            var urlSettings = new UrlSettings();
+            configuration.GetSection(nameof(UrlSettings)).Bind(urlSettings);
+
+            Log.Logger.Debug(JsonConvert.SerializeObject(urlSettings));
+
+            return new List<Client>
             {
                 new Client
                 {
@@ -38,8 +49,8 @@ namespace Violetum.IdentityServer
                     AllowOfflineAccess = true,
                     AccessTokenLifetime = 300,
 
-                    RedirectUris = {"http://localhost:5002/signin-oidc"},
-                    PostLogoutRedirectUris = {"http://localhost:5002/Home/Index"},
+                    RedirectUris = {$"{urlSettings.Web}/signin-oidc"},
+                    PostLogoutRedirectUris = {$"{urlSettings.Web}/Home/Index"},
 
                     AllowedScopes = new List<string>
                     {
@@ -62,9 +73,9 @@ namespace Violetum.IdentityServer
                     UpdateAccessTokenClaimsOnRefresh = true,
                     AlwaysIncludeUserClaimsInIdToken = true,
 
-                    RedirectUris = {"http://localhost:4200"},
-                    PostLogoutRedirectUris = {"http://localhost:4200"},
-                    AllowedCorsOrigins = {"http://localhost:4200"},
+                    RedirectUris = {urlSettings.Spa},
+                    PostLogoutRedirectUris = {urlSettings.Spa},
+                    AllowedCorsOrigins = {urlSettings.Spa},
 
                     AllowedScopes =
                     {
@@ -84,7 +95,7 @@ namespace Violetum.IdentityServer
                     IncludeJwtId = true,
                     AccessTokenLifetime = 300,
 
-                    RedirectUris = {"http://localhost:5001/swagger/oauth2-redirect.html"},
+                    RedirectUris = {$"{urlSettings.Api}/swagger/oauth2-redirect.html"},
 
                     AllowedScopes =
                     {
@@ -93,5 +104,6 @@ namespace Violetum.IdentityServer
                     },
                 },
             };
+        }
     }
 }

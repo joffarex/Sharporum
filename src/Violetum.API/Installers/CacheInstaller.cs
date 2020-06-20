@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Violetum.API.Cache;
+using Violetum.API.Settings;
 
 namespace Violetum.API.Installers
 {

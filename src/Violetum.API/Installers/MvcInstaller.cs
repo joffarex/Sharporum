@@ -25,6 +25,7 @@ using Violetum.API.Authorization.Comment.Requirements;
 using Violetum.API.Authorization.Post.Handlers;
 using Violetum.API.Authorization.Post.Requirements;
 using Violetum.API.Filters;
+using Violetum.API.Settings;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.Services;
 using Violetum.Domain.Models;
@@ -41,9 +42,12 @@ namespace Violetum.API.Installers
             services.AddHttpContextAccessor();
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
-            string filePath = Path.Combine(environment.ContentRootPath, "tmp/cert.pfx");
-            Console.WriteLine($"{filePath}");
-            var certificate = new X509Certificate2(filePath, "password");
+            var certificateSettings = new CertificateSettings();
+            configuration.GetSection(nameof(CertificateSettings)).Bind(certificateSettings);
+
+            string filePath = Path.Combine(environment.ContentRootPath, certificateSettings.Path);
+            Console.WriteLine(filePath);
+            var certificate = new X509Certificate2(filePath, certificateSettings.Password);
 
             var optionsTokenValidationParameters = new TokenValidationParameters
             {
@@ -58,6 +62,9 @@ namespace Violetum.API.Installers
                 ValidateLifetime = true,
             };
 
+            var urlSettings = new UrlSettings();
+            configuration.GetSection(nameof(UrlSettings)).Bind(urlSettings);
+
             services.AddAuthentication(options =>
                 {
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -66,7 +73,7 @@ namespace Violetum.API.Installers
                 })
                 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
                 {
-                    options.Authority = "http://identityserver:5000";
+                    options.Authority = urlSettings.IdentityServer;
                     options.RequireHttpsMetadata = false;
 
                     options.Audience = "Violetum.API";
@@ -133,7 +140,7 @@ namespace Violetum.API.Installers
             {
                 config.AddPolicy("SPAPolicy", builder =>
                 {
-                    builder.WithOrigins("http://localhost:4200")
+                    builder.WithOrigins(urlSettings.Spa)
                         .AllowAnyMethod()
                         .AllowAnyHeader();
                 });

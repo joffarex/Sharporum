@@ -5,6 +5,7 @@ using IdentityServer4.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -73,9 +74,17 @@ namespace Violetum.IdentityServer
 
             context.Database.Migrate();
 
+            var hostBuilder = new WebHostBuilder();
+            string environment = hostBuilder.GetSetting("environment");
+
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", false)
+                .AddJsonFile($"appsettings.{environment}.json")
+                .Build();
+
             if (!context.Clients.Any())
             {
-                foreach (Client client in Config.Clients)
+                foreach (Client client in Config.Clients(configuration))
                 {
                     context.Clients.Add(client.ToEntity());
                 }

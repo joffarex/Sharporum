@@ -1,4 +1,4 @@
-﻿namespace Violetum.API.Cache
+﻿namespace Violetum.API.Settings
 {
     public class RedisCacheSettings
     {

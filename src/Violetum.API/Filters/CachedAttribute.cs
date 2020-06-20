@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 using Violetum.API.Cache;
+using Violetum.API.Settings;
 
 namespace Violetum.API.Filters
 {

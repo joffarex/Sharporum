@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Violetum.API.Filters;
+using Violetum.API.Settings;
 
 namespace Violetum.API.Installers
 {
@@ -15,6 +16,10 @@ namespace Violetum.API.Installers
         public void InstallServices(IServiceCollection services, IConfiguration configuration,
             IWebHostEnvironment environment)
         {
+            var swaggerSettings = new SwaggerSettings();
+            configuration.GetSection(nameof(SwaggerSettings)).Bind(swaggerSettings);
+            services.AddSingleton(swaggerSettings);
+
             services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo {Title = "Violetum API", Version = "v1"});
@@ -28,9 +33,9 @@ namespace Violetum.API.Installers
                         {
                             AuthorizationUrl =
                                 new Uri(
-                                    "http://localhost:5000/connect/authorize",
+                                    $"{swaggerSettings.IdentityServer}/connect/authorize",
                                     UriKind.Absolute),
-                            TokenUrl = new Uri("http://localhost:5000/connect/token", UriKind.Absolute),
+                            TokenUrl = new Uri($"{swaggerSettings.IdentityServer}/connect/token", UriKind.Absolute),
                             Scopes = new Dictionary<string, string>
                             {
                                 {"Violetum.API", "API to use issued tokens"},

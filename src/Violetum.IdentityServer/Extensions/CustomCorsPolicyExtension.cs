@@ -1,6 +1,8 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using IdentityServer4.Services;
+using Microsoft.Extensions.Configuration;
+using Violetum.IdentityServer.Settings;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -23,9 +25,19 @@ namespace Microsoft.Extensions.DependencyInjection
 
     public class CustomCorsPolicyService : ICorsPolicyService
     {
+        private readonly IConfiguration _configuration;
+
+        public CustomCorsPolicyService(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         public Task<bool> IsOriginAllowedAsync(string origin)
         {
-            return Task.FromResult(origin.Equals("http://localhost:4200"));
+            var urlSettings = new UrlSettings();
+            _configuration.GetSection(nameof(UrlSettings)).Bind(urlSettings);
+
+            return Task.FromResult(origin.Equals(urlSettings.Spa));
         }
     }
 }

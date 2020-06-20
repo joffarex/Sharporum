@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Serilog;
 using Violetum.API.Installers;
+using Violetum.API.Settings;
 using Violetum.ApplicationCore.Contracts.HealthChecks;
 
 namespace Violetum.API
@@ -29,7 +30,7 @@ namespace Violetum.API
             services.InstallServicesInAssembly(_configuration, _environment);
         }
 
-        public void Configure(IApplicationBuilder app, IMapper mapper)
+        public void Configure(IApplicationBuilder app, IConfiguration configuration)
         {
             app.UseHealthChecks("/health", new HealthCheckOptions
             {
@@ -61,7 +62,10 @@ namespace Violetum.API
 
             app.UseSwagger();
 
-            app.UseSwaggerUI(options => { options.SwaggerEndpoint("/swagger/v1/swagger.json", "Violetum API V1"); });
+            var swaggerSettings = app.ApplicationServices.GetRequiredService<SwaggerSettings>();
+            configuration.GetSection(nameof(SwaggerSettings)).Bind(swaggerSettings);
+
+            app.UseSwaggerUI(options => { options.SwaggerEndpoint(swaggerSettings.Endpoint, swaggerSettings.Name); });
             app.UseRouting();
             app.UseAuthorization();
 
