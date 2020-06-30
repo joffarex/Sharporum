@@ -21,9 +21,9 @@ import {IndexComponent} from './index/index.component';
 import {UserComponent} from './user/user.component';
 import {PostsComponent} from './posts/posts.component';
 import {SharedModule} from '../shared/shared.module';
-import {CategoriesComponent} from './categories/categories.component';
+import {CommunitiesComponent} from './communities/communities.component';
 import {PostComponent} from './posts/post/post.component';
-import {CategoryComponent} from './categories/category/category.component';
+import {CommunityComponent} from './communities/community/community.component';
 import {UnauthorizedComponent} from './unauthorized/unauthorized.component';
 import {CommentsComponent} from './comments/comments.component';
 import {CommentComponent} from './comments/comment/comment.component';
@@ -53,8 +53,8 @@ import {CommentComponent} from './comments/comment/comment.component';
     UserComponent,
     PostsComponent,
     PostComponent,
-    CategoriesComponent,
-    CategoryComponent,
+    CommunitiesComponent,
+    CommunityComponent,
     UnauthorizedComponent,
     CommentsComponent,
     CommentComponent,
@@ -64,8 +64,8 @@ import {CommentComponent} from './comments/comment/comment.component';
     UserComponent,
     PostsComponent,
     PostComponent,
-    CategoriesComponent,
-    CategoryComponent,
+    CommunitiesComponent,
+    CommunityComponent,
     UnauthorizedComponent,
     CommentsComponent,
     CommentComponent,

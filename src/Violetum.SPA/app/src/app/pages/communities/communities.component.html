@@ -1,0 +1,9 @@
+<div class="wrapper" style="padding-top: 20vh; !important;">
+  <div class="container">
+    <app-search [searchType]="searchType"></app-search>
+
+    <div *ngFor="let community of communities">
+      <app-community [community]="community"></app-community>
+    </div>
+  </div>
+</div>

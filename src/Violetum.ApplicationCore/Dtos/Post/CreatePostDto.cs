@@ -4,6 +4,6 @@
     {
         public string Title { get; set; }
         public string Content { get; set; }
-        public string CategoryId { get; set; }
+        public string CommunityId { get; set; }
     }
 }

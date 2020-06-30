@@ -19,7 +19,7 @@ namespace Violetum.ApplicationCore.Services
     [Service]
     public class PostService : IPostService
     {
-        private readonly ICategoryValidators _categoryValidators;
+        private readonly ICommunityValidators _communityValidators;
         private readonly IMapper _mapper;
         private readonly IPostRepository _postRepository;
         private readonly IPostValidators _postValidators;
@@ -27,13 +27,13 @@ namespace Violetum.ApplicationCore.Services
         private readonly IVoteRepository _voteRepository;
 
         public PostService(IPostRepository postRepository, IVoteRepository voteRepository, IMapper mapper,
-            IPostValidators postValidators, ICategoryValidators categoryValidators, IUserValidators userValidators)
+            IPostValidators postValidators, ICommunityValidators communityValidators, IUserValidators userValidators)
         {
             _postRepository = postRepository;
             _voteRepository = voteRepository;
             _mapper = mapper;
             _postValidators = postValidators;
-            _categoryValidators = categoryValidators;
+            _communityValidators = communityValidators;
             _userValidators = userValidators;
         }
 
@@ -54,9 +54,9 @@ namespace Violetum.ApplicationCore.Services
                 await _userValidators.GetUserByIdOrThrowAsync(searchParams.UserId);
             }
 
-            if (!string.IsNullOrEmpty(searchParams.CategoryName))
+            if (!string.IsNullOrEmpty(searchParams.CommunityName))
             {
-                _categoryValidators.GetCategoryOrThrow(x => x.Name == searchParams.CategoryName);
+                _communityValidators.GetCommunityOrThrow(x => x.Name == searchParams.CommunityName);
             }
 
             return _postRepository.GetPosts<PostViewModel>(searchParams, PostHelpers.GetPostMapperConfiguration());
@@ -64,9 +64,9 @@ namespace Violetum.ApplicationCore.Services
 
         public IEnumerable<PostViewModel> GetNewsFeedPosts(string userId, PostSearchParams searchParams)
         {
-            if (!string.IsNullOrEmpty(searchParams.CategoryName))
+            if (!string.IsNullOrEmpty(searchParams.CommunityName))
             {
-                _categoryValidators.GetCategoryOrThrow(x => x.Name == searchParams.CategoryName);
+                _communityValidators.GetCommunityOrThrow(x => x.Name == searchParams.CommunityName);
             }
 
             searchParams.Followers = _postRepository.GetUserFollowings(userId);
@@ -75,9 +75,9 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<int> GetPostsCountAsync(PostSearchParams searchParams)
         {
-            if (!string.IsNullOrEmpty(searchParams.CategoryName))
+            if (!string.IsNullOrEmpty(searchParams.CommunityName))
             {
-                _categoryValidators.GetCategoryOrThrow(x => x.Name == searchParams.CategoryName);
+                _communityValidators.GetCommunityOrThrow(x => x.Name == searchParams.CommunityName);
             }
 
             if (!string.IsNullOrEmpty(searchParams.UserId))
@@ -90,9 +90,9 @@ namespace Violetum.ApplicationCore.Services
 
         public int GetPostsCountInNewsFeed(string userId, PostSearchParams searchParams)
         {
-            if (!string.IsNullOrEmpty(searchParams.CategoryName))
+            if (!string.IsNullOrEmpty(searchParams.CommunityName))
             {
-                _categoryValidators.GetCategoryOrThrow(x => x.Name == searchParams.CategoryName);
+                _communityValidators.GetCommunityOrThrow(x => x.Name == searchParams.CommunityName);
             }
 
             searchParams.Followers = _postRepository.GetUserFollowings(userId);

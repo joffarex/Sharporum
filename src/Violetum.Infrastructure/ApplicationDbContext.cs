@@ -20,7 +20,7 @@ namespace Violetum.Infrastructure
 
         public DbSet<Post> Posts { get; set; }
         public DbSet<Comment> Comments { get; set; }
-        public DbSet<Category> Categories { get; set; }
+        public DbSet<Community> Communities { get; set; }
         public DbSet<Follower> Followers { get; set; }
         public DbSet<PostVote> PostVotes { get; set; }
         public DbSet<CommentVote> CommentVotes { get; set; }
@@ -29,9 +29,11 @@ namespace Violetum.Infrastructure
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Category>(entity => { entity.HasIndex(x => x.Name).IsUnique(); });
-            modelBuilder.Entity<Category>().Property(entity => entity.Image).HasDefaultValue("Category/no-image.jpg");
-            modelBuilder.Entity<User>().Property(entity => entity.Image).HasDefaultValue("Category/no-image.jpg");
+            modelBuilder.Entity<Community>(entity => { entity.HasIndex(x => x.Name).IsUnique(); });
+            modelBuilder.Entity<Community>().Property(entity => entity.Image)
+                .HasDefaultValue($"{nameof(Community)}/no-image.jpg");
+            modelBuilder.Entity<User>().Property(entity => entity.Image)
+                .HasDefaultValue($"{nameof(Community)}/no-image.jpg");
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())

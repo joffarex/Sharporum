@@ -51,7 +51,7 @@ namespace Violetum.API.Controllers.V1
         /// <param name="searchParams"></param>
         /// <response code="200">Returns posts</response>
         /// <response code="404">
-        ///     Unable to find user with provided "UserId" / category with provided "CategoryName" / post with
+        ///     Unable to find user with provided "UserId" / community with provided "CommunityName" / post with
         ///     provided "PostTitle
         /// </response>
         [HttpGet(ApiRoutes.Posts.GetMany)]
@@ -82,7 +82,7 @@ namespace Violetum.API.Controllers.V1
         /// <param name="createPostDto"></param>
         /// <response code="200">Creates post</response>
         /// <response code="400">Unable to create post due to validation errors</response>
-        /// <response code="404">Unable to find user with provided "AuthorId"/ category with provided "CategoryId"</response>
+        /// <response code="404">Unable to find user with provided "AuthorId"/ community with provided "CommunityId"</response>
         [HttpPost(ApiRoutes.Posts.Create)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(CreatedResponse), (int) HttpStatusCode.Created)]
@@ -103,7 +103,7 @@ namespace Violetum.API.Controllers.V1
         /// <param name="searchParams"></param>
         /// <response code="200">Returns newsfeed</response>
         /// <response code="404">
-        ///     Unable to find user with provided "UserId" / category with provided "CategoryName" / post with
+        ///     Unable to find user with provided "UserId" / community with provided "CommunityName" / post with
         ///     provided "PostTitle
         /// </response>
         [HttpGet(ApiRoutes.Posts.NewsFeed)]

@@ -12,8 +12,8 @@ namespace Violetum.Domain.Entities
         public string AuthorId { get; set; }
         public User Author { get; set; }
 
-        public string CategoryId { get; set; }
-        public Category Category { get; set; }
+        public string CommunityId { get; set; }
+        public Community Community { get; set; }
 
         public ICollection<Comment> Comments { get; set; }
         public ICollection<PostVote> PostVotes { get; set; }

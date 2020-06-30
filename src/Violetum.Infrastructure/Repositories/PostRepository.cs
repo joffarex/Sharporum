@@ -30,7 +30,7 @@ namespace Violetum.Infrastructure.Repositories
         {
             return _context.Posts
                 .Include(x => x.Author)
-                .Include(x => x.Category)
+                .Include(x => x.Community)
                 .ProjectTo<TResult>(configurationProvider)
                 .Where(condition)
                 .FirstOrDefault();
@@ -40,7 +40,7 @@ namespace Violetum.Infrastructure.Repositories
         {
             return _context.Posts
                 .Include(x => x.Author)
-                .Include(x => x.Category)
+                .Include(x => x.Community)
                 .Where(condition)
                 .FirstOrDefault();
         }
@@ -49,7 +49,7 @@ namespace Violetum.Infrastructure.Repositories
             IConfigurationProvider configurationProvider) where TResult : class
         {
             IIncludableQueryable<Post, ICollection<PostVote>> query = _context.Posts
-                .Include(x => x.Category)
+                .Include(x => x.Community)
                 .Include(x => x.Author)
                 .Include(x => x.PostVotes);
 
@@ -130,9 +130,9 @@ namespace Violetum.Infrastructure.Repositories
 
         private static IQueryable<Post> WhereConditionPredicate(IQueryable<Post> query, PostSearchParams searchParams)
         {
-            if (!string.IsNullOrEmpty(searchParams.CategoryName))
+            if (!string.IsNullOrEmpty(searchParams.CommunityName))
             {
-                query = query.Where(x => x.Category.Name == searchParams.CategoryName);
+                query = query.Where(x => x.Community.Name == searchParams.CommunityName);
             }
 
             if (!string.IsNullOrEmpty(searchParams.PostTitle))

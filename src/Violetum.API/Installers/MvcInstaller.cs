@@ -18,10 +18,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using Violetum.API.Authorization;
-using Violetum.API.Authorization.Category.Handlers;
-using Violetum.API.Authorization.Category.Requirements;
 using Violetum.API.Authorization.Comment.Handlers;
 using Violetum.API.Authorization.Comment.Requirements;
+using Violetum.API.Authorization.Community.Handlers;
+using Violetum.API.Authorization.Community.Requirements;
 using Violetum.API.Authorization.Post.Handlers;
 using Violetum.API.Authorization.Post.Requirements;
 using Violetum.API.Filters;
@@ -105,10 +105,10 @@ namespace Violetum.API.Installers
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy(PolicyConstants.UpdateCategoryRolePolicy,
-                    policy => { policy.AddRequirements(new CanUpdateCategoryAuthorizationRequirement()); });
-                options.AddPolicy(PolicyConstants.DeleteCategoryRolePolicy,
-                    policy => { policy.AddRequirements(new CanDeleteCategoryAuthorizationRequirement()); });
+                options.AddPolicy(PolicyConstants.UpdateCommunityRolePolicy,
+                    policy => { policy.AddRequirements(new CanUpdateCommunityAuthorizationRequirement()); });
+                options.AddPolicy(PolicyConstants.DeleteCommunityRolePolicy,
+                    policy => { policy.AddRequirements(new CanDeleteCommunityAuthorizationRequirement()); });
                 options.AddPolicy(PolicyConstants.AddModeratorRolePolicy,
                     policy => { policy.AddRequirements(new CanAddModeratorAuthorizationRequirement()); });
                 options.AddPolicy(PolicyConstants.DeletePostRolePolicy,
@@ -121,8 +121,8 @@ namespace Violetum.API.Installers
                     policy => { policy.AddRequirements(new CanUpdateCommentAuthorizationRequirement()); });
             });
 
-            services.AddScoped<IAuthorizationHandler, CanUpdateCategoryHandler>();
-            services.AddScoped<IAuthorizationHandler, CanDeleteCategoryHandler>();
+            services.AddScoped<IAuthorizationHandler, CanUpdateCommunityHandler>();
+            services.AddScoped<IAuthorizationHandler, CanDeleteCommunityHandler>();
             services.AddScoped<IAuthorizationHandler, CanAddModeratorHandler>();
             services.AddScoped<IAuthorizationHandler, CanDeletePostHandler>();
             services.AddScoped<IAuthorizationHandler, CanUpdatePostHandler>();
