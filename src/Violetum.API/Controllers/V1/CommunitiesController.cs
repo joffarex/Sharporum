@@ -46,7 +46,7 @@ namespace Violetum.API.Controllers.V1
         /// <param name="searchParams"></param>
         /// <response code="200">Returns communities</response>
         /// <response code="404">Unable to find user with provided "UserId"</response>
-        [HttpGet(ApiRoutes.Categories.GetMany)]
+        [HttpGet(ApiRoutes.Communities.GetMany)]
         [Cached(120)]
         [ProducesResponseType(typeof(GetManyResponse<CommunityViewModel>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
@@ -76,7 +76,7 @@ namespace Violetum.API.Controllers.V1
         /// <response code="400">Unable to create community due to validation errors</response>
         /// <response code="404">Unable to find user with provided "AuthorId"</response>
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPost(ApiRoutes.Categories.Create)]
+        [HttpPost(ApiRoutes.Communities.Create)]
         [ProducesResponseType(typeof(CreatedResponse), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
@@ -96,7 +96,7 @@ namespace Violetum.API.Controllers.V1
         /// <param name="communityId"></param>
         /// <response code="200">Returns community</response>
         /// <response code="404">Unable to find community with provided "communityId"</response>
-        [HttpGet(ApiRoutes.Categories.Get)]
+        [HttpGet(ApiRoutes.Communities.Get)]
         [Cached(120)]
         [ProducesResponseType(typeof(CommunityResponse), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
@@ -112,7 +112,7 @@ namespace Violetum.API.Controllers.V1
         /// <param name="updateCommunityDto"></param>
         /// <response code="200">Updates community</response>
         /// <response code="400">Unable to update community due to validation errors</response>
-        [HttpPut(ApiRoutes.Categories.Update)]
+        [HttpPut(ApiRoutes.Communities.Update)]
         [ProducesResponseType(typeof(CommunityResponse), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
@@ -142,7 +142,7 @@ namespace Violetum.API.Controllers.V1
         /// <param name="updateCommunityImageDto"></param>
         /// <response code="200">Updates community image</response>
         /// <response code="400">Unable to update community due to validation errors</response>
-        [HttpPut(ApiRoutes.Categories.UpdateImage)]
+        [HttpPut(ApiRoutes.Communities.UpdateImage)]
         [ProducesResponseType(typeof(CommunityResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
@@ -176,7 +176,7 @@ namespace Violetum.API.Controllers.V1
         /// <returns></returns>
         /// <response code="200">Deletes community</response>
         /// <response code="400">Unable to delete community due to role removal process</response>
-        [HttpDelete(ApiRoutes.Categories.Delete)]
+        [HttpDelete(ApiRoutes.Communities.Delete)]
         [ProducesResponseType((int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Delete([FromRoute] string communityId)
@@ -207,7 +207,7 @@ namespace Violetum.API.Controllers.V1
         /// <param name="addModeratorDto"></param>
         /// <response code="200">Updates community</response>
         /// <response code="404">Unable to find user with provided "NewModeratorId"</response>
-        [HttpPost(ApiRoutes.Categories.SetModerator)]
+        [HttpPost(ApiRoutes.Communities.SetModerator)]
         [ProducesResponseType(typeof(ActionSuccessResponse), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> AddModerator([FromRoute] string communityId,

@@ -74,11 +74,11 @@ namespace Violetum.Infrastructure.Repositories
 
         public async Task DeleteCommunityAsync(Community community)
         {
-            var posts = _context.Posts.Where(x => x.CommunityId == community.Id).ToList();
+            List<Post> posts = _context.Posts.Where(x => x.CommunityId == community.Id).ToList();
             if (posts.Any())
             {
                 throw new HttpStatusCodeException(HttpStatusCode.UnprocessableEntity,
-                    $"Can not delete category while there are still posts in it");
+                    "Can not delete category while there are still posts in it");
             }
 
             await DeleteEntityAsync(community);
@@ -87,6 +87,11 @@ namespace Violetum.Infrastructure.Repositories
         private static IQueryable<Community> WhereConditionPredicate(IQueryable<Community> query,
             CommunitySearchParams searchParams)
         {
+            if (!string.IsNullOrEmpty(searchParams.CategoryName))
+            {
+                query = query.Include(x => x.Categories.Where(y => y.Name.Contains(searchParams.CategoryName)));
+            }
+
             if (!string.IsNullOrEmpty(searchParams.CommunityName))
             {
                 query = query.Where(c => c.Name.Contains(searchParams.CommunityName));

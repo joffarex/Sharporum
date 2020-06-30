@@ -18,6 +18,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using Violetum.API.Authorization;
+using Violetum.API.Authorization.Category.Handlers;
+using Violetum.API.Authorization.Category.Requirements;
 using Violetum.API.Authorization.Comment.Handlers;
 using Violetum.API.Authorization.Comment.Requirements;
 using Violetum.API.Authorization.Community.Handlers;
@@ -119,6 +121,8 @@ namespace Violetum.API.Installers
                     policy => { policy.AddRequirements(new CanDeleteCommentAuthorizationRequirement()); });
                 options.AddPolicy(PolicyConstants.UpdateCommentRolePolicy,
                     policy => { policy.AddRequirements(new CanUpdateCommentAuthorizationRequirement()); });
+                options.AddPolicy(PolicyConstants.ManageCategoryRolePolicy,
+                    policy => { policy.AddRequirements(new CanManageCategoryAuthorizationRequirement()); });
             });
 
             services.AddScoped<IAuthorizationHandler, CanUpdateCommunityHandler>();
@@ -128,6 +132,7 @@ namespace Violetum.API.Installers
             services.AddScoped<IAuthorizationHandler, CanUpdatePostHandler>();
             services.AddScoped<IAuthorizationHandler, CanDeleteCommentHandler>();
             services.AddScoped<IAuthorizationHandler, CanUpdateCommentHandler>();
+            services.AddScoped<IAuthorizationHandler, CanManageCategoryHandler>();
 
             services.AddSingleton(x =>
                 new BlobServiceClient(configuration.GetValue<string>("AzureBlobStorageConnectionString")));

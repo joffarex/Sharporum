@@ -21,6 +21,8 @@ namespace Violetum.Infrastructure
         public DbSet<Post> Posts { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Community> Communities { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<CommunityCategory> CommunityCategories { get; set; }
         public DbSet<Follower> Followers { get; set; }
         public DbSet<PostVote> PostVotes { get; set; }
         public DbSet<CommentVote> CommentVotes { get; set; }

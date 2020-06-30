@@ -12,6 +12,7 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 using Violetum.Domain.Entities;
+using Violetum.Domain.Models;
 
 namespace Violetum.IdentityServer
 {
@@ -36,6 +37,7 @@ namespace Violetum.IdentityServer
             using (IServiceScope scope = host.Services.CreateScope())
             {
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
                 var user = new User
                 {
@@ -48,6 +50,13 @@ namespace Violetum.IdentityServer
                     BirthDate = "2001-01-26",
                 };
                 userManager.CreateAsync(user, "password").GetAwaiter().GetResult();
+
+                if (!roleManager.RoleExistsAsync(Roles.SuperAdmin).GetAwaiter().GetResult())
+                {
+                    roleManager.CreateAsync(new IdentityRole(Roles.SuperAdmin)).GetAwaiter().GetResult();
+                }
+
+                userManager.AddToRoleAsync(user, Roles.SuperAdmin).GetAwaiter().GetResult();
 
                 RunMigrations(scope);
             }

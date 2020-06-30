@@ -17,7 +17,7 @@
             public const string Vote = Base + "/posts/{postId}/vote";
         }
 
-        public static class Categories
+        public static class Communities
         {
             public const string GetMany = Base + "/communities";
             public const string Create = Base + "/communities";
@@ -26,6 +26,15 @@
             public const string UpdateImage = Base + "/communities/{communityId}/image";
             public const string Delete = Base + "/communities/{communityId}";
             public const string SetModerator = Base + "/communities/{communityId}/set-moderator";
+        }
+
+        public static class Categories
+        {
+            public const string GetMany = Base + "/categories";
+            public const string Create = Base + "/categories";
+            public const string Get = Base + "/categories/{categoryId}";
+            public const string Update = Base + "/categories/{categoryId}";
+            public const string Delete = Base + "/categories/{categoryId}";
         }
 
         public static class Comments
