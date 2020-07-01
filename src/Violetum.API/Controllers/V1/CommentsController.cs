@@ -1,7 +1,7 @@
-using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -10,11 +10,12 @@ using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Authorization;
 using Violetum.API.Filters;
 using Violetum.API.Helpers;
+using Violetum.ApplicationCore.Commands.Comment;
 using Violetum.ApplicationCore.Contracts.V1;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Comment;
 using Violetum.ApplicationCore.Helpers;
-using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.Queries.Comment;
 using Violetum.ApplicationCore.ViewModels.Comment;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Models;
@@ -26,15 +27,15 @@ namespace Violetum.API.Controllers.V1
     public class CommentsController : ControllerBase
     {
         private readonly IAuthorizationService _authorizationService;
-        private readonly ICommentService _commentService;
         private readonly HttpContext _httpContext;
+        private readonly IMediator _mediator;
 
-        public CommentsController(ICommentService commentService, IHttpContextAccessor httpContextAccessor,
-            IAuthorizationService authorizationService)
+        public CommentsController(IHttpContextAccessor httpContextAccessor,
+            IAuthorizationService authorizationService, IMediator mediator)
         {
-            _commentService = commentService;
             _httpContext = httpContextAccessor.HttpContext;
             _authorizationService = authorizationService;
+            _mediator = mediator;
         }
 
         /// <summary>
@@ -54,15 +55,10 @@ namespace Violetum.API.Controllers.V1
                 return new BadRequestObjectResult(errorResponse);
             }
 
-            IEnumerable<CommentViewModel> comments = await _commentService.GetCommentsAsync(searchParams);
-            int commentsCount = await _commentService.GetCommentsCountAsync(searchParams);
+            var query = new GetCommentsQuery(searchParams);
+            GetManyResponse<CommentViewModel> result = await _mediator.Send(query);
 
-            return Ok(new GetManyResponse<CommentViewModel>
-            {
-                Data = comments,
-                Count = commentsCount,
-                Params = new Params {Limit = searchParams.Limit, CurrentPage = searchParams.CurrentPage},
-            });
+            return Ok(result);
         }
 
         /// <summary>
@@ -84,9 +80,10 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            string commentId = await _commentService.CreateCommentAsync(userId, createCommentDto);
+            var command = new CreateCommentCommand(userId, createCommentDto);
+            CreatedResponse result = await _mediator.Send(command);
 
-            return Created($"{HttpContext.Request.GetDisplayUrl()}/{commentId}", new CreatedResponse {Id = commentId});
+            return Created($"{HttpContext.Request.GetDisplayUrl()}/{result.Id}", result);
         }
 
         /// <summary>
@@ -99,9 +96,12 @@ namespace Violetum.API.Controllers.V1
         [Cached(60)]
         [ProducesResponseType(typeof(CommentResponse), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
-        public IActionResult Get([FromRoute] string commentId)
+        public async Task<IActionResult> Get([FromRoute] string commentId)
         {
-            return Ok(new CommentResponse {Comment = _commentService.GetComment(commentId)});
+            var query = new GetCommentQuery(commentId);
+            CommentResponse result = await _mediator.Send(query);
+
+            return Ok(result);
         }
 
         /// <summary>
@@ -119,18 +119,21 @@ namespace Violetum.API.Controllers.V1
         public async Task<IActionResult> Update([FromRoute] string commentId,
             [FromBody] UpdateCommentDto updateCommentDto)
         {
-            Comment comment = _commentService.GetCommentEntity(commentId);
+            var query = new GetCommentEntityQuery(commentId);
+            Comment comment = await _mediator.Send(query);
 
             AuthorizationResult authorizationResult =
                 await _authorizationService.AuthorizeAsync(User, comment, PolicyConstants.UpdateCommentRolePolicy);
-            if (authorizationResult.Succeeded)
-            {
-                CommentViewModel commentViewModel = await _commentService.UpdateCommentAsync(comment, updateCommentDto);
 
-                return Ok(new CommentResponse {Comment = commentViewModel});
+            if (!authorizationResult.Succeeded)
+            {
+                return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
             }
 
-            return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
+            var command = new UpdateCommentCommand(comment, updateCommentDto);
+            CommentResponse result = await _mediator.Send(command);
+
+            return Ok(result);
         }
 
         /// <summary>
@@ -142,18 +145,21 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType((int) HttpStatusCode.OK)]
         public async Task<IActionResult> Delete([FromRoute] string commentId)
         {
-            Comment comment = _commentService.GetCommentEntity(commentId);
+            var query = new GetCommentEntityQuery(commentId);
+            Comment comment = await _mediator.Send(query);
 
             AuthorizationResult authorizationResult =
                 await _authorizationService.AuthorizeAsync(User, comment, PolicyConstants.UpdateCommentRolePolicy);
-            if (authorizationResult.Succeeded)
-            {
-                await _commentService.DeleteCommentAsync(comment);
 
-                return Ok();
+            if (!authorizationResult.Succeeded)
+            {
+                return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
             }
 
-            return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
+            var command = new DeleteCommentCommand(comment);
+            await _mediator.Send(command);
+
+            return Ok();
         }
 
         /// <summary>
@@ -171,7 +177,8 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            await _commentService.VoteCommentAsync(commentId, userId, commentVoteDto);
+            var command = new VoteCommentCommand(userId, commentId, commentVoteDto);
+            await _mediator.Send(command);
 
             return Ok();
         }
