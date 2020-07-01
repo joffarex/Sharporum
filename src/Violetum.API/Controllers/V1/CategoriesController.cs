@@ -29,13 +29,10 @@ namespace Violetum.API.Controllers.V1
     public class CategoriesController : ControllerBase
     {
         private readonly IAuthorizationService _authorizationService;
-        private readonly ICategoryService _categoryService;
         private readonly IMediator _mediator;
 
-        public CategoriesController(ICategoryService categoryService,
-            IAuthorizationService authorizationService, IMediator mediator)
+        public CategoriesController(IAuthorizationService authorizationService, IMediator mediator)
         {
-            _categoryService = categoryService;
             _authorizationService = authorizationService;
             _mediator = mediator;
         }
@@ -59,6 +56,7 @@ namespace Violetum.API.Controllers.V1
 
             var query = new GetCategoriesQuery(searchParams);
             var result = await _mediator.Send(query);
+
             return Ok(result);
         }
 
