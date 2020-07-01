@@ -1,10 +1,10 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Violetum.API.Commands.Category;
+using Violetum.ApplicationCore.Commands.Category;
 using Violetum.ApplicationCore.Interfaces.Services;
 
-namespace Violetum.API.Handlers.Command.Category
+namespace Violetum.ApplicationCore.Handlers.Command.Category
 {
     public class DeleteCategoryHandler : IRequestHandler<DeleteCategoryCommand>
     {

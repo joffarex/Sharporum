@@ -1,12 +1,12 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Violetum.API.Commands.Category;
+using Violetum.ApplicationCore.Commands.Category;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.ViewModels.Category;
 
-namespace Violetum.API.Handlers.Command.Category
+namespace Violetum.ApplicationCore.Handlers.Command.Category
 {
     public class UpdateCategoryHandler : IRequestHandler<UpdateCategoryCommand, CategoryResponse>
     {

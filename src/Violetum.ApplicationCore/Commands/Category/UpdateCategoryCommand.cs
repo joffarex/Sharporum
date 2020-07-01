@@ -2,7 +2,7 @@
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Category;
 
-namespace Violetum.API.Commands.Category
+namespace Violetum.ApplicationCore.Commands.Category
 {
     public class UpdateCategoryCommand : IRequest<CategoryResponse>
     {

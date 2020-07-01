@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 
-namespace Violetum.API.Queries.Category
+namespace Violetum.ApplicationCore.Queries.Category
 {
     public class GetCategoryQuery : IRequest<CategoryResponse>
     {

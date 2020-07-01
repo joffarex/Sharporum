@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Violetum.API.Commands;
 using Violetum.ApplicationCore.Dtos.Category;
 using Violetum.ApplicationCore.ViewModels.Category;
 using Violetum.Domain.Entities;
