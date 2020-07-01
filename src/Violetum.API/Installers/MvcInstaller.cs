@@ -7,6 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using AutoMapper;
 using Azure.Storage.Blobs;
 using FluentValidation.AspNetCore;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -154,6 +155,8 @@ namespace Violetum.API.Installers
             services.AddCors();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+            services.AddMediatR(typeof(Startup));
 
             services.AddControllers(options =>
                 {
