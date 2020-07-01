@@ -1,25 +1,20 @@
-﻿using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 using System.Threading.Tasks;
-using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Authorization;
-using Violetum.API.Commands;
+using Violetum.API.Commands.Category;
 using Violetum.API.Filters;
 using Violetum.API.Helpers;
-using Violetum.API.Queries;
+using Violetum.API.Queries.Category;
 using Violetum.ApplicationCore.Contracts.V1;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Category;
 using Violetum.ApplicationCore.Helpers;
-using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.ViewModels.Category;
-using Violetum.Domain.Entities;
 using Violetum.Domain.Models;
 using Violetum.Domain.Models.SearchParams;
 
@@ -55,7 +50,7 @@ namespace Violetum.API.Controllers.V1
             }
 
             var query = new GetCategoriesQuery(searchParams);
-            var result = await _mediator.Send(query);
+            GetManyResponse<CategoryViewModel> result = await _mediator.Send(query);
 
             return Ok(result);
         }
@@ -83,7 +78,7 @@ namespace Violetum.API.Controllers.V1
             }
 
             var command = new CreateCategoryCommand(createCategoryDto);
-            var result = await _mediator.Send(command);
+            CreatedResponse result = await _mediator.Send(command);
 
             return Created($"{HttpContext.Request.GetDisplayUrl()}/{result.Id}", result);
         }
@@ -101,7 +96,7 @@ namespace Violetum.API.Controllers.V1
         public async Task<IActionResult> Get([FromRoute] string categoryId)
         {
             var query = new GetCategoryQuery(categoryId);
-            var result = await _mediator.Send(query);
+            CategoryResponse result = await _mediator.Send(query);
 
             return Ok(result);
         }
@@ -129,7 +124,7 @@ namespace Violetum.API.Controllers.V1
             }
 
             var command = new UpdateCategoryCommand(categoryId, updateCategoryDto);
-            var result = await _mediator.Send(command);
+            CategoryResponse result = await _mediator.Send(command);
 
             return Ok(result);
         }

@@ -2,7 +2,7 @@
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Category;
 
-namespace Violetum.API.Commands
+namespace Violetum.API.Commands.Category
 {
     public class CreateCategoryCommand : IRequest<CreatedResponse>
     {

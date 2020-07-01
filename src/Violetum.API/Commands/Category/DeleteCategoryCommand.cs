@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Violetum.API.Commands
+namespace Violetum.API.Commands.Category
 {
     public class DeleteCategoryCommand : IRequest
     {

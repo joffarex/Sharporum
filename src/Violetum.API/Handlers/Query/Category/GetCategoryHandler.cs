@@ -1,11 +1,12 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Violetum.API.Queries;
+using Violetum.API.Queries.Category;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.ViewModels.Category;
 
-namespace Violetum.API.Handlers
+namespace Violetum.API.Handlers.Query.Category
 {
     public class GetCategoryHandler : IRequestHandler<GetCategoryQuery, CategoryResponse>
     {
@@ -18,7 +19,7 @@ namespace Violetum.API.Handlers
 
         public Task<CategoryResponse> Handle(GetCategoryQuery request, CancellationToken cancellationToken)
         {
-            var category = _categoryService.GetCategoryById(request.CategoryId);
+            CategoryViewModel category = _categoryService.GetCategoryById(request.CategoryId);
             return Task.FromResult(new CategoryResponse {Category = category});
         }
     }

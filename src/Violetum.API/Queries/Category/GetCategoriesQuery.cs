@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using MediatR;
+﻿using MediatR;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.ViewModels.Category;
 using Violetum.Domain.Models.SearchParams;
 
-namespace Violetum.API.Queries
+namespace Violetum.API.Queries.Category
 {
     public class GetCategoriesQuery : IRequest<GetManyResponse<CategoryViewModel>>
     {

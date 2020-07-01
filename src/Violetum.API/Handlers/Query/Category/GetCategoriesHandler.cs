@@ -2,12 +2,12 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Violetum.API.Queries;
+using Violetum.API.Queries.Category;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Interfaces.Services;
 using Violetum.ApplicationCore.ViewModels.Category;
 
-namespace Violetum.API.Handlers
+namespace Violetum.API.Handlers.Query.Category
 {
     public class GetCategoriesHandler : IRequestHandler<GetCategoriesQuery, GetManyResponse<CategoryViewModel>>
     {

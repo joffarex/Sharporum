@@ -1,11 +1,11 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Violetum.API.Commands;
+using Violetum.API.Commands.Category;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Interfaces.Services;
 
-namespace Violetum.API.Handlers
+namespace Violetum.API.Handlers.Command.Category
 {
     public class CreateCategoryHandler : IRequestHandler<CreateCategoryCommand, CreatedResponse>
     {
