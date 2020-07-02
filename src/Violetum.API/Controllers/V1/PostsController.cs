@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -10,11 +10,12 @@ using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Authorization;
 using Violetum.API.Filters;
 using Violetum.API.Helpers;
+using Violetum.ApplicationCore.Commands.Post;
 using Violetum.ApplicationCore.Contracts.V1;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Post;
 using Violetum.ApplicationCore.Helpers;
-using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.Queries.Post;
 using Violetum.ApplicationCore.ViewModels.Post;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Models;
@@ -27,22 +28,14 @@ namespace Violetum.API.Controllers.V1
     {
         private readonly IAuthorizationService _authorizationService;
         private readonly HttpContext _httpContext;
-        private readonly IPostService _postService;
+        private readonly IMediator _mediator;
 
-        public PostsController(IPostService postService, IHttpContextAccessor httpContextAccessor,
-            IAuthorizationService authorizationService)
+        public PostsController(IHttpContextAccessor httpContextAccessor,
+            IAuthorizationService authorizationService, IMediator mediator)
         {
-            _postService = postService;
             _httpContext = httpContextAccessor.HttpContext;
             _authorizationService = authorizationService;
-        }
-
-        [HttpGet("/secret")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public IActionResult Secret()
-        {
-            string userId = _httpContext.User.FindFirstValue("sub");
-            return Ok(new {Msg = "Secret", UserId = userId});
+            _mediator = mediator;
         }
 
         /// <summary>
@@ -65,15 +58,10 @@ namespace Violetum.API.Controllers.V1
                 return new BadRequestObjectResult(errorResponse);
             }
 
-            IEnumerable<PostViewModel> posts = await _postService.GetPostsAsync(searchParams);
-            int postsCount = await _postService.GetPostsCountAsync(searchParams);
+            var query = new GetPostsQuery(searchParams);
+            GetManyResponse<PostViewModel> result = await _mediator.Send(query);
 
-            return Ok(new GetManyResponse<PostViewModel>
-            {
-                Data = posts,
-                Count = postsCount,
-                Params = new Params {Limit = searchParams.Limit, CurrentPage = searchParams.CurrentPage},
-            });
+            return Ok(result);
         }
 
         /// <summary>
@@ -92,9 +80,10 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            string postId = await _postService.CreatePostAsync(userId, createPostDto);
+            var command = new CreatePostCommand(userId, createPostDto);
+            CreatedResponse result = await _mediator.Send(command);
 
-            return Created($"{HttpContext.Request.GetDisplayUrl()}/{postId}", new CreatedResponse {Id = postId});
+            return Created($"{HttpContext.Request.GetDisplayUrl()}/{result.Id}", result);
         }
 
         /// <summary>
@@ -111,7 +100,7 @@ namespace Violetum.API.Controllers.V1
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(GetManyResponse<PostViewModel>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
-        public IActionResult NewsFeed([FromQuery] PostSearchParams searchParams)
+        public async Task<IActionResult> NewsFeed([FromQuery] PostSearchParams searchParams)
         {
             if (!BaseHelpers.IsPaginatonSearchParamsValid(searchParams, out QueryStringErrorResponse errorResponse))
             {
@@ -120,15 +109,10 @@ namespace Violetum.API.Controllers.V1
 
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            IEnumerable<PostViewModel> posts = _postService.GetNewsFeedPosts(userId, searchParams);
-            int postsCount = _postService.GetPostsCountInNewsFeed(userId, searchParams);
+            var query = new GetNewsFeedQuery(userId, searchParams);
+            GetManyResponse<PostViewModel> result = await _mediator.Send(query);
 
-            return Ok(new GetManyResponse<PostViewModel>
-            {
-                Data = posts,
-                Count = postsCount,
-                Params = new Params {Limit = searchParams.Limit, CurrentPage = searchParams.CurrentPage},
-            });
+            return Ok(result);
         }
 
         /// <summary>
@@ -141,9 +125,12 @@ namespace Violetum.API.Controllers.V1
         [Cached(60)]
         [ProducesResponseType(typeof(PostResponse), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
-        public IActionResult Get([FromRoute] string postId)
+        public async Task<IActionResult> Get([FromRoute] string postId)
         {
-            return Ok(new PostResponse {Post = _postService.GetPost(postId)});
+            var query = new GetPostQuery(postId);
+            PostResponse result = await _mediator.Send(query);
+
+            return Ok(result);
         }
 
         /// <summary>
@@ -160,18 +147,21 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Update([FromRoute] string postId, [FromBody] UpdatePostDto updatePostDto)
         {
-            Post post = _postService.GetPostEntity(postId);
+            var query = new GetPostEntityQuery(postId);
+            Post post = await _mediator.Send(query);
 
             AuthorizationResult authorizationResult =
                 await _authorizationService.AuthorizeAsync(User, post, PolicyConstants.UpdatePostRolePolicy);
-            if (authorizationResult.Succeeded)
-            {
-                PostViewModel postViewModel = await _postService.UpdatePostAsync(post, updatePostDto);
 
-                return Ok(new PostResponse {Post = postViewModel});
+            if (!authorizationResult.Succeeded)
+            {
+                return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
             }
 
-            return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
+            var command = new UpdatePostCommand(post, updatePostDto);
+            PostResponse result = await _mediator.Send(command);
+
+            return Ok(result);
         }
 
         /// <summary>
@@ -183,18 +173,21 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType((int) HttpStatusCode.OK)]
         public async Task<IActionResult> Delete([FromRoute] string postId)
         {
-            Post post = _postService.GetPostEntity(postId);
+            var query = new GetPostEntityQuery(postId);
+            Post post = await _mediator.Send(query);
 
             AuthorizationResult authorizationResult =
                 await _authorizationService.AuthorizeAsync(User, post, PolicyConstants.DeletePostRolePolicy);
-            if (authorizationResult.Succeeded)
-            {
-                await _postService.DeletePostAsync(post);
 
-                return Ok();
+            if (!authorizationResult.Succeeded)
+            {
+                return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
             }
 
-            return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
+            var command = new DeletePostCommand(post);
+            await _mediator.Send(command);
+
+            return Ok();
         }
 
         /// <summary>
@@ -212,7 +205,8 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            await _postService.VotePostAsync(postId, userId, postVoteDto);
+            var command = new VotePostCommand(userId, postId, postVoteDto);
+            await _mediator.Send(command);
 
             return Ok();
         }
