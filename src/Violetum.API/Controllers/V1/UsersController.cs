@@ -1,20 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Filters;
+using Violetum.ApplicationCore.Commands.User;
 using Violetum.ApplicationCore.Contracts.V1;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.User;
-using Violetum.ApplicationCore.Helpers;
-using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.Queries.User;
 using Violetum.ApplicationCore.ViewModels.Follower;
-using Violetum.ApplicationCore.ViewModels.User;
-using Violetum.Domain.Entities;
 using Violetum.Domain.Models;
 
 namespace Violetum.API.Controllers.V1
@@ -22,18 +20,12 @@ namespace Violetum.API.Controllers.V1
     [Produces("application/json")]
     public class UsersController : ControllerBase
     {
-        private readonly IBlobService _blobService;
-        private readonly IFollowerService _followerService;
         private readonly HttpContext _httpContext;
-        private readonly IUserService _userService;
+        private readonly IMediator _mediator;
 
-        public UsersController(IUserService userService, IFollowerService followerService,
-            IBlobService blobService,
-            IHttpContextAccessor httpContextAccessor)
+        public UsersController(IHttpContextAccessor httpContextAccessor, IMediator mediator)
         {
-            _userService = userService;
-            _followerService = followerService;
-            _blobService = blobService;
+            _mediator = mediator;
             _httpContext = httpContextAccessor.HttpContext;
         }
 
@@ -49,10 +41,10 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get([FromRoute] string userId)
         {
-            UserViewModel user = await _userService.GetUserAsync(userId);
-            IEnumerable<UserRank> userRanks = _userService.GetUserRanks(userId);
+            var query = new GetUserQuery(userId);
+            UserResponse result = await _mediator.Send(query);
 
-            return Ok(new UserResponse {User = user, Ranks = userRanks});
+            return Ok(result);
         }
 
         /// <summary>
@@ -70,9 +62,10 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            UserViewModel user = await _userService.UpdateUserAsync(userId, updateUserDto);
+            var command = new UpdateUserCommand(userId, updateUserDto);
+            UserResponse result = await _mediator.Send(command);
 
-            return Ok(new UserResponse {User = user});
+            return Ok(result);
         }
 
         /// <summary>
@@ -90,13 +83,10 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            FileData data = BaseHelpers.GetFileData<User>(updateUserImageDto.Image, userId);
-            await _blobService.UploadImageBlobAsync(data.Content, data.FileName);
-            updateUserImageDto.Image = data.FileName;
+            var command = new UpdateUserImageCommand(userId, updateUserImageDto);
+            UserResponse result = await _mediator.Send(command);
 
-            UserViewModel user = await _userService.UpdateUserImageAsync(userId, updateUserImageDto);
-
-            return Ok(new UserResponse {User = user});
+            return Ok(result);
         }
 
         /// <summary>
@@ -110,10 +100,10 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetFollowers([FromRoute] string userId)
         {
-            return Ok(new FollowersResponse<UserFollowersViewModel>
-            {
-                Followers = await _followerService.GetUserFollowersAsync(userId),
-            });
+            var query = new GetFollowersQuery(userId);
+            FollowersResponse<UserFollowersViewModel> result = await _mediator.Send(query);
+
+            return Ok(result);
         }
 
         /// <summary>
@@ -127,10 +117,10 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetFollowing([FromRoute] string userId)
         {
-            return Ok(new FollowersResponse<UserFollowingViewModel>
-            {
-                Followers = await _followerService.GetUserFollowingAsync(userId),
-            });
+            var query = new GetFollowingQuery(userId);
+            FollowersResponse<UserFollowingViewModel> result = await _mediator.Send(query);
+
+            return Ok(result);
         }
 
         /// <summary>
@@ -147,9 +137,10 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            await _followerService.FollowUserAsync(userId, userToFollowId);
+            var command = new FollowUserCommand(userId, userToFollowId);
+            ActionSuccessResponse result = await _mediator.Send(command);
 
-            return Ok(new ActionSuccessResponse {Message = "OK"});
+            return Ok(result);
         }
 
         /// <summary>
@@ -166,31 +157,38 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            await _followerService.UnfollowUserAsync(userId, userToUnfollowId);
+            var command = new UnfollowUserCommand(userId, userToUnfollowId);
+            ActionSuccessResponse result = await _mediator.Send(command);
 
-            return Ok(new ActionSuccessResponse {Message = "OK"});
+            return Ok(result);
         }
 
         /// <summary>
-        /// Returns User's by post rank
+        ///     Returns User's by post rank
         /// </summary>
         /// <response code="200">Returns User's by post rank</response>
         [HttpGet(ApiRoutes.Users.PostRanks)]
         [ProducesResponseType(typeof(UserRanksResponse), (int) HttpStatusCode.OK)]
-        public IActionResult PostRanks()
+        public async Task<IActionResult> PostRanks()
         {
-            return Ok(new UserRanksResponse {Ranks = _userService.GetPostRanks()});
+            var query = new GetPostRanksQuery();
+            UserRanksResponse result = await _mediator.Send(query);
+
+            return Ok(result);
         }
 
         /// <summary>
-        /// Returns User's by comment rank
+        ///     Returns User's by comment rank
         /// </summary>
         /// <response code="200">Returns User's by comment rank</response>
         [HttpGet(ApiRoutes.Users.CommentRanks)]
         [ProducesResponseType(typeof(UserRanksResponse), (int) HttpStatusCode.OK)]
-        public IActionResult CommentRanks()
+        public async Task<IActionResult> CommentRanks()
         {
-            return Ok(new UserRanksResponse {Ranks = _userService.GetCommentRanks()});
+            var query = new GetCommentRanksQuery();
+            UserRanksResponse result = await _mediator.Send(query);
+
+            return Ok(result);
         }
     }
 }

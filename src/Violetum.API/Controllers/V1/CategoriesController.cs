@@ -1,21 +1,20 @@
-﻿using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Authorization;
 using Violetum.API.Filters;
 using Violetum.API.Helpers;
+using Violetum.ApplicationCore.Commands.Category;
 using Violetum.ApplicationCore.Contracts.V1;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Category;
 using Violetum.ApplicationCore.Helpers;
-using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.Queries.Category;
 using Violetum.ApplicationCore.ViewModels.Category;
-using Violetum.Domain.Entities;
 using Violetum.Domain.Models;
 using Violetum.Domain.Models.SearchParams;
 
@@ -25,16 +24,12 @@ namespace Violetum.API.Controllers.V1
     public class CategoriesController : ControllerBase
     {
         private readonly IAuthorizationService _authorizationService;
-        private readonly ICategoryService _categoryService;
-        private readonly HttpContext _httpContext;
+        private readonly IMediator _mediator;
 
-        public CategoriesController(ICategoryService categoryService,
-            IHttpContextAccessor httpContextAccessor,
-            IAuthorizationService authorizationService)
+        public CategoriesController(IAuthorizationService authorizationService, IMediator mediator)
         {
-            _categoryService = categoryService;
-            _httpContext = httpContextAccessor.HttpContext;
             _authorizationService = authorizationService;
+            _mediator = mediator;
         }
 
         /// <summary>
@@ -54,15 +49,10 @@ namespace Violetum.API.Controllers.V1
                 return new BadRequestObjectResult(errorResponse);
             }
 
-            IEnumerable<CategoryViewModel> categories = await _categoryService.GetCategoriesAsync(searchParams);
-            int categoriesCount = await _categoryService.GetCategoriesCountAsync(searchParams);
+            var query = new GetCategoriesQuery(searchParams);
+            GetManyResponse<CategoryViewModel> result = await _mediator.Send(query);
 
-            return Ok(new GetManyResponse<CategoryViewModel>
-            {
-                Data = categories,
-                Count = categoriesCount,
-                Params = new Params {Limit = searchParams.Limit, CurrentPage = searchParams.CurrentPage},
-            });
+            return Ok(result);
         }
 
         /// <summary>
@@ -82,15 +72,15 @@ namespace Violetum.API.Controllers.V1
             AuthorizationResult authorizationResult =
                 await _authorizationService.AuthorizeAsync(User, PolicyConstants.ManageCategoryRolePolicy);
 
-            if (authorizationResult.Succeeded)
+            if (!authorizationResult.Succeeded)
             {
-                string categoryId = await _categoryService.CreateCategoryAsync(createCategoryDto);
-
-                return Created($"{HttpContext.Request.GetDisplayUrl()}/{categoryId}",
-                    new CreatedResponse {Id = categoryId});
+                return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
             }
 
-            return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
+            var command = new CreateCategoryCommand(createCategoryDto);
+            CreatedResponse result = await _mediator.Send(command);
+
+            return Created($"{HttpContext.Request.GetDisplayUrl()}/{result.Id}", result);
         }
 
         /// <summary>
@@ -103,9 +93,12 @@ namespace Violetum.API.Controllers.V1
         [Cached(120)]
         [ProducesResponseType(typeof(CategoryResponse), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
-        public IActionResult Get([FromRoute] string categoryId)
+        public async Task<IActionResult> Get([FromRoute] string categoryId)
         {
-            return Ok(new CategoryResponse {Category = _categoryService.GetCategoryById(categoryId)});
+            var query = new GetCategoryQuery(categoryId);
+            CategoryResponse result = await _mediator.Send(query);
+
+            return Ok(result);
         }
 
         /// <summary>
@@ -125,16 +118,15 @@ namespace Violetum.API.Controllers.V1
             AuthorizationResult authorizationResult =
                 await _authorizationService.AuthorizeAsync(User, PolicyConstants.ManageCategoryRolePolicy);
 
-            Category category = _categoryService.GetCategoryEntity(categoryId);
-            if (authorizationResult.Succeeded)
+            if (!authorizationResult.Succeeded)
             {
-                CategoryViewModel categoryViewModel =
-                    await _categoryService.UpdateCategoryAsync(category, updateCategoryDto);
-
-                return Ok(new CategoryResponse {Category = categoryViewModel});
+                return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
             }
 
-            return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
+            var command = new UpdateCategoryCommand(categoryId, updateCategoryDto);
+            CategoryResponse result = await _mediator.Send(command);
+
+            return Ok(result);
         }
 
         /// <summary>
@@ -152,15 +144,15 @@ namespace Violetum.API.Controllers.V1
             AuthorizationResult authorizationResult =
                 await _authorizationService.AuthorizeAsync(User, PolicyConstants.ManageCategoryRolePolicy);
 
-            Category category = _categoryService.GetCategoryEntity(categoryId);
-            if (authorizationResult.Succeeded)
+            if (!authorizationResult.Succeeded)
             {
-                await _categoryService.DeleteCategoryAsync(category);
-
-                return Ok();
+                return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
             }
 
-            return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
+            var command = new DeleteCategoryCommand(categoryId);
+            await _mediator.Send(command);
+
+            return Ok();
         }
     }
 }
