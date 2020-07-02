@@ -1,0 +1,30 @@
+﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using MediatR;
+using Violetum.ApplicationCore.Contracts.V1.Responses;
+using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.Queries.User;
+using Violetum.ApplicationCore.ViewModels.User;
+using Violetum.Domain.Models;
+
+namespace Violetum.ApplicationCore.Handlers.Query.User
+{
+    public class GetUserHandler : IRequestHandler<GetUserQuery, UserResponse>
+    {
+        private readonly IUserService _userService;
+
+        public GetUserHandler(IUserService userService)
+        {
+            _userService = userService;
+        }
+
+        public async Task<UserResponse> Handle(GetUserQuery request, CancellationToken cancellationToken)
+        {
+            UserViewModel user = await _userService.GetUserAsync(request.UserId);
+            IEnumerable<UserRank> userRanks = _userService.GetUserRanks(request.UserId);
+
+            return new UserResponse {User = user, Ranks = userRanks};
+        }
+    }
+}
