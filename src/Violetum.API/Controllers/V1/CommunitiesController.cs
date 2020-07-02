@@ -1,7 +1,7 @@
-using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -10,11 +10,12 @@ using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Authorization;
 using Violetum.API.Filters;
 using Violetum.API.Helpers;
+using Violetum.ApplicationCore.Commands.Community;
 using Violetum.ApplicationCore.Contracts.V1;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Community;
 using Violetum.ApplicationCore.Helpers;
-using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.Queries.Community;
 using Violetum.ApplicationCore.ViewModels.Community;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Models;
@@ -26,18 +27,15 @@ namespace Violetum.API.Controllers.V1
     public class CommunitiesController : ControllerBase
     {
         private readonly IAuthorizationService _authorizationService;
-        private readonly IBlobService _blobService;
-        private readonly ICommunityService _communityService;
         private readonly HttpContext _httpContext;
+        private readonly IMediator _mediator;
 
-        public CommunitiesController(ICommunityService communityService, IBlobService blobService,
-            IHttpContextAccessor httpContextAccessor,
-            IAuthorizationService authorizationService)
+        public CommunitiesController(IHttpContextAccessor httpContextAccessor,
+            IAuthorizationService authorizationService, IMediator mediator)
         {
-            _communityService = communityService;
-            _blobService = blobService;
             _httpContext = httpContextAccessor.HttpContext;
             _authorizationService = authorizationService;
+            _mediator = mediator;
         }
 
         /// <summary>
@@ -57,15 +55,10 @@ namespace Violetum.API.Controllers.V1
                 return new BadRequestObjectResult(errorResponse);
             }
 
-            IEnumerable<CommunityViewModel> communities = await _communityService.GetCommunitiesAsync(searchParams);
-            int communitiesCount = await _communityService.GetCategoriesCountAsync(searchParams);
+            var query = new GetCommunitiesQuery(searchParams);
+            GetManyResponse<CommunityViewModel> result = await _mediator.Send(query);
 
-            return Ok(new GetManyResponse<CommunityViewModel>
-            {
-                Data = communities,
-                Count = communitiesCount,
-                Params = new Params {Limit = searchParams.Limit, CurrentPage = searchParams.CurrentPage},
-            });
+            return Ok(result);
         }
 
         /// <summary>
@@ -84,10 +77,10 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            string communityId = await _communityService.CreateCommunityAsync(userId, createCommunityDto);
+            var command = new CreateCommunityCommand(userId, createCommunityDto);
+            CreatedResponse result = await _mediator.Send(command);
 
-            return Created($"{HttpContext.Request.GetDisplayUrl()}/{communityId}",
-                new CreatedResponse {Id = communityId});
+            return Created($"{HttpContext.Request.GetDisplayUrl()}/{result.Id}", result);
         }
 
         /// <summary>
@@ -100,9 +93,12 @@ namespace Violetum.API.Controllers.V1
         [Cached(120)]
         [ProducesResponseType(typeof(CommunityResponse), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
-        public IActionResult Get([FromRoute] string communityId)
+        public async Task<IActionResult> Get([FromRoute] string communityId)
         {
-            return Ok(new CommunityResponse {Community = _communityService.GetCommunityById(communityId)});
+            var query = new GetCommunityQuery(communityId);
+            CommunityResponse result = await _mediator.Send(query);
+
+            return Ok(result);
         }
 
         /// <summary>
@@ -119,20 +115,22 @@ namespace Violetum.API.Controllers.V1
         public async Task<IActionResult> Update([FromRoute] string communityId,
             [FromBody] UpdateCommunityDto updateCommunityDto)
         {
-            Community community = _communityService.GetCommunityEntity(communityId);
+            var query = new GetCommunityEntityQuery(communityId);
+            Community community = await _mediator.Send(query);
 
             AuthorizationResult authorizationResult =
                 await _authorizationService.AuthorizeAsync(User, community,
                     PolicyConstants.UpdateCommunityRolePolicy);
-            if (authorizationResult.Succeeded)
-            {
-                CommunityViewModel communityViewModel =
-                    await _communityService.UpdateCommunityAsync(community, updateCommunityDto);
 
-                return Ok(new CommunityResponse {Community = communityViewModel});
+            if (!authorizationResult.Succeeded)
+            {
+                return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
             }
 
-            return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
+            var command = new UpdateCommunityCommand(communityId, community, updateCommunityDto);
+            CommunityResponse result = await _mediator.Send(command);
+
+            return Ok(result);
         }
 
         /// <summary>
@@ -149,24 +147,21 @@ namespace Violetum.API.Controllers.V1
         public async Task<IActionResult> UpdateImage([FromRoute] string communityId,
             [FromBody] UpdateCommunityImageDto updateCommunityImageDto)
         {
-            Community community = _communityService.GetCommunityEntity(communityId);
+            var query = new GetCommunityEntityQuery(communityId);
+            Community community = await _mediator.Send(query);
 
             AuthorizationResult authorizationResult =
                 await _authorizationService.AuthorizeAsync(User, community,
                     PolicyConstants.UpdateCommunityRolePolicy);
-            if (authorizationResult.Succeeded)
+            if (!authorizationResult.Succeeded)
             {
-                FileData data = BaseHelpers.GetFileData<Community>(updateCommunityImageDto.Image, community.Id);
-                await _blobService.UploadImageBlobAsync(data.Content, data.FileName);
-                updateCommunityImageDto.Image = data.FileName;
-
-                CommunityViewModel communityViewModel =
-                    await _communityService.UpdateCommunityImageAsync(community, updateCommunityImageDto);
-
-                return Ok(new CommunityResponse {Community = communityViewModel});
+                return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
             }
 
-            return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
+            var command = new UpdateCommunityImageCommand(community, updateCommunityImageDto);
+            CommunityResponse result = await _mediator.Send(command);
+
+            return Ok(result);
         }
 
         /// <summary>
@@ -181,23 +176,21 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Delete([FromRoute] string communityId)
         {
-            Community community = _communityService.GetCommunityEntity(communityId);
+            var query = new GetCommunityEntityQuery(communityId);
+            Community community = await _mediator.Send(query);
 
             AuthorizationResult authorizationResult =
                 await _authorizationService.AuthorizeAsync(User, community, PolicyConstants.DeleteCommunityRolePolicy);
-            if (authorizationResult.Succeeded)
+
+            if (!authorizationResult.Succeeded)
             {
-                if (!community.Image.Equals($"{nameof(Community)}/no-image.jpg"))
-                {
-                    await _blobService.DeleteBlobAsync(community.Image);
-                }
-
-                await _communityService.DeleteCommunityAsync(community);
-
-                return Ok();
+                return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
             }
 
-            return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
+            var command = new DeleteCommunityCommand(community);
+            await _mediator.Send(command);
+
+            return Ok();
         }
 
         /// <summary>
@@ -213,18 +206,20 @@ namespace Violetum.API.Controllers.V1
         public async Task<IActionResult> AddModerator([FromRoute] string communityId,
             [FromBody] AddModeratorDto addModeratorDto)
         {
-            Community community = _communityService.GetCommunityEntity(communityId);
+            var query = new GetCommunityEntityQuery(communityId);
+            Community community = await _mediator.Send(query);
 
             AuthorizationResult authorizationResult =
                 await _authorizationService.AuthorizeAsync(User, community, PolicyConstants.AddModeratorRolePolicy);
-            if (authorizationResult.Succeeded)
+            if (!authorizationResult.Succeeded)
             {
-                await _communityService.AddModeratorAsync(community, addModeratorDto);
-
-                return Ok();
+                return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
             }
 
-            return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
+            var command = new AddModeratorCommand(community, addModeratorDto);
+            await _mediator.Send(command);
+
+            return Ok();
         }
     }
 }
