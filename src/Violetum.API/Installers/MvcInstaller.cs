@@ -79,7 +79,7 @@ namespace Violetum.API.Installers
                     options.Authority = urlSettings.IdentityServer;
                     options.RequireHttpsMetadata = false;
 
-                    options.Audience = "Violetum.API";
+                    options.Audience = Constants.ApiName;
                     options.SaveToken = true;
                     options.TokenValidationParameters = optionsTokenValidationParameters;
 
@@ -144,7 +144,7 @@ namespace Violetum.API.Installers
 
             services.AddCors(config =>
             {
-                config.AddPolicy("SPAPolicy", builder =>
+                config.AddPolicy(Constants.CorsPolicy, builder =>
                 {
                     builder.WithOrigins(urlSettings.Spa)
                         .AllowAnyMethod()

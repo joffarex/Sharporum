@@ -12,7 +12,7 @@ namespace Violetum.API.Filters
     public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
     {
         // TODO: possibly get user's key from db and validate against it
-        private const string ApiKeyHeaderName = "ApiKey";
+        private const string ApiKeyHeaderName = Constants.ApiKeyName;
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
@@ -23,7 +23,7 @@ namespace Violetum.API.Filters
             }
 
             var configuration = context.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
-            var apiKey = configuration.GetValue<string>("ApiKey");
+            var apiKey = configuration.GetValue<string>(Constants.ApiKeyName);
 
             if (!apiKey.Equals(potentialApiKey))
             {
