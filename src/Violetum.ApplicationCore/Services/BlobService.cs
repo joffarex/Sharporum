@@ -8,7 +8,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Violetum.ApplicationCore.Attributes;
 using Violetum.ApplicationCore.Helpers;
-using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.Interfaces;
 using BlobInfo = Violetum.Domain.Models.BlobInfo;
 
 namespace Violetum.ApplicationCore.Services

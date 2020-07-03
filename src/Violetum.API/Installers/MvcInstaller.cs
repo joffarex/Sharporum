@@ -29,7 +29,7 @@ using Violetum.API.Authorization.Post.Handlers;
 using Violetum.API.Authorization.Post.Requirements;
 using Violetum.API.Filters;
 using Violetum.API.Settings;
-using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.Services;
 using Violetum.Domain.Models;
 
@@ -79,7 +79,7 @@ namespace Violetum.API.Installers
                     options.Authority = urlSettings.IdentityServer;
                     options.RequireHttpsMetadata = false;
 
-                    options.Audience = "Violetum.API";
+                    options.Audience = Constants.ApiName;
                     options.SaveToken = true;
                     options.TokenValidationParameters = optionsTokenValidationParameters;
 
@@ -144,7 +144,7 @@ namespace Violetum.API.Installers
 
             services.AddCors(config =>
             {
-                config.AddPolicy("SPAPolicy", builder =>
+                config.AddPolicy(Constants.CorsPolicy, builder =>
                 {
                     builder.WithOrigins(urlSettings.Spa)
                         .AllowAnyMethod()

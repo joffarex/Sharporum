@@ -1,5 +1,4 @@
 using System.Linq;
-using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -55,7 +54,7 @@ namespace Violetum.API
             });
 
             app.UseSerilogRequestLogging();
-            app.UseCors("SPAPolicy");
+            app.UseCors(Constants.CorsPolicy);
             app.UseHttpsRedirection();
 
             app.UseAuthentication();

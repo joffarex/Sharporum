@@ -5,7 +5,7 @@ using Violetum.ApplicationCore.ViewModels.Community;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Models.SearchParams;
 
-namespace Violetum.ApplicationCore.Interfaces.Services
+namespace Violetum.ApplicationCore.Interfaces
 {
     public interface ICommunityService
     {

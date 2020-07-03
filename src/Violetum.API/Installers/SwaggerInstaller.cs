@@ -38,7 +38,7 @@ namespace Violetum.API.Installers
                             TokenUrl = new Uri($"{swaggerSettings.IdentityServer}/connect/token", UriKind.Absolute),
                             Scopes = new Dictionary<string, string>
                             {
-                                {"Violetum.API", "API to use issued tokens"},
+                                {Constants.ApiName, "API to use issued tokens"},
                             },
                         },
                     },
@@ -52,7 +52,7 @@ namespace Violetum.API.Installers
                             Reference =
                                 new OpenApiReference {Type = ReferenceType.SecurityScheme, Id = "oauth2"},
                         },
-                        new[] {"Violetum.API"}
+                        new[] {Constants.ApiName}
                     },
                 });
 

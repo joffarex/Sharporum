@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using Ardalis.GuardClauses;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Violetum.ApplicationCore.Attributes;
 using Violetum.ApplicationCore.Dtos.User;
-using Violetum.ApplicationCore.Interfaces.Services;
-using Violetum.ApplicationCore.Interfaces.Validators;
+using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels.User;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
@@ -22,21 +21,20 @@ namespace Violetum.ApplicationCore.Services
         private readonly IMapper _mapper;
         private readonly IPostRepository _postRepository;
         private readonly UserManager<User> _userManager;
-        private readonly IUserValidators _userValidators;
 
-        public UserService(UserManager<User> userManager, IPostRepository postRepository, IMapper mapper,
-            IUserValidators userValidators, ICommentRepository commentRepository)
+        public UserService(UserManager<User> userManager, IPostRepository postRepository,
+            ICommentRepository commentRepository, IMapper mapper)
         {
             _userManager = userManager;
             _postRepository = postRepository;
-            _mapper = mapper;
-            _userValidators = userValidators;
             _commentRepository = commentRepository;
+            _mapper = mapper;
         }
 
         public async Task<UserViewModel> GetUserAsync(string userId)
         {
-            User user = await _userValidators.GetUserByIdOrThrowAsync(userId);
+            User user = await _userManager.FindByIdAsync(userId);
+            Guard.Against.NullItem(user, nameof(user));
 
             return _mapper.Map<UserViewModel>(user);
         }
@@ -44,7 +42,9 @@ namespace Violetum.ApplicationCore.Services
         public async Task<UserViewModel> UpdateUserAsync(string userId,
             UpdateUserDto updateUserDto)
         {
-            User user = await _userValidators.GetUserByIdOrThrowAsync(userId);
+            User user = await _userManager.FindByIdAsync(userId);
+            Guard.Against.NullItem(user, nameof(user));
+
             user.Email = updateUserDto.Email;
             user.UserName = updateUserDto.UserName;
             user.FirstName = updateUserDto.FirstName;
@@ -60,7 +60,9 @@ namespace Violetum.ApplicationCore.Services
         public async Task<UserViewModel> UpdateUserImageAsync(string userId,
             UpdateUserImageDto updateUserImageDto)
         {
-            User user = await _userValidators.GetUserByIdOrThrowAsync(userId);
+            User user = await _userManager.FindByIdAsync(userId);
+            Guard.Against.NullItem(user, nameof(user));
+
             user.Image = updateUserImageDto.Image;
 
             await _userManager.UpdateAsync(user);

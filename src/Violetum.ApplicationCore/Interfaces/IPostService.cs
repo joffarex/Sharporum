@@ -5,7 +5,7 @@ using Violetum.ApplicationCore.ViewModels.Post;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Models.SearchParams;
 
-namespace Violetum.ApplicationCore.Interfaces.Services
+namespace Violetum.ApplicationCore.Interfaces
 {
     public interface IPostService
     {

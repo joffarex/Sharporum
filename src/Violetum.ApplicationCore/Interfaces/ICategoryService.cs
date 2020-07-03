@@ -5,7 +5,7 @@ using Violetum.ApplicationCore.ViewModels.Category;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Models.SearchParams;
 
-namespace Violetum.ApplicationCore.Interfaces.Services
+namespace Violetum.ApplicationCore.Interfaces
 {
     public interface ICategoryService
     {
@@ -17,8 +17,8 @@ namespace Violetum.ApplicationCore.Interfaces.Services
 
         Task<string> CreateCategoryAsync(CreateCategoryDto createCategoryDto);
 
-        Task<CategoryViewModel> UpdateCategoryAsync(Category category, UpdateCategoryDto updateCategoryDto);
+        Task<CategoryViewModel> UpdateCategoryAsync(string categoryId, UpdateCategoryDto updateCategoryDto);
 
-        Task DeleteCategoryAsync(Category category);
+        Task DeleteCategoryAsync(string categoryId);
     }
 }

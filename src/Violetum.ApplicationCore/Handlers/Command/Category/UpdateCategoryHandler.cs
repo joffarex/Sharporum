@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Violetum.ApplicationCore.Commands.Category;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
-using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels.Category;
 
 namespace Violetum.ApplicationCore.Handlers.Command.Category
@@ -19,10 +19,8 @@ namespace Violetum.ApplicationCore.Handlers.Command.Category
 
         public async Task<CategoryResponse> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
         {
-            Domain.Entities.Category category = _categoryService.GetCategoryEntity(request.CategoryId);
-
             CategoryViewModel categoryViewModel =
-                await _categoryService.UpdateCategoryAsync(category, request.UpdateCategoryDto);
+                await _categoryService.UpdateCategoryAsync(request.CategoryId, request.UpdateCategoryDto);
 
             return new CategoryResponse {Category = categoryViewModel};
         }

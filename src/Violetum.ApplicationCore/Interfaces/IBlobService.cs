@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Violetum.Domain.Models;
 
-namespace Violetum.ApplicationCore.Interfaces.Services
+namespace Violetum.ApplicationCore.Interfaces
 {
     public interface IBlobService
     {

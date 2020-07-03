@@ -4,7 +4,7 @@ using Violetum.ApplicationCore.Dtos.User;
 using Violetum.ApplicationCore.ViewModels.User;
 using Violetum.Domain.Models;
 
-namespace Violetum.ApplicationCore.Interfaces.Services
+namespace Violetum.ApplicationCore.Interfaces
 {
     public interface IUserService
     {

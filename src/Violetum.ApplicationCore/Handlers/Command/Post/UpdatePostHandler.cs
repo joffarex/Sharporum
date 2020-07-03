@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Violetum.ApplicationCore.Commands.Post;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
-using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels.Post;
 
 namespace Violetum.ApplicationCore.Handlers.Command.Post

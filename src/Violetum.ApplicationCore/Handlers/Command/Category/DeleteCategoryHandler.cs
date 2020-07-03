@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using MediatR;
 using Violetum.ApplicationCore.Commands.Category;
-using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.Interfaces;
 
 namespace Violetum.ApplicationCore.Handlers.Command.Category
 {
@@ -17,8 +17,7 @@ namespace Violetum.ApplicationCore.Handlers.Command.Category
 
         public async Task<Unit> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
         {
-            Domain.Entities.Category category = _categoryService.GetCategoryEntity(request.CategoryId);
-            await _categoryService.DeleteCategoryAsync(category);
+            await _categoryService.DeleteCategoryAsync(request.CategoryId);
 
             return Unit.Value;
         }
