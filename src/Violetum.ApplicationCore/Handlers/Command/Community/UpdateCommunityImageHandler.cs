@@ -4,7 +4,7 @@ using MediatR;
 using Violetum.ApplicationCore.Commands.Community;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Helpers;
-using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels.Community;
 using Violetum.Domain.Models;
 

@@ -29,7 +29,7 @@ using Violetum.API.Authorization.Post.Handlers;
 using Violetum.API.Authorization.Post.Requirements;
 using Violetum.API.Filters;
 using Violetum.API.Settings;
-using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.Services;
 using Violetum.Domain.Models;
 

@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Ardalis.GuardClauses;
 using AutoMapper;
 using Violetum.ApplicationCore.Attributes;
 using Violetum.ApplicationCore.Dtos.Category;
 using Violetum.ApplicationCore.Helpers;
-using Violetum.ApplicationCore.Interfaces.Services;
-using Violetum.ApplicationCore.Interfaces.Validators;
+using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels.Category;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
@@ -17,32 +17,38 @@ namespace Violetum.ApplicationCore.Services
     public class CategoryService : ICategoryService
     {
         private readonly ICategoryRepository _categoryRepository;
-        private readonly ICategoryValidators _categoryValidators;
         private readonly IMapper _mapper;
-        private readonly IUserValidators _userValidators;
 
-        public CategoryService(ICategoryRepository categoryRepository, IMapper mapper,
-            ICategoryValidators categoryValidators, IUserValidators userValidators)
+        public CategoryService(ICategoryRepository categoryRepository, IMapper mapper)
         {
             _categoryRepository = categoryRepository;
             _mapper = mapper;
-            _categoryValidators = categoryValidators;
-            _userValidators = userValidators;
         }
 
         public CategoryViewModel GetCategoryById(string categoryId)
         {
-            return _categoryValidators.GetCategoryOrThrow<CategoryViewModel>(x => x.Id == categoryId);
+            var category = _categoryRepository.GetCategory<CategoryViewModel>(x => x.Id == categoryId,
+                CategoryHelpers.GetCategoryMapperConfiguration());
+            Guard.Against.NullItem(category, nameof(category));
+
+            return category;
         }
 
         public CategoryViewModel GetCategoryByName(string categoryName)
         {
-            return _categoryValidators.GetCategoryOrThrow<CategoryViewModel>(x => x.Name == categoryName);
+            var category = _categoryRepository.GetCategory<CategoryViewModel>(x => x.Name == categoryName,
+                CategoryHelpers.GetCategoryMapperConfiguration());
+            Guard.Against.NullItem(category, nameof(category));
+
+            return category;
         }
 
         public Category GetCategoryEntity(string categoryId)
         {
-            return _categoryValidators.GetCategoryOrThrow(x => x.Id == categoryId);
+            Category category = _categoryRepository.GetCategory(x => x.Id == categoryId);
+            Guard.Against.NullItem(category, nameof(category));
+
+            return category;
         }
 
         public async Task<IEnumerable<CategoryViewModel>> GetCategoriesAsync(CategorySearchParams searchParams)
@@ -65,9 +71,10 @@ namespace Violetum.ApplicationCore.Services
             return category.Id;
         }
 
-        public async Task<CategoryViewModel> UpdateCategoryAsync(Category category,
+        public async Task<CategoryViewModel> UpdateCategoryAsync(string categoryId,
             UpdateCategoryDto updateCategoryDto)
         {
+            Category category = GetCategoryEntity(categoryId);
             category.Name = updateCategoryDto.Name;
 
             await _categoryRepository.UpdateCategoryAsync(category);
@@ -75,8 +82,9 @@ namespace Violetum.ApplicationCore.Services
             return _mapper.Map<CategoryViewModel>(category);
         }
 
-        public async Task DeleteCategoryAsync(Category category)
+        public async Task DeleteCategoryAsync(string categoryId)
         {
+            Category category = GetCategoryEntity(categoryId);
             await _categoryRepository.DeleteCategoryAsync(category);
         }
     }

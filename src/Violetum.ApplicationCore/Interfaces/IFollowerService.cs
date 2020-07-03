@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Violetum.ApplicationCore.ViewModels.Follower;
 
-namespace Violetum.ApplicationCore.Interfaces.Services
+namespace Violetum.ApplicationCore.Interfaces
 {
     public interface IFollowerService
     {

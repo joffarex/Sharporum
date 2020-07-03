@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Violetum.ApplicationCore.Commands.User;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
-using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels.User;
 
 namespace Violetum.ApplicationCore.Handlers.Command.User

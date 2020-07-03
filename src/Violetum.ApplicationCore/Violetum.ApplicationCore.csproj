@@ -10,11 +10,17 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Ardalis.GuardClauses" Version="1.5.0"/>
+        <PackageReference Include="Ardalis.Specification" Version="3.0.0"/>
         <PackageReference Include="AutoMapper" Version="9.0.0"/>
         <PackageReference Include="Azure.Storage.Blobs" Version="12.4.4"/>
         <PackageReference Include="IdentityModel" Version="4.2.0"/>
         <PackageReference Include="MediatR" Version="8.0.2"/>
         <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Specifications"/>
     </ItemGroup>
 
 </Project>

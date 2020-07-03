@@ -2,12 +2,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
+using Ardalis.GuardClauses;
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Violetum.ApplicationCore.Attributes;
 using Violetum.ApplicationCore.Dtos.Comment;
 using Violetum.ApplicationCore.Helpers;
-using Violetum.ApplicationCore.Interfaces.Services;
-using Violetum.ApplicationCore.Interfaces.Validators;
+using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels.Comment;
 using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Entities;
@@ -20,39 +21,42 @@ namespace Violetum.ApplicationCore.Services
     public class CommentService : ICommentService
     {
         private readonly ICommentRepository _commentRepository;
-        private readonly ICommentValidators _commentValidators;
         private readonly IMapper _mapper;
-        private readonly IPostValidators _postValidators;
-        private readonly IUserValidators _userValidators;
+        private readonly IPostRepository _postRepository;
+        private readonly UserManager<User> _userManager;
         private readonly IVoteRepository _voteRepository;
 
-        public CommentService(ICommentRepository commentRepository, IVoteRepository voteRepository, IMapper mapper,
-            ICommentValidators commentValidators, IUserValidators userValidators, IPostValidators postValidators)
+        public CommentService(ICommentRepository commentRepository, IVoteRepository voteRepository,
+            IPostRepository postRepository, UserManager<User> userManager, IMapper mapper)
         {
             _commentRepository = commentRepository;
             _voteRepository = voteRepository;
+            _postRepository = postRepository;
+            _userManager = userManager;
             _mapper = mapper;
-            _commentValidators = commentValidators;
-            _userValidators = userValidators;
-            _postValidators = postValidators;
         }
 
         public CommentViewModel GetComment(string commentId)
         {
-            return _commentValidators.GetCommentOrThrow<CommentViewModel>(x => x.Id == commentId);
+            var comment = _commentRepository.GetComment<CommentViewModel>(x => x.Id == commentId,
+                CommentHelpers.GetCommentMapperConfiguration());
+            Guard.Against.NullItem(comment, nameof(comment));
+
+            return comment;
         }
 
         public Comment GetCommentEntity(string commentId)
         {
-            return _commentValidators.GetCommentOrThrow(x => x.Id == commentId);
+            Comment comment = _commentRepository.GetComment(x => x.Id == commentId);
+            Guard.Against.NullItem(comment, nameof(comment));
+
+            return comment;
         }
 
         public async Task<IEnumerable<CommentViewModel>> GetCommentsAsync(CommentSearchParams searchParams)
         {
-            if (!string.IsNullOrEmpty(searchParams.UserId))
-            {
-                await _userValidators.GetUserByIdOrThrowAsync(searchParams.UserId);
-            }
+            User user = await _userManager.FindByIdAsync(searchParams.UserId);
+            Guard.Against.NullItem(user.Id, nameof(user));
 
             return _commentRepository.GetComments<CommentViewModel>(searchParams,
                 CommentHelpers.GetCommentMapperConfiguration());
@@ -60,32 +64,28 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<int> GetCommentsCountAsync(CommentSearchParams searchParams)
         {
-            if (!string.IsNullOrEmpty(searchParams.UserId))
-            {
-                await _userValidators.GetUserByIdOrThrowAsync(searchParams.UserId);
-            }
+            User user = await _userManager.FindByIdAsync(searchParams.UserId);
+            Guard.Against.NullItem(user, nameof(user));
 
-            if (!string.IsNullOrEmpty(searchParams.PostId))
-            {
-                _postValidators.GetPostOrThrow(x => x.Id == searchParams.PostId);
-            }
+            Post post = _postRepository.GetPost(x => x.Id == searchParams.PostId);
+            Guard.Against.NullItem(post, nameof(post));
 
             return _commentRepository.GetCommentsCount(searchParams);
         }
 
         public async Task<string> CreateCommentAsync(string userId, CreateCommentDto createCommentDto)
         {
-            User user = await _userValidators.GetUserByIdOrThrowAsync(userId);
-            Post post = _postValidators.GetPostOrThrow(x => x.Id == createCommentDto.PostId);
+            User user = await _userManager.FindByIdAsync(userId);
+            Guard.Against.NullItem(user, nameof(user));
+
+            Post post = _postRepository.GetPost(x => x.Id == createCommentDto.PostId);
+            Guard.Against.NullItem(post, nameof(post));
 
             if (!string.IsNullOrEmpty(createCommentDto.ParentId))
             {
-                Comment parentComment =
-                    _commentValidators.GetCommentOrThrow(x => x.Id == createCommentDto.ParentId);
-                if (parentComment.Post.Id != post.Id)
-                {
-                    throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "This operation is not allowed");
-                }
+                Comment parentComment = _commentRepository.GetComment(x => x.Id == createCommentDto.ParentId);
+
+                Guard.Against.NotEqual(parentComment.Post.Id, post.Id);
             }
 
             var comment = _mapper.Map<Comment>(createCommentDto);
@@ -115,12 +115,16 @@ namespace Violetum.ApplicationCore.Services
         {
             try
             {
-                User user = await _userValidators.GetUserByIdOrThrowAsync(userId);
-                Comment comment = _commentValidators.GetCommentOrThrow(x => x.Id == commentId);
+                User user = await _userManager.FindByIdAsync(userId);
+                Guard.Against.NullItem(user, nameof(user));
 
-                var commentVote =
-                    _voteRepository.GetEntityVote<CommentVote>(
-                        x => (x.CommentId == comment.Id) && (x.UserId == user.Id), x => x);
+                Comment comment = _commentRepository.GetComment(x => x.Id == commentId);
+                Guard.Against.NullItem(comment, nameof(comment));
+
+                var commentVote = _voteRepository.GetEntityVote<CommentVote>(
+                    x => (x.CommentId == comment.Id) && (x.UserId == user.Id),
+                    x => x
+                );
 
                 if (commentVote != null)
                 {

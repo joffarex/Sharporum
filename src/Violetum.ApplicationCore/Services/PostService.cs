@@ -2,12 +2,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
+using Ardalis.GuardClauses;
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Violetum.ApplicationCore.Attributes;
 using Violetum.ApplicationCore.Dtos.Post;
 using Violetum.ApplicationCore.Helpers;
-using Violetum.ApplicationCore.Interfaces.Services;
-using Violetum.ApplicationCore.Interfaces.Validators;
+using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels.Post;
 using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Entities;
@@ -19,55 +20,54 @@ namespace Violetum.ApplicationCore.Services
     [Service]
     public class PostService : IPostService
     {
-        private readonly ICommunityValidators _communityValidators;
+        private readonly ICommunityRepository _communityRepository;
         private readonly IMapper _mapper;
         private readonly IPostRepository _postRepository;
-        private readonly IPostValidators _postValidators;
-        private readonly IUserValidators _userValidators;
+        private readonly UserManager<User> _userManager;
         private readonly IVoteRepository _voteRepository;
 
-        public PostService(IPostRepository postRepository, IVoteRepository voteRepository, IMapper mapper,
-            IPostValidators postValidators, ICommunityValidators communityValidators, IUserValidators userValidators)
+        public PostService(IPostRepository postRepository, IVoteRepository voteRepository,
+            ICommunityRepository communityRepository, UserManager<User> userManager, IMapper mapper)
         {
             _postRepository = postRepository;
             _voteRepository = voteRepository;
+            _communityRepository = communityRepository;
+            _userManager = userManager;
             _mapper = mapper;
-            _postValidators = postValidators;
-            _communityValidators = communityValidators;
-            _userValidators = userValidators;
         }
 
         public PostViewModel GetPost(string postId)
         {
-            return _postValidators.GetPostOrThrow<PostViewModel>(x => x.Id == postId);
+            var post = _postRepository.GetPost<PostViewModel>(x => x.Id == postId,
+                PostHelpers.GetPostMapperConfiguration());
+            Guard.Against.NullItem(post, nameof(post));
+
+            return post;
         }
 
         public Post GetPostEntity(string postId)
         {
-            return _postValidators.GetPostOrThrow(x => x.Id == postId);
+            Post post = _postRepository.GetPost(x => x.Id == postId);
+            Guard.Against.NullItem(post, nameof(post));
+
+            return post;
         }
 
         public async Task<IEnumerable<PostViewModel>> GetPostsAsync(PostSearchParams searchParams)
         {
-            if (!string.IsNullOrEmpty(searchParams.UserId))
-            {
-                await _userValidators.GetUserByIdOrThrowAsync(searchParams.UserId);
-            }
+            User user = await _userManager.FindByIdAsync(searchParams.UserId);
+            Guard.Against.NullItem(user, nameof(user));
 
-            if (!string.IsNullOrEmpty(searchParams.CommunityName))
-            {
-                _communityValidators.GetCommunityOrThrow(x => x.Name == searchParams.CommunityName);
-            }
+            Community community = _communityRepository.GetCommunity(x => x.Name == searchParams.CommunityName);
+            Guard.Against.NullItem(community, nameof(community));
 
             return _postRepository.GetPosts<PostViewModel>(searchParams, PostHelpers.GetPostMapperConfiguration());
         }
 
         public IEnumerable<PostViewModel> GetNewsFeedPosts(string userId, PostSearchParams searchParams)
         {
-            if (!string.IsNullOrEmpty(searchParams.CommunityName))
-            {
-                _communityValidators.GetCommunityOrThrow(x => x.Name == searchParams.CommunityName);
-            }
+            Community community = _communityRepository.GetCommunity(x => x.Name == searchParams.CommunityName);
+            Guard.Against.NullItem(community, nameof(community));
 
             searchParams.Followers = _postRepository.GetUserFollowings(userId);
             return _postRepository.GetPosts<PostViewModel>(searchParams, PostHelpers.GetPostMapperConfiguration());
@@ -75,25 +75,19 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<int> GetPostsCountAsync(PostSearchParams searchParams)
         {
-            if (!string.IsNullOrEmpty(searchParams.CommunityName))
-            {
-                _communityValidators.GetCommunityOrThrow(x => x.Name == searchParams.CommunityName);
-            }
+            Community community = _communityRepository.GetCommunity(x => x.Name == searchParams.CommunityName);
+            Guard.Against.NullItem(community, nameof(community));
 
-            if (!string.IsNullOrEmpty(searchParams.UserId))
-            {
-                await _userValidators.GetUserByIdOrThrowAsync(searchParams.UserId);
-            }
+            User user = await _userManager.FindByIdAsync(searchParams.UserId);
+            Guard.Against.NullItem(user.Id, nameof(user));
 
             return _postRepository.GetPostCount(searchParams);
         }
 
         public int GetPostsCountInNewsFeed(string userId, PostSearchParams searchParams)
         {
-            if (!string.IsNullOrEmpty(searchParams.CommunityName))
-            {
-                _communityValidators.GetCommunityOrThrow(x => x.Name == searchParams.CommunityName);
-            }
+            Community community = _communityRepository.GetCommunity(x => x.Name == searchParams.CommunityName);
+            Guard.Against.NullItem(community, nameof(community));
 
             searchParams.Followers = _postRepository.GetUserFollowings(userId);
             return _postRepository.GetPostCount(searchParams);
@@ -101,7 +95,8 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<string> CreatePostAsync(string userId, CreatePostDto createPostDto)
         {
-            User user = await _userValidators.GetUserByIdOrThrowAsync(userId);
+            User user = await _userManager.FindByIdAsync(userId);
+            Guard.Against.NullItem(user, nameof(user));
 
             var post = _mapper.Map<Post>(createPostDto);
             post.AuthorId = user.Id;
@@ -130,12 +125,16 @@ namespace Violetum.ApplicationCore.Services
         {
             try
             {
-                User user = await _userValidators.GetUserByIdOrThrowAsync(userId);
-                Post post = _postValidators.GetPostOrThrow(x => x.Id == postId);
+                User user = await _userManager.FindByIdAsync(userId);
+                Guard.Against.NullItem(user, nameof(user));
 
-                var postVote =
-                    _voteRepository.GetEntityVote<PostVote>(
-                        x => (x.PostId == post.Id) && (x.UserId == user.Id), x => x);
+                Post post = _postRepository.GetPost(x => x.Id == postId);
+                Guard.Against.NullItem(post, nameof(post));
+
+                var postVote = _voteRepository.GetEntityVote<PostVote>(
+                    x => (x.PostId == post.Id) && (x.UserId == user.Id),
+                    x => x
+                );
 
                 if (postVote != null)
                 {

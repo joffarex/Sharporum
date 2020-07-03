@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using MediatR;
 using Violetum.ApplicationCore.Contracts.V1.Responses;
-using Violetum.ApplicationCore.Interfaces.Services;
+using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.Queries.Post;
 using Violetum.ApplicationCore.ViewModels.Post;
 

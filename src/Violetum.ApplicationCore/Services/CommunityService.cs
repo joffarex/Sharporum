@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using Ardalis.GuardClauses;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Violetum.ApplicationCore.Attributes;
 using Violetum.ApplicationCore.Dtos.Community;
 using Violetum.ApplicationCore.Helpers;
-using Violetum.ApplicationCore.Interfaces.Services;
-using Violetum.ApplicationCore.Interfaces.Validators;
+using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels.Community;
 using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Entities;
@@ -21,45 +21,49 @@ namespace Violetum.ApplicationCore.Services
     public class CommunityService : ICommunityService
     {
         private readonly ICommunityRepository _communityRepository;
-        private readonly ICommunityValidators _communityValidators;
         private readonly IMapper _mapper;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<User> _userManager;
-        private readonly IUserValidators _userValidators;
 
-        public CommunityService(ICommunityRepository communityRepository, IMapper mapper,
-            ICommunityValidators communityValidators, IUserValidators userValidators,
-            RoleManager<IdentityRole> roleManager, UserManager<User> userManager)
+        public CommunityService(ICommunityRepository communityRepository, RoleManager<IdentityRole> roleManager,
+            UserManager<User> userManager, IMapper mapper)
         {
             _communityRepository = communityRepository;
             _mapper = mapper;
-            _communityValidators = communityValidators;
-            _userValidators = userValidators;
             _roleManager = roleManager;
             _userManager = userManager;
         }
 
         public CommunityViewModel GetCommunityById(string communityId)
         {
-            return _communityValidators.GetCommunityOrThrow<CommunityViewModel>(x => x.Id == communityId);
+            var community = _communityRepository.GetCommunity<CommunityViewModel>(x => x.Id == communityId,
+                CommunityHelpers.GetCommunityMapperConfiguration());
+            Guard.Against.NullItem(community, nameof(community));
+
+            return community;
         }
 
         public CommunityViewModel GetCommunityByName(string communityName)
         {
-            return _communityValidators.GetCommunityOrThrow<CommunityViewModel>(x => x.Name == communityName);
+            var community = _communityRepository.GetCommunity<CommunityViewModel>(x => x.Name == communityName,
+                CommunityHelpers.GetCommunityMapperConfiguration());
+            Guard.Against.NullItem(community, nameof(community));
+
+            return community;
         }
 
         public Community GetCommunityEntity(string communityId)
         {
-            return _communityValidators.GetCommunityOrThrow(x => x.Id == communityId);
+            Community community = _communityRepository.GetCommunity(x => x.Id == communityId);
+            Guard.Against.NullItem(community, nameof(community));
+
+            return community;
         }
 
         public async Task<IEnumerable<CommunityViewModel>> GetCommunitiesAsync(CommunitySearchParams searchParams)
         {
-            if (!string.IsNullOrEmpty(searchParams.UserId))
-            {
-                await _userValidators.GetUserByIdOrThrowAsync(searchParams.UserId);
-            }
+            User user = await _userManager.FindByIdAsync(searchParams.UserId);
+            Guard.Against.NullItem(user, nameof(user));
 
             return _communityRepository.GetCommunities<CommunityViewModel>(searchParams,
                 CommunityHelpers.GetCommunityMapperConfiguration());
@@ -67,17 +71,16 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<int> GetCategoriesCountAsync(CommunitySearchParams searchParams)
         {
-            if (!string.IsNullOrEmpty(searchParams.UserId))
-            {
-                await _userValidators.GetUserByIdOrThrowAsync(searchParams.UserId);
-            }
+            User user = await _userManager.FindByIdAsync(searchParams.UserId);
+            Guard.Against.NullItem(user, nameof(user));
 
             return _communityRepository.GetCommunityCount(searchParams);
         }
 
         public async Task<string> CreateCommunityAsync(string userId, CreateCommunityDto createCommunityDto)
         {
-            User user = await _userValidators.GetUserByIdOrThrowAsync(userId);
+            User user = await _userManager.FindByIdAsync(userId);
+            Guard.Against.NullItem(user, nameof(user));
 
             var community = _mapper.Map<Community>(createCommunityDto);
             community.Author = user;
