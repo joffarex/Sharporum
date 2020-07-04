@@ -97,7 +97,7 @@ namespace Violetum.API.Controllers.V1
         /// <response code="200">Creates post with file</response>
         /// <response code="400">Unable to create post due to validation errors</response>
         /// <response code="404">Unable to find user with provided "AuthorId"/ community with provided "CommunityId"</response>
-        [HttpPost(ApiRoutes.Posts.Create)]
+        [HttpPost(ApiRoutes.Posts.CreateWithFile)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType((int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
