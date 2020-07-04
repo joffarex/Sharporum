@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using Violetum.Domain.Models;
 
-namespace Violetum.ApplicationCore.Contracts.V1.Responses
+namespace Violetum.ApplicationCore.Responses
 {
     public class ErrorResponse
     {

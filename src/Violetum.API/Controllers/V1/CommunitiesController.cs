@@ -8,14 +8,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Authorization;
+using Violetum.API.Contracts.V1;
 using Violetum.API.Filters;
 using Violetum.API.Helpers;
 using Violetum.ApplicationCore.Commands.Community;
-using Violetum.ApplicationCore.Contracts.V1;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Community;
 using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Queries.Community;
+using Violetum.ApplicationCore.Responses;
 using Violetum.ApplicationCore.ViewModels.Community;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Models;
@@ -46,19 +46,25 @@ namespace Violetum.API.Controllers.V1
         /// <response code="404">Unable to find user with provided "UserId"</response>
         [HttpGet(ApiRoutes.Communities.GetMany)]
         [Cached(120)]
-        [ProducesResponseType(typeof(GetManyResponse<CommunityViewModel>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(FilteredResponse<CommunityViewModel>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetMany([FromQuery] CommunitySearchParams searchParams)
         {
-            if (!BaseHelpers.IsPaginatonSearchParamsValid(searchParams, out QueryStringErrorResponse errorResponse))
+            if (!BaseHelpers.IsPaginatonSearchParamsValid(searchParams, out ErrorResponse errorResponse))
             {
                 return new BadRequestObjectResult(errorResponse);
             }
 
             var query = new GetCommunitiesQuery(searchParams);
-            GetManyResponse<CommunityViewModel> result = await _mediator.Send(query);
+            var result = await _mediator.Send(query);
 
-            return Ok(result);
+            return Ok(new FilteredResponse<CommunityViewModel>
+            {
+                Data = result.Data,
+                Count = result.Count,
+                Limit = searchParams.Limit,
+                CurrentPage = searchParams.CurrentPage,
+            });
         }
 
         /// <summary>
@@ -70,7 +76,7 @@ namespace Violetum.API.Controllers.V1
         /// <response code="404">Unable to find user with provided "AuthorId"</response>
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost(ApiRoutes.Communities.Create)]
-        [ProducesResponseType(typeof(CreatedResponse), (int) HttpStatusCode.Created)]
+        [ProducesResponseType((int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Create([FromBody] CreateCommunityDto createCommunityDto)
@@ -78,9 +84,9 @@ namespace Violetum.API.Controllers.V1
             string userId = _httpContext.User.FindFirstValue("sub");
 
             var command = new CreateCommunityCommand(userId, createCommunityDto);
-            CreatedResponse result = await _mediator.Send(command);
+            var id = await _mediator.Send(command);
 
-            return Created($"{HttpContext.Request.GetDisplayUrl()}/{result.Id}", result);
+            return Created($"{HttpContext.Request.GetDisplayUrl()}/{id}", null);
         }
 
         /// <summary>
@@ -201,7 +207,7 @@ namespace Violetum.API.Controllers.V1
         /// <response code="200">Updates community</response>
         /// <response code="404">Unable to find user with provided "NewModeratorId"</response>
         [HttpPost(ApiRoutes.Communities.SetModerator)]
-        [ProducesResponseType(typeof(ActionSuccessResponse), (int) HttpStatusCode.Created)]
+        [ProducesResponseType((int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> AddModerator([FromRoute] string communityId,
             [FromBody] AddModeratorDto addModeratorDto)

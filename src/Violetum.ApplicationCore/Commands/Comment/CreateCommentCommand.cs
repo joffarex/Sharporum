@@ -1,10 +1,9 @@
 ﻿using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Comment;
 
 namespace Violetum.ApplicationCore.Commands.Comment
 {
-    public class CreateCommentCommand : IRequest<CreatedResponse>
+    public class CreateCommentCommand : IRequest<string>
     {
         public CreateCommentCommand(string userId, CreateCommentDto createCommentDto)
         {

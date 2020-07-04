@@ -1,4 +1,4 @@
-﻿namespace Violetum.ApplicationCore.Contracts.V1
+﻿namespace Violetum.API.Contracts.V1
 {
     public static class ApiRoutes
     {

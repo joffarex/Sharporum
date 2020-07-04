@@ -1,11 +1,11 @@
 ﻿using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
+using Violetum.ApplicationCore.ViewModels;
 using Violetum.ApplicationCore.ViewModels.Category;
 using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.ApplicationCore.Queries.Category
 {
-    public class GetCategoriesQuery : IRequest<GetManyResponse<CategoryViewModel>>
+    public class GetCategoriesQuery : IRequest<FilteredDataViewModel<CategoryViewModel>>
     {
         public GetCategoriesQuery(CategorySearchParams searchParams)
         {

@@ -2,12 +2,11 @@
 using System.Threading.Tasks;
 using MediatR;
 using Violetum.ApplicationCore.Commands.User;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Interfaces;
 
 namespace Violetum.ApplicationCore.Handlers.Command.User
 {
-    public class UnfollowUserHandler : IRequestHandler<UnfollowUserCommand, ActionSuccessResponse>
+    public class UnfollowUserHandler : IRequestHandler<UnfollowUserCommand>
     {
         private readonly IFollowerService _followerService;
 
@@ -16,12 +15,11 @@ namespace Violetum.ApplicationCore.Handlers.Command.User
             _followerService = followerService;
         }
 
-        public async Task<ActionSuccessResponse> Handle(UnfollowUserCommand request,
+        public async Task<Unit> Handle(UnfollowUserCommand request,
             CancellationToken cancellationToken)
         {
             await _followerService.UnfollowUserAsync(request.UserId, request.UserToUnfollowId);
-
-            return new ActionSuccessResponse {Message = "OK"};
+            return Unit.Value;
         }
     }
 }

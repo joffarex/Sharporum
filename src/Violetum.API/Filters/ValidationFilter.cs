@@ -3,7 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
+using Violetum.ApplicationCore.Responses;
+using Violetum.Domain.Models;
 
 namespace Violetum.API.Filters
 {
@@ -29,7 +30,7 @@ namespace Violetum.API.Filters
                     {
                         var errorModel = new ErrorModel
                         {
-                            FieldName = fieldName,
+                            Name = fieldName,
                             Message = errorMessage,
                         };
 

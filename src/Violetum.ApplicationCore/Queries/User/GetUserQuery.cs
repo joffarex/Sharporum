@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
+using Violetum.ApplicationCore.Responses;
 
 namespace Violetum.ApplicationCore.Queries.User
 {

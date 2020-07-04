@@ -2,12 +2,11 @@
 using System.Threading.Tasks;
 using MediatR;
 using Violetum.ApplicationCore.Commands.Post;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Interfaces;
 
 namespace Violetum.ApplicationCore.Handlers.Command.Post
 {
-    public class CreatePostHandler : IRequestHandler<CreatePostCommand, CreatedResponse>
+    public class CreatePostHandler : IRequestHandler<CreatePostCommand, string>
     {
         private readonly IPostService _postService;
 
@@ -16,10 +15,9 @@ namespace Violetum.ApplicationCore.Handlers.Command.Post
             _postService = postService;
         }
 
-        public async Task<CreatedResponse> Handle(CreatePostCommand request, CancellationToken cancellationToken)
+        public async Task<string> Handle(CreatePostCommand request, CancellationToken cancellationToken)
         {
-            string postId = await _postService.CreatePostAsync(request.UserId, request.CreatePostDto);
-            return new CreatedResponse {Id = postId};
+            return await _postService.CreatePostAsync(request.UserId, request.CreatePostDto);
         }
     }
 }

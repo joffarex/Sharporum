@@ -2,14 +2,14 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.Queries.Category;
+using Violetum.ApplicationCore.ViewModels;
 using Violetum.ApplicationCore.ViewModels.Category;
 
 namespace Violetum.ApplicationCore.Handlers.Query.Category
 {
-    public class GetCategoriesHandler : IRequestHandler<GetCategoriesQuery, GetManyResponse<CategoryViewModel>>
+    public class GetCategoriesHandler : IRequestHandler<GetCategoriesQuery, FilteredDataViewModel<CategoryViewModel>>
     {
         private readonly ICategoryService _categoryService;
 
@@ -18,18 +18,16 @@ namespace Violetum.ApplicationCore.Handlers.Query.Category
             _categoryService = categoryService;
         }
 
-        public async Task<GetManyResponse<CategoryViewModel>> Handle(GetCategoriesQuery request,
+        public async Task<FilteredDataViewModel<CategoryViewModel>> Handle(GetCategoriesQuery request,
             CancellationToken cancellationToken)
         {
             IEnumerable<CategoryViewModel> categories = await _categoryService.GetCategoriesAsync(request.SearchParams);
             int categoriesCount = await _categoryService.GetCategoriesCountAsync(request.SearchParams);
 
-            return new GetManyResponse<CategoryViewModel>
+            return new FilteredDataViewModel<CategoryViewModel>
             {
                 Data = categories,
                 Count = categoriesCount,
-                Params = new Params
-                    {Limit = request.SearchParams.Limit, CurrentPage = request.SearchParams.CurrentPage},
             };
         }
     }

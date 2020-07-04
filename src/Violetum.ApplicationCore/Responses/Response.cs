@@ -1,4 +1,4 @@
-﻿namespace Violetum.ApplicationCore.Contracts.V1.Responses
+﻿namespace Violetum.ApplicationCore.Responses
 {
     public class Response<TViewModel>
     {

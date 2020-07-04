@@ -1,11 +1,11 @@
 ﻿using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
+using Violetum.ApplicationCore.ViewModels;
 using Violetum.ApplicationCore.ViewModels.Community;
 using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.ApplicationCore.Queries.Community
 {
-    public class GetCommunitiesQuery : IRequest<GetManyResponse<CommunityViewModel>>
+    public class GetCommunitiesQuery : IRequest<FilteredDataViewModel<CommunityViewModel>>
     {
         public GetCommunitiesQuery(CommunitySearchParams searchParams)
         {

@@ -8,14 +8,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Authorization;
+using Violetum.API.Contracts.V1;
 using Violetum.API.Filters;
 using Violetum.API.Helpers;
 using Violetum.ApplicationCore.Commands.Comment;
-using Violetum.ApplicationCore.Contracts.V1;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Comment;
 using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Queries.Comment;
+using Violetum.ApplicationCore.Responses;
 using Violetum.ApplicationCore.ViewModels.Comment;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Models;
@@ -46,19 +46,25 @@ namespace Violetum.API.Controllers.V1
         /// <response code="404">Unable to find user with provided "UserId" / post with provided "PostId"</response>
         [HttpGet(ApiRoutes.Comments.GetMany)]
         [Cached(60)]
-        [ProducesResponseType(typeof(GetManyResponse<CommentViewModel>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(FilteredResponse<CommentViewModel>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetMany([FromQuery] CommentSearchParams searchParams)
         {
-            if (!BaseHelpers.IsPaginatonSearchParamsValid(searchParams, out QueryStringErrorResponse errorResponse))
+            if (!BaseHelpers.IsPaginatonSearchParamsValid(searchParams, out ErrorResponse errorResponse))
             {
                 return new BadRequestObjectResult(errorResponse);
             }
 
             var query = new GetCommentsQuery(searchParams);
-            GetManyResponse<CommentViewModel> result = await _mediator.Send(query);
+            var result = await _mediator.Send(query);
 
-            return Ok(result);
+            return Ok(new FilteredResponse<CommentViewModel>
+            {
+                Data = result.Data,
+                Count = result.Count,
+                Limit = searchParams.Limit,
+                CurrentPage = searchParams.CurrentPage,
+            });
         }
 
         /// <summary>
@@ -73,7 +79,7 @@ namespace Violetum.API.Controllers.V1
         /// </response>
         [HttpPost(ApiRoutes.Comments.Create)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [ProducesResponseType(typeof(CreatedResponse), (int) HttpStatusCode.Created)]
+        [ProducesResponseType((int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Create([FromBody] CreateCommentDto createCommentDto)
@@ -81,9 +87,9 @@ namespace Violetum.API.Controllers.V1
             string userId = _httpContext.User.FindFirstValue("sub");
 
             var command = new CreateCommentCommand(userId, createCommentDto);
-            CreatedResponse result = await _mediator.Send(command);
+            var id = await _mediator.Send(command);
 
-            return Created($"{HttpContext.Request.GetDisplayUrl()}/{result.Id}", result);
+            return Created($"{HttpContext.Request.GetDisplayUrl()}/{id}", null);
         }
 
         /// <summary>

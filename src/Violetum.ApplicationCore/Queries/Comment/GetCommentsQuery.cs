@@ -1,11 +1,11 @@
 ﻿using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
+using Violetum.ApplicationCore.ViewModels;
 using Violetum.ApplicationCore.ViewModels.Comment;
 using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.ApplicationCore.Queries.Comment
 {
-    public class GetCommentsQuery : IRequest<GetManyResponse<CommentViewModel>>
+    public class GetCommentsQuery : IRequest<FilteredDataViewModel<CommentViewModel>>
     {
         public GetCommentsQuery(CommentSearchParams searchParams)
         {

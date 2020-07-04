@@ -2,14 +2,14 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.Queries.Comment;
+using Violetum.ApplicationCore.ViewModels;
 using Violetum.ApplicationCore.ViewModels.Comment;
 
 namespace Violetum.ApplicationCore.Handlers.Query.Comment
 {
-    public class GetCommentsHandler : IRequestHandler<GetCommentsQuery, GetManyResponse<CommentViewModel>>
+    public class GetCommentsHandler : IRequestHandler<GetCommentsQuery, FilteredDataViewModel<CommentViewModel>>
     {
         private readonly ICommentService _commentService;
 
@@ -18,18 +18,16 @@ namespace Violetum.ApplicationCore.Handlers.Query.Comment
             _commentService = commentService;
         }
 
-        public async Task<GetManyResponse<CommentViewModel>> Handle(GetCommentsQuery request,
+        public async Task<FilteredDataViewModel<CommentViewModel>> Handle(GetCommentsQuery request,
             CancellationToken cancellationToken)
         {
             IEnumerable<CommentViewModel> comments = await _commentService.GetCommentsAsync(request.SearchParams);
             int commentsCount = await _commentService.GetCommentsCountAsync(request.SearchParams);
 
-            return new GetManyResponse<CommentViewModel>
+            return new FilteredDataViewModel<CommentViewModel>
             {
                 Data = comments,
                 Count = commentsCount,
-                Params = new Params
-                    {Limit = request.SearchParams.Limit, CurrentPage = request.SearchParams.CurrentPage},
             };
         }
     }

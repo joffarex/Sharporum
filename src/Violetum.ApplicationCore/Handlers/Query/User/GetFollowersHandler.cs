@@ -1,14 +1,13 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.Queries.User;
 using Violetum.ApplicationCore.ViewModels.Follower;
 
 namespace Violetum.ApplicationCore.Handlers.Query.User
 {
-    public class GetFollowersHandler : IRequestHandler<GetFollowersQuery, FollowersResponse<UserFollowersViewModel>>
+    public class GetFollowersHandler : IRequestHandler<GetFollowersQuery, UserFollowersViewModel>
     {
         private readonly IFollowerService _followerService;
 
@@ -17,13 +16,10 @@ namespace Violetum.ApplicationCore.Handlers.Query.User
             _followerService = followerService;
         }
 
-        public async Task<FollowersResponse<UserFollowersViewModel>> Handle(GetFollowersQuery request,
+        public async Task<UserFollowersViewModel> Handle(GetFollowersQuery request,
             CancellationToken cancellationToken)
         {
-            return new FollowersResponse<UserFollowersViewModel>
-            {
-                Followers = await _followerService.GetUserFollowersAsync(request.UserId),
-            };
+            return await _followerService.GetUserFollowersAsync(request.UserId);
         }
     }
 }

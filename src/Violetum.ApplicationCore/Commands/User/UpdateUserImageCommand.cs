@@ -1,6 +1,6 @@
 ﻿using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.User;
+using Violetum.ApplicationCore.Responses;
 
 namespace Violetum.ApplicationCore.Commands.User
 {

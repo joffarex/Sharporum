@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Violetum.Domain.Models;
 
-namespace Violetum.ApplicationCore.Contracts.HealthChecks
+namespace Violetum.ApplicationCore.Responses
 {
     public class HealthCheckResponse
     {

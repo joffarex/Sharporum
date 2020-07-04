@@ -9,7 +9,8 @@ using Newtonsoft.Json;
 using Serilog;
 using Violetum.API.Installers;
 using Violetum.API.Settings;
-using Violetum.ApplicationCore.Contracts.HealthChecks;
+using Violetum.ApplicationCore.Responses;
+using Violetum.Domain.Models;
 
 namespace Violetum.API
 {

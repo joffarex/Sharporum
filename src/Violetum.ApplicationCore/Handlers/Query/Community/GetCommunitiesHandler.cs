@@ -2,14 +2,14 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.Queries.Community;
+using Violetum.ApplicationCore.ViewModels;
 using Violetum.ApplicationCore.ViewModels.Community;
 
 namespace Violetum.ApplicationCore.Handlers.Query.Community
 {
-    public class GetCommunitiesHandler : IRequestHandler<GetCommunitiesQuery, GetManyResponse<CommunityViewModel>>
+    public class GetCommunitiesHandler : IRequestHandler<GetCommunitiesQuery, FilteredDataViewModel<CommunityViewModel>>
     {
         private readonly ICommunityService _communityService;
 
@@ -18,19 +18,17 @@ namespace Violetum.ApplicationCore.Handlers.Query.Community
             _communityService = communityService;
         }
 
-        public async Task<GetManyResponse<CommunityViewModel>> Handle(GetCommunitiesQuery request,
+        public async Task<FilteredDataViewModel<CommunityViewModel>> Handle(GetCommunitiesQuery request,
             CancellationToken cancellationToken)
         {
             IEnumerable<CommunityViewModel> communities =
                 await _communityService.GetCommunitiesAsync(request.SearchParams);
             int communitiesCount = await _communityService.GetCategoriesCountAsync(request.SearchParams);
 
-            return new GetManyResponse<CommunityViewModel>
+            return new FilteredDataViewModel<CommunityViewModel>
             {
                 Data = communities,
                 Count = communitiesCount,
-                Params = new Params
-                    {Limit = request.SearchParams.Limit, CurrentPage = request.SearchParams.CurrentPage},
             };
         }
     }

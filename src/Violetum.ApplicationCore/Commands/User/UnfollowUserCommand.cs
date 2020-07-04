@@ -1,9 +1,8 @@
 ﻿using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 
 namespace Violetum.ApplicationCore.Commands.User
 {
-    public class UnfollowUserCommand : IRequest<ActionSuccessResponse>
+    public class UnfollowUserCommand : IRequest
     {
         public UnfollowUserCommand(string userId, string userToUnfollowId)
         {

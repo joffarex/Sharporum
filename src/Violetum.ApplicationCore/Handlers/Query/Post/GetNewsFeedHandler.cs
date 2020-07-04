@@ -2,34 +2,32 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.Queries.Post;
+using Violetum.ApplicationCore.ViewModels;
 using Violetum.ApplicationCore.ViewModels.Post;
 
 namespace Violetum.ApplicationCore.Handlers.Query.Post
 {
-    public class GetNewsFeedHandler : IRequestHandler<GetPostsQuery, GetManyResponse<PostViewModel>>
+    public class GetPostsHandler : IRequestHandler<GetPostsQuery, FilteredDataViewModel<PostViewModel>>
     {
         private readonly IPostService _postService;
 
-        public GetNewsFeedHandler(IPostService postService)
+        public GetPostsHandler(IPostService postService)
         {
             _postService = postService;
         }
 
-        public async Task<GetManyResponse<PostViewModel>> Handle(GetPostsQuery request,
+        public async Task<FilteredDataViewModel<PostViewModel>> Handle(GetPostsQuery request,
             CancellationToken cancellationToken)
         {
             IEnumerable<PostViewModel> posts = await _postService.GetPostsAsync(request.SearchParams);
             int postsCount = await _postService.GetPostsCountAsync(request.SearchParams);
 
-            return new GetManyResponse<PostViewModel>
+            return new FilteredDataViewModel<PostViewModel>
             {
                 Data = posts,
                 Count = postsCount,
-                Params = new Params
-                    {Limit = request.SearchParams.Limit, CurrentPage = request.SearchParams.CurrentPage},
             };
         }
     }

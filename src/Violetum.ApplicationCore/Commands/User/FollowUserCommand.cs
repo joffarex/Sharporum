@@ -1,9 +1,8 @@
 ﻿using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 
 namespace Violetum.ApplicationCore.Commands.User
 {
-    public class FollowUserCommand : IRequest<ActionSuccessResponse>
+    public class FollowUserCommand : IRequest
     {
         public FollowUserCommand(string userId, string userToFollowId)
         {

@@ -1,4 +1,4 @@
-﻿namespace Violetum.ApplicationCore.Contracts.HealthChecks
+﻿namespace Violetum.Domain.Models
 {
     public class HealthCheck
     {

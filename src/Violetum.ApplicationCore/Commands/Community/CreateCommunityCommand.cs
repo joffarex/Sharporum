@@ -1,10 +1,9 @@
 ﻿using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Community;
 
 namespace Violetum.ApplicationCore.Commands.Community
 {
-    public class CreateCommunityCommand : IRequest<CreatedResponse>
+    public class CreateCommunityCommand : IRequest<string>
     {
         public CreateCommunityCommand(string userId, CreateCommunityDto createCommunityDto)
         {

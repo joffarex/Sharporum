@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using MediatR;
 using Violetum.ApplicationCore.Commands.User;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Interfaces;
+using Violetum.ApplicationCore.Responses;
 using Violetum.ApplicationCore.ViewModels.User;
 using Violetum.Domain.Models;
 

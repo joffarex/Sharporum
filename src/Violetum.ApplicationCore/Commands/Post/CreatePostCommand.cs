@@ -1,10 +1,9 @@
 ﻿using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Post;
 
 namespace Violetum.ApplicationCore.Commands.Post
 {
-    public class CreatePostCommand : IRequest<CreatedResponse>
+    public class CreatePostCommand : IRequest<string>
     {
         public CreatePostCommand(string userId, CreatePostDto createPostDto)
         {

@@ -1,10 +1,9 @@
 ﻿using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.ViewModels.Follower;
 
 namespace Violetum.ApplicationCore.Queries.User
 {
-    public class GetFollowingQuery : IRequest<FollowersResponse<UserFollowingViewModel>>
+    public class GetFollowingQuery : IRequest<UserFollowingViewModel>
     {
         public GetFollowingQuery(string userId)
         {

@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using MediatR;
@@ -6,12 +7,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Violetum.API.Contracts.V1;
 using Violetum.API.Filters;
 using Violetum.ApplicationCore.Commands.User;
-using Violetum.ApplicationCore.Contracts.V1;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.User;
 using Violetum.ApplicationCore.Queries.User;
+using Violetum.ApplicationCore.Responses;
 using Violetum.ApplicationCore.ViewModels.Follower;
 using Violetum.Domain.Models;
 
@@ -96,14 +97,14 @@ namespace Violetum.API.Controllers.V1
         /// <response code="200">Returns a list of user's followers</response>
         /// <response code="404">Unable to find user to return followers for</response>
         [HttpGet(ApiRoutes.Users.GetFollowers)]
-        [ProducesResponseType(typeof(FollowersResponse<UserFollowersViewModel>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Response<UserFollowersViewModel>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetFollowers([FromRoute] string userId)
         {
             var query = new GetFollowersQuery(userId);
-            FollowersResponse<UserFollowersViewModel> result = await _mediator.Send(query);
+            var result = await _mediator.Send(query);
 
-            return Ok(result);
+            return Ok(new Response<UserFollowersViewModel> {Data = result});
         }
 
         /// <summary>
@@ -113,14 +114,14 @@ namespace Violetum.API.Controllers.V1
         /// <response code="200">Returns a list of users who current user is following</response>
         /// <response code="404">Unable to find user to return following users for</response>
         [HttpGet(ApiRoutes.Users.GetFollowing)]
-        [ProducesResponseType(typeof(FollowersResponse<UserFollowingViewModel>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Response<UserFollowingViewModel>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetFollowing([FromRoute] string userId)
         {
             var query = new GetFollowingQuery(userId);
-            FollowersResponse<UserFollowingViewModel> result = await _mediator.Send(query);
+            var result = await _mediator.Send(query);
 
-            return Ok(result);
+            return Ok(new Response<UserFollowingViewModel> {Data = result});
         }
 
         /// <summary>
@@ -131,16 +132,16 @@ namespace Violetum.API.Controllers.V1
         /// <response code="404">Unable to find user to follow or user who follows</response>
         [HttpPost(ApiRoutes.Users.Follow)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [ProducesResponseType(typeof(ActionSuccessResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Follow([FromRoute] string userToFollowId)
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
             var command = new FollowUserCommand(userId, userToFollowId);
-            ActionSuccessResponse result = await _mediator.Send(command);
+            await _mediator.Send(command);
 
-            return Ok(result);
+            return Ok();
         }
 
         /// <summary>
@@ -151,16 +152,16 @@ namespace Violetum.API.Controllers.V1
         /// <response code="404">Unable to find user to unfollow or user who unfollows</response>
         [HttpPost(ApiRoutes.Users.Unfollow)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [ProducesResponseType(typeof(ActionSuccessResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Unfollow([FromRoute] string userToUnfollowId)
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
             var command = new UnfollowUserCommand(userId, userToUnfollowId);
-            ActionSuccessResponse result = await _mediator.Send(command);
+            await _mediator.Send(command);
 
-            return Ok(result);
+            return Ok();
         }
 
         /// <summary>
@@ -168,13 +169,13 @@ namespace Violetum.API.Controllers.V1
         /// </summary>
         /// <response code="200">Returns User's by post rank</response>
         [HttpGet(ApiRoutes.Users.PostRanks)]
-        [ProducesResponseType(typeof(UserRanksResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Response<IEnumerable<Ranks>>), (int) HttpStatusCode.OK)]
         public async Task<IActionResult> PostRanks()
         {
             var query = new GetPostRanksQuery();
-            UserRanksResponse result = await _mediator.Send(query);
+            var result = await _mediator.Send(query);
 
-            return Ok(result);
+            return Ok(new Response<IEnumerable<Ranks>> {Data = result});
         }
 
         /// <summary>
@@ -182,13 +183,13 @@ namespace Violetum.API.Controllers.V1
         /// </summary>
         /// <response code="200">Returns User's by comment rank</response>
         [HttpGet(ApiRoutes.Users.CommentRanks)]
-        [ProducesResponseType(typeof(UserRanksResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Response<IEnumerable<Ranks>>), (int) HttpStatusCode.OK)]
         public async Task<IActionResult> CommentRanks()
         {
             var query = new GetCommentRanksQuery();
-            UserRanksResponse result = await _mediator.Send(query);
+            var result = await _mediator.Send(query);
 
-            return Ok(result);
+            return Ok(new Response<IEnumerable<Ranks>> {Data = result});
         }
     }
 }

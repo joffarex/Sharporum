@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.StaticFiles;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
+using Violetum.ApplicationCore.Responses;
 using Violetum.Domain.Models;
 using Violetum.Domain.Models.SearchParams;
 
@@ -31,31 +31,31 @@ namespace Violetum.ApplicationCore.Helpers
         }
 
         public static bool IsPaginatonSearchParamsValid(BaseSearchParams searchParams,
-            out QueryStringErrorResponse errorResponse)
+            out ErrorResponse errorResponse)
         {
-            errorResponse = new QueryStringErrorResponse();
-            var errors = new List<QueryStringErrorModel>();
+            errorResponse = new ErrorResponse();
+            var errors = new List<ErrorModel>();
             if ((searchParams.Limit > 50) || (searchParams.Limit <= 0))
             {
-                errors.Add(new QueryStringErrorModel
+                errors.Add(new ErrorModel
                 {
                     Message = "Limit must be between 0 and 50",
-                    QueryStringName = nameof(searchParams.Limit),
+                    Name = nameof(searchParams.Limit),
                 });
             }
 
             if (searchParams.CurrentPage <= 0)
             {
-                errors.Add(new QueryStringErrorModel
+                errors.Add(new ErrorModel
                 {
                     Message = "Current Page must not be negative",
-                    QueryStringName = nameof(searchParams.CurrentPage),
+                    Name = nameof(searchParams.CurrentPage),
                 });
             }
 
-            foreach (QueryStringErrorModel errorModel in errors.Select(error => new QueryStringErrorModel
+            foreach (ErrorModel errorModel in errors.Select(error => new ErrorModel
             {
-                QueryStringName = error.QueryStringName,
+                Name = error.Name,
                 Message = error.Message,
             }))
             {

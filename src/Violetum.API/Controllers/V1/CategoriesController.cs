@@ -6,14 +6,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Violetum.API.Authorization;
+using Violetum.API.Contracts.V1;
 using Violetum.API.Filters;
 using Violetum.API.Helpers;
 using Violetum.ApplicationCore.Commands.Category;
-using Violetum.ApplicationCore.Contracts.V1;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Category;
 using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Queries.Category;
+using Violetum.ApplicationCore.Responses;
 using Violetum.ApplicationCore.ViewModels.Category;
 using Violetum.Domain.Models;
 using Violetum.Domain.Models.SearchParams;
@@ -40,19 +40,25 @@ namespace Violetum.API.Controllers.V1
         /// <response code="404">Unable to find user with provided "UserId"</response>
         [HttpGet(ApiRoutes.Categories.GetMany)]
         [Cached(120)]
-        [ProducesResponseType(typeof(GetManyResponse<CategoryViewModel>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(FilteredResponse<CategoryViewModel>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetMany([FromQuery] CategorySearchParams searchParams)
         {
-            if (!BaseHelpers.IsPaginatonSearchParamsValid(searchParams, out QueryStringErrorResponse errorResponse))
+            if (!BaseHelpers.IsPaginatonSearchParamsValid(searchParams, out ErrorResponse errorResponse))
             {
                 return new BadRequestObjectResult(errorResponse);
             }
 
             var query = new GetCategoriesQuery(searchParams);
-            GetManyResponse<CategoryViewModel> result = await _mediator.Send(query);
+            var result = await _mediator.Send(query);
 
-            return Ok(result);
+            return Ok(new FilteredResponse<CategoryViewModel>
+            {
+                Data = result.Data,
+                Count = result.Count,
+                Limit = searchParams.Limit,
+                CurrentPage = searchParams.CurrentPage,
+            });
         }
 
         /// <summary>
@@ -64,7 +70,7 @@ namespace Violetum.API.Controllers.V1
         /// <response code="404">Unable to find user with provided "AuthorId"</response>
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost(ApiRoutes.Categories.Create)]
-        [ProducesResponseType(typeof(CreatedResponse), (int) HttpStatusCode.Created)]
+        [ProducesResponseType((int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Create([FromBody] CreateCategoryDto createCategoryDto)
@@ -78,9 +84,9 @@ namespace Violetum.API.Controllers.V1
             }
 
             var command = new CreateCategoryCommand(createCategoryDto);
-            CreatedResponse result = await _mediator.Send(command);
+            var id = await _mediator.Send(command);
 
-            return Created($"{HttpContext.Request.GetDisplayUrl()}/{result.Id}", result);
+            return Created($"{HttpContext.Request.GetDisplayUrl()}/{id}", null);
         }
 
         /// <summary>

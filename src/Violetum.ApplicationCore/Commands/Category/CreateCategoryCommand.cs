@@ -1,10 +1,9 @@
 ﻿using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Category;
 
 namespace Violetum.ApplicationCore.Commands.Category
 {
-    public class CreateCategoryCommand : IRequest<CreatedResponse>
+    public class CreateCategoryCommand : IRequest<string>
     {
         public CreateCategoryCommand(CreateCategoryDto createCategoryDto)
         {
