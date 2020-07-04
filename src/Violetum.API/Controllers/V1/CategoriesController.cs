@@ -14,6 +14,7 @@ using Violetum.ApplicationCore.Dtos.Category;
 using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Queries.Category;
 using Violetum.ApplicationCore.Responses;
+using Violetum.ApplicationCore.ViewModels;
 using Violetum.ApplicationCore.ViewModels.Category;
 using Violetum.Domain.Models;
 using Violetum.Domain.Models.SearchParams;
@@ -49,15 +50,13 @@ namespace Violetum.API.Controllers.V1
                 return new BadRequestObjectResult(errorResponse);
             }
 
-            var query = new GetCategoriesQuery(searchParams);
-            var result = await _mediator.Send(query);
+            FilteredDataViewModel<CategoryViewModel>
+                result = await _mediator.Send(new GetCategoriesQuery(searchParams));
 
-            return Ok(new FilteredResponse<CategoryViewModel>
+            return Ok(new FilteredResponse<CategoryViewModel>(searchParams)
             {
                 Data = result.Data,
                 Count = result.Count,
-                Limit = searchParams.Limit,
-                CurrentPage = searchParams.CurrentPage,
             });
         }
 
@@ -83,10 +82,9 @@ namespace Violetum.API.Controllers.V1
                 return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
             }
 
-            var command = new CreateCategoryCommand(createCategoryDto);
-            var id = await _mediator.Send(command);
+            string categoryId = await _mediator.Send(new CreateCategoryCommand(createCategoryDto));
 
-            return Created($"{HttpContext.Request.GetDisplayUrl()}/{id}", null);
+            return Created($"{HttpContext.Request.GetDisplayUrl()}/{categoryId}", null);
         }
 
         /// <summary>
@@ -101,10 +99,10 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get([FromRoute] string categoryId)
         {
-            var query = new GetCategoryQuery(categoryId);
-            CategoryViewModel result = await _mediator.Send(query);
-
-            return Ok(new Response<CategoryViewModel> {Data = result});
+            return Ok(new Response<CategoryViewModel>
+            {
+                Data = await _mediator.Send(new GetCategoryQuery(categoryId)),
+            });
         }
 
         /// <summary>
@@ -129,10 +127,10 @@ namespace Violetum.API.Controllers.V1
                 return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
             }
 
-            var command = new UpdateCategoryCommand(categoryId, updateCategoryDto);
-            CategoryViewModel result = await _mediator.Send(command);
-
-            return Ok(new Response<CategoryViewModel> {Data = result});
+            return Ok(new Response<CategoryViewModel>
+            {
+                Data = await _mediator.Send(new UpdateCategoryCommand(categoryId, updateCategoryDto)),
+            });
         }
 
         /// <summary>
@@ -155,8 +153,7 @@ namespace Violetum.API.Controllers.V1
                 return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
             }
 
-            var command = new DeleteCategoryCommand(categoryId);
-            await _mediator.Send(command);
+            await _mediator.Send(new DeleteCategoryCommand(categoryId));
 
             return Ok();
         }

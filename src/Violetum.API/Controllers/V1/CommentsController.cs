@@ -16,6 +16,7 @@ using Violetum.ApplicationCore.Dtos.Comment;
 using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Queries.Comment;
 using Violetum.ApplicationCore.Responses;
+using Violetum.ApplicationCore.ViewModels;
 using Violetum.ApplicationCore.ViewModels.Comment;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Models;
@@ -55,15 +56,12 @@ namespace Violetum.API.Controllers.V1
                 return new BadRequestObjectResult(errorResponse);
             }
 
-            var query = new GetCommentsQuery(searchParams);
-            var result = await _mediator.Send(query);
+            FilteredDataViewModel<CommentViewModel> result = await _mediator.Send(new GetCommentsQuery(searchParams));
 
-            return Ok(new FilteredResponse<CommentViewModel>
+            return Ok(new FilteredResponse<CommentViewModel>(searchParams)
             {
                 Data = result.Data,
                 Count = result.Count,
-                Limit = searchParams.Limit,
-                CurrentPage = searchParams.CurrentPage,
             });
         }
 
@@ -86,10 +84,9 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            var command = new CreateCommentCommand(userId, createCommentDto);
-            var id = await _mediator.Send(command);
+            string commentId = await _mediator.Send(new CreateCommentCommand(userId, createCommentDto));
 
-            return Created($"{HttpContext.Request.GetDisplayUrl()}/{id}", null);
+            return Created($"{HttpContext.Request.GetDisplayUrl()}/{commentId}", null);
         }
 
         /// <summary>
@@ -104,10 +101,10 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get([FromRoute] string commentId)
         {
-            var query = new GetCommentQuery(commentId);
-            CommentViewModel result = await _mediator.Send(query);
-
-            return Ok(new Response<CommentViewModel> {Data = result});
+            return Ok(new Response<CommentViewModel>
+            {
+                Data = await _mediator.Send(new GetCommentQuery(commentId)),
+            });
         }
 
         /// <summary>
@@ -125,8 +122,7 @@ namespace Violetum.API.Controllers.V1
         public async Task<IActionResult> Update([FromRoute] string commentId,
             [FromBody] UpdateCommentDto updateCommentDto)
         {
-            var query = new GetCommentEntityQuery(commentId);
-            Comment comment = await _mediator.Send(query);
+            Comment comment = await _mediator.Send(new GetCommentEntityQuery(commentId));
 
             AuthorizationResult authorizationResult =
                 await _authorizationService.AuthorizeAsync(User, comment, PolicyConstants.UpdateCommentRolePolicy);
@@ -136,10 +132,10 @@ namespace Violetum.API.Controllers.V1
                 return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
             }
 
-            var command = new UpdateCommentCommand(comment, updateCommentDto);
-            CommentViewModel result = await _mediator.Send(command);
-
-            return Ok(new Response<CommentViewModel> {Data = result});
+            return Ok(new Response<CommentViewModel>
+            {
+                Data = await _mediator.Send(new UpdateCommentCommand(comment, updateCommentDto)),
+            });
         }
 
         /// <summary>
@@ -151,8 +147,7 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType((int) HttpStatusCode.OK)]
         public async Task<IActionResult> Delete([FromRoute] string commentId)
         {
-            var query = new GetCommentEntityQuery(commentId);
-            Comment comment = await _mediator.Send(query);
+            Comment comment = await _mediator.Send(new GetCommentEntityQuery(commentId));
 
             AuthorizationResult authorizationResult =
                 await _authorizationService.AuthorizeAsync(User, comment, PolicyConstants.UpdateCommentRolePolicy);
@@ -162,8 +157,7 @@ namespace Violetum.API.Controllers.V1
                 return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
             }
 
-            var command = new DeleteCommentCommand(comment);
-            await _mediator.Send(command);
+            await _mediator.Send(new DeleteCommentCommand(comment));
 
             return Ok();
         }
@@ -183,8 +177,7 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            var command = new VoteCommentCommand(userId, commentId, commentVoteDto);
-            await _mediator.Send(command);
+            await _mediator.Send(new VoteCommentCommand(userId, commentId, commentVoteDto));
 
             return Ok();
         }

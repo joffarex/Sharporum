@@ -16,6 +16,7 @@ using Violetum.ApplicationCore.Dtos.Community;
 using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Queries.Community;
 using Violetum.ApplicationCore.Responses;
+using Violetum.ApplicationCore.ViewModels;
 using Violetum.ApplicationCore.ViewModels.Community;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Models;
@@ -55,15 +56,13 @@ namespace Violetum.API.Controllers.V1
                 return new BadRequestObjectResult(errorResponse);
             }
 
-            var query = new GetCommunitiesQuery(searchParams);
-            var result = await _mediator.Send(query);
+            FilteredDataViewModel<CommunityViewModel> result =
+                await _mediator.Send(new GetCommunitiesQuery(searchParams));
 
-            return Ok(new FilteredResponse<CommunityViewModel>
+            return Ok(new FilteredResponse<CommunityViewModel>(searchParams)
             {
                 Data = result.Data,
                 Count = result.Count,
-                Limit = searchParams.Limit,
-                CurrentPage = searchParams.CurrentPage,
             });
         }
 
@@ -83,10 +82,9 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            var command = new CreateCommunityCommand(userId, createCommunityDto);
-            var id = await _mediator.Send(command);
+            string communityId = await _mediator.Send(new CreateCommunityCommand(userId, createCommunityDto));
 
-            return Created($"{HttpContext.Request.GetDisplayUrl()}/{id}", null);
+            return Created($"{HttpContext.Request.GetDisplayUrl()}/{communityId}", null);
         }
 
         /// <summary>
@@ -101,10 +99,10 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get([FromRoute] string communityId)
         {
-            var query = new GetCommunityQuery(communityId);
-            CommunityViewModel result = await _mediator.Send(query);
-
-            return Ok(new Response<CommunityViewModel> {Data = result});
+            return Ok(new Response<CommunityViewModel>
+            {
+                Data = await _mediator.Send(new GetCommunityQuery(communityId)),
+            });
         }
 
         /// <summary>
@@ -121,8 +119,7 @@ namespace Violetum.API.Controllers.V1
         public async Task<IActionResult> Update([FromRoute] string communityId,
             [FromBody] UpdateCommunityDto updateCommunityDto)
         {
-            var query = new GetCommunityEntityQuery(communityId);
-            Community community = await _mediator.Send(query);
+            Community community = await _mediator.Send(new GetCommunityEntityQuery(communityId));
 
             AuthorizationResult authorizationResult =
                 await _authorizationService.AuthorizeAsync(User, community,
@@ -133,10 +130,10 @@ namespace Violetum.API.Controllers.V1
                 return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
             }
 
-            var command = new UpdateCommunityCommand(communityId, community, updateCommunityDto);
-            CommunityViewModel result = await _mediator.Send(command);
-
-            return Ok(new Response<CommunityViewModel> {Data = result});
+            return Ok(new Response<CommunityViewModel>
+            {
+                Data = await _mediator.Send(new UpdateCommunityCommand(communityId, community, updateCommunityDto)),
+            });
         }
 
         /// <summary>
@@ -153,8 +150,7 @@ namespace Violetum.API.Controllers.V1
         public async Task<IActionResult> UpdateImage([FromRoute] string communityId,
             [FromBody] UpdateCommunityImageDto updateCommunityImageDto)
         {
-            var query = new GetCommunityEntityQuery(communityId);
-            Community community = await _mediator.Send(query);
+            Community community = await _mediator.Send(new GetCommunityEntityQuery(communityId));
 
             AuthorizationResult authorizationResult =
                 await _authorizationService.AuthorizeAsync(User, community,
@@ -164,10 +160,10 @@ namespace Violetum.API.Controllers.V1
                 return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
             }
 
-            var command = new UpdateCommunityImageCommand(community, updateCommunityImageDto);
-            CommunityViewModel result = await _mediator.Send(command);
-
-            return Ok(new Response<CommunityViewModel> {Data = result});
+            return Ok(new Response<CommunityViewModel>
+            {
+                Data = await _mediator.Send(new UpdateCommunityImageCommand(community, updateCommunityImageDto)),
+            });
         }
 
         /// <summary>
@@ -182,8 +178,7 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Delete([FromRoute] string communityId)
         {
-            var query = new GetCommunityEntityQuery(communityId);
-            Community community = await _mediator.Send(query);
+            Community community = await _mediator.Send(new GetCommunityEntityQuery(communityId));
 
             AuthorizationResult authorizationResult =
                 await _authorizationService.AuthorizeAsync(User, community, PolicyConstants.DeleteCommunityRolePolicy);
@@ -193,8 +188,7 @@ namespace Violetum.API.Controllers.V1
                 return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
             }
 
-            var command = new DeleteCommunityCommand(community);
-            await _mediator.Send(command);
+            await _mediator.Send(new DeleteCommunityCommand(community));
 
             return Ok();
         }
@@ -212,8 +206,7 @@ namespace Violetum.API.Controllers.V1
         public async Task<IActionResult> AddModerator([FromRoute] string communityId,
             [FromBody] AddModeratorDto addModeratorDto)
         {
-            var query = new GetCommunityEntityQuery(communityId);
-            Community community = await _mediator.Send(query);
+            Community community = await _mediator.Send(new GetCommunityEntityQuery(communityId));
 
             AuthorizationResult authorizationResult =
                 await _authorizationService.AuthorizeAsync(User, community, PolicyConstants.AddModeratorRolePolicy);
@@ -222,8 +215,7 @@ namespace Violetum.API.Controllers.V1
                 return ActionResults.UnauthorizedResult(User.Identity.IsAuthenticated);
             }
 
-            var command = new AddModeratorCommand(community, addModeratorDto);
-            await _mediator.Send(command);
+            await _mediator.Send(new AddModeratorCommand(community, addModeratorDto));
 
             return Ok();
         }

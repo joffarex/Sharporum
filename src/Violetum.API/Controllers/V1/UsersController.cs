@@ -42,10 +42,10 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get([FromRoute] string userId)
         {
-            var query = new GetUserQuery(userId);
-            UserResponse result = await _mediator.Send(query);
-
-            return Ok(result);
+            return Ok(new Response<UserResponse>
+            {
+                Data = await _mediator.Send(new GetUserQuery(userId)),
+            });
         }
 
         /// <summary>
@@ -63,10 +63,10 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            var command = new UpdateUserCommand(userId, updateUserDto);
-            UserResponse result = await _mediator.Send(command);
-
-            return Ok(result);
+            return Ok(new Response<UserResponse>
+            {
+                Data = await _mediator.Send(new UpdateUserCommand(userId, updateUserDto)),
+            });
         }
 
         /// <summary>
@@ -84,10 +84,10 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            var command = new UpdateUserImageCommand(userId, updateUserImageDto);
-            UserResponse result = await _mediator.Send(command);
-
-            return Ok(result);
+            return Ok(new Response<UserResponse>
+            {
+                Data = await _mediator.Send(new UpdateUserImageCommand(userId, updateUserImageDto)),
+            });
         }
 
         /// <summary>
@@ -101,10 +101,10 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetFollowers([FromRoute] string userId)
         {
-            var query = new GetFollowersQuery(userId);
-            var result = await _mediator.Send(query);
-
-            return Ok(new Response<UserFollowersViewModel> {Data = result});
+            return Ok(new Response<UserFollowersViewModel>
+            {
+                Data = await _mediator.Send(new GetFollowersQuery(userId)),
+            });
         }
 
         /// <summary>
@@ -118,10 +118,10 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetFollowing([FromRoute] string userId)
         {
-            var query = new GetFollowingQuery(userId);
-            var result = await _mediator.Send(query);
-
-            return Ok(new Response<UserFollowingViewModel> {Data = result});
+            return Ok(new Response<UserFollowingViewModel>
+            {
+                Data = await _mediator.Send(new GetFollowingQuery(userId)),
+            });
         }
 
         /// <summary>
@@ -138,8 +138,7 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            var command = new FollowUserCommand(userId, userToFollowId);
-            await _mediator.Send(command);
+            await _mediator.Send(new FollowUserCommand(userId, userToFollowId));
 
             return Ok();
         }
@@ -158,8 +157,7 @@ namespace Violetum.API.Controllers.V1
         {
             string userId = _httpContext.User.FindFirstValue("sub");
 
-            var command = new UnfollowUserCommand(userId, userToUnfollowId);
-            await _mediator.Send(command);
+            await _mediator.Send(new UnfollowUserCommand(userId, userToUnfollowId));
 
             return Ok();
         }
@@ -172,10 +170,10 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(Response<IEnumerable<Ranks>>), (int) HttpStatusCode.OK)]
         public async Task<IActionResult> PostRanks()
         {
-            var query = new GetPostRanksQuery();
-            var result = await _mediator.Send(query);
-
-            return Ok(new Response<IEnumerable<Ranks>> {Data = result});
+            return Ok(new Response<IEnumerable<Ranks>>
+            {
+                Data = await _mediator.Send(new GetPostRanksQuery()),
+            });
         }
 
         /// <summary>
@@ -186,10 +184,10 @@ namespace Violetum.API.Controllers.V1
         [ProducesResponseType(typeof(Response<IEnumerable<Ranks>>), (int) HttpStatusCode.OK)]
         public async Task<IActionResult> CommentRanks()
         {
-            var query = new GetCommentRanksQuery();
-            var result = await _mediator.Send(query);
-
-            return Ok(new Response<IEnumerable<Ranks>> {Data = result});
+            return Ok(new Response<IEnumerable<Ranks>>
+            {
+                Data = await _mediator.Send(new GetCommentRanksQuery()),
+            });
         }
     }
 }
