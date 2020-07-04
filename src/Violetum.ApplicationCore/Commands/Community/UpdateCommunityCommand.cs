@@ -1,10 +1,10 @@
 ﻿using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Community;
+using Violetum.ApplicationCore.ViewModels.Community;
 
 namespace Violetum.ApplicationCore.Commands.Community
 {
-    public class UpdateCommunityCommand : IRequest<CommunityResponse>
+    public class UpdateCommunityCommand : IRequest<CommunityViewModel>
     {
         public UpdateCommunityCommand(string communityId, Domain.Entities.Community community,
             UpdateCommunityDto updateCommunityDto)

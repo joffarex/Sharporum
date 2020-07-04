@@ -1,14 +1,13 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.Queries.Comment;
 using Violetum.ApplicationCore.ViewModels.Comment;
 
 namespace Violetum.ApplicationCore.Handlers.Query.Comment
 {
-    public class GetCommentHandler : IRequestHandler<GetCommentQuery, CommentResponse>
+    public class GetCommentHandler : IRequestHandler<GetCommentQuery, CommentViewModel>
     {
         private readonly ICommentService _commentService;
 
@@ -17,10 +16,9 @@ namespace Violetum.ApplicationCore.Handlers.Query.Comment
             _commentService = commentService;
         }
 
-        public Task<CommentResponse> Handle(GetCommentQuery request, CancellationToken cancellationToken)
+        public Task<CommentViewModel> Handle(GetCommentQuery request, CancellationToken cancellationToken)
         {
-            CommentViewModel comment = _commentService.GetComment(request.CommentId);
-            return Task.FromResult(new CommentResponse {Comment = comment});
+            return Task.FromResult(_commentService.GetComment(request.CommentId));
         }
     }
 }

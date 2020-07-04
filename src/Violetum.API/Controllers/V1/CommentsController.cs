@@ -94,14 +94,14 @@ namespace Violetum.API.Controllers.V1
         /// <response code="404">Unable to find comment with provided "commentId"</response>
         [HttpGet(ApiRoutes.Comments.Get)]
         [Cached(60)]
-        [ProducesResponseType(typeof(CommentResponse), (int) HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(Response<CommentViewModel>), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get([FromRoute] string commentId)
         {
             var query = new GetCommentQuery(commentId);
-            CommentResponse result = await _mediator.Send(query);
+            CommentViewModel result = await _mediator.Send(query);
 
-            return Ok(result);
+            return Ok(new Response<CommentViewModel> {Data = result});
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace Violetum.API.Controllers.V1
         /// <response code="400">Unable to update comment due to validation errors</response>
         /// <response code="404">Unable to find comment with provided "commentId"</response>
         [HttpPut(ApiRoutes.Comments.Update)]
-        [ProducesResponseType(typeof(CommentResponse), (int) HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(Response<CommentViewModel>), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Update([FromRoute] string commentId,
@@ -131,9 +131,9 @@ namespace Violetum.API.Controllers.V1
             }
 
             var command = new UpdateCommentCommand(comment, updateCommentDto);
-            CommentResponse result = await _mediator.Send(command);
+            CommentViewModel result = await _mediator.Send(command);
 
-            return Ok(result);
+            return Ok(new Response<CommentViewModel> {Data = result});
         }
 
         /// <summary>

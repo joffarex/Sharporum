@@ -123,14 +123,14 @@ namespace Violetum.API.Controllers.V1
         /// <response code="404">Unable to find post with provided "postId"</response>
         [HttpGet(ApiRoutes.Posts.Get)]
         [Cached(60)]
-        [ProducesResponseType(typeof(PostResponse), (int) HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(Response<PostViewModel>), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get([FromRoute] string postId)
         {
             var query = new GetPostQuery(postId);
-            PostResponse result = await _mediator.Send(query);
+            PostViewModel result = await _mediator.Send(query);
 
-            return Ok(result);
+            return Ok(new Response<PostViewModel> {Data = result});
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace Violetum.API.Controllers.V1
         /// <response code="400">Unable to update post due to validation errors</response>
         /// <response code="404">Unable to find post with provided "postId"</response>
         [HttpPut(ApiRoutes.Posts.Update)]
-        [ProducesResponseType(typeof(PostResponse), (int) HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(Response<PostViewModel>), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Update([FromRoute] string postId, [FromBody] UpdatePostDto updatePostDto)
@@ -159,9 +159,9 @@ namespace Violetum.API.Controllers.V1
             }
 
             var command = new UpdatePostCommand(post, updatePostDto);
-            PostResponse result = await _mediator.Send(command);
+            PostViewModel result = await _mediator.Send(command);
 
-            return Ok(result);
+            return Ok(new Response<PostViewModel> {Data = result});
         }
 
         /// <summary>

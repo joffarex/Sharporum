@@ -1,14 +1,13 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.Queries.Post;
 using Violetum.ApplicationCore.ViewModels.Post;
 
 namespace Violetum.ApplicationCore.Handlers.Query.Post
 {
-    public class GetPostHandler : IRequestHandler<GetPostQuery, PostResponse>
+    public class GetPostHandler : IRequestHandler<GetPostQuery, PostViewModel>
     {
         private readonly IPostService _postService;
 
@@ -17,10 +16,9 @@ namespace Violetum.ApplicationCore.Handlers.Query.Post
             _postService = postService;
         }
 
-        public Task<PostResponse> Handle(GetPostQuery request, CancellationToken cancellationToken)
+        public Task<PostViewModel> Handle(GetPostQuery request, CancellationToken cancellationToken)
         {
-            PostViewModel post = _postService.GetPost(request.PostId);
-            return Task.FromResult(new PostResponse {Post = post});
+            return Task.FromResult(_postService.GetPost(request.PostId));
         }
     }
 }

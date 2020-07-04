@@ -1,10 +1,10 @@
 ﻿using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Comment;
+using Violetum.ApplicationCore.ViewModels.Comment;
 
 namespace Violetum.ApplicationCore.Commands.Comment
 {
-    public class UpdateCommentCommand : IRequest<CommentResponse>
+    public class UpdateCommentCommand : IRequest<CommentViewModel>
     {
         public UpdateCommentCommand(Domain.Entities.Comment comment, UpdateCommentDto updateCommentDto)
         {

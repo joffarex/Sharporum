@@ -2,13 +2,12 @@
 using System.Threading.Tasks;
 using MediatR;
 using Violetum.ApplicationCore.Commands.Comment;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels.Comment;
 
 namespace Violetum.ApplicationCore.Handlers.Command.Comment
 {
-    public class UpdateCommentHandler : IRequestHandler<UpdateCommentCommand, CommentResponse>
+    public class UpdateCommentHandler : IRequestHandler<UpdateCommentCommand, CommentViewModel>
     {
         private readonly ICommentService _commentService;
 
@@ -17,12 +16,9 @@ namespace Violetum.ApplicationCore.Handlers.Command.Comment
             _commentService = commentService;
         }
 
-        public async Task<CommentResponse> Handle(UpdateCommentCommand request, CancellationToken cancellationToken)
+        public async Task<CommentViewModel> Handle(UpdateCommentCommand request, CancellationToken cancellationToken)
         {
-            CommentViewModel commentViewModel =
-                await _commentService.UpdateCommentAsync(request.Comment, request.UpdateCommentDto);
-
-            return new CommentResponse {Comment = commentViewModel};
+            return await _commentService.UpdateCommentAsync(request.Comment, request.UpdateCommentDto);
         }
     }
 }

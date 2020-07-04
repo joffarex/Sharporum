@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
+using Violetum.ApplicationCore.ViewModels.Comment;
 
 namespace Violetum.ApplicationCore.Queries.Comment
 {
-    public class GetCommentQuery : IRequest<CommentResponse>
+    public class GetCommentQuery : IRequest<CommentViewModel>
     {
         public GetCommentQuery(string commentId)
         {

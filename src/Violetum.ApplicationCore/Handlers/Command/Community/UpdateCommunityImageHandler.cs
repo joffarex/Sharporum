@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using MediatR;
 using Violetum.ApplicationCore.Commands.Community;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Interfaces;
 using Violetum.ApplicationCore.ViewModels.Community;
@@ -10,7 +9,8 @@ using Violetum.Domain.Models;
 
 namespace Violetum.ApplicationCore.Handlers.Command.Community
 {
-    public class UpdateCommunityImageHandler : IRequestHandler<UpdateCommunityImageCommand, CommunityResponse>
+    public class
+        UpdateCommunityImageHandler : IRequestHandler<UpdateCommunityImageCommand, CommunityViewModel>
     {
         private readonly IBlobService _blobService;
         private readonly ICommunityService _communityService;
@@ -21,7 +21,7 @@ namespace Violetum.ApplicationCore.Handlers.Command.Community
             _blobService = blobService;
         }
 
-        public async Task<CommunityResponse> Handle(UpdateCommunityImageCommand request,
+        public async Task<CommunityViewModel> Handle(UpdateCommunityImageCommand request,
             CancellationToken cancellationToken)
         {
             FileData data =
@@ -30,10 +30,8 @@ namespace Violetum.ApplicationCore.Handlers.Command.Community
             await _blobService.UploadImageBlobAsync(data.Content, data.FileName);
             request.UpdateCommunityImageDto.Image = data.FileName;
 
-            CommunityViewModel communityViewModel =
-                await _communityService.UpdateCommunityImageAsync(request.Community, request.UpdateCommunityImageDto);
-
-            return new CommunityResponse {Community = communityViewModel};
+            return await _communityService.UpdateCommunityImageAsync(request.Community,
+                request.UpdateCommunityImageDto);
         }
     }
 }

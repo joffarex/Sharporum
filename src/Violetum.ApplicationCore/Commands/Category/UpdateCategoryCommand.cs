@@ -1,10 +1,10 @@
 ﻿using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Category;
+using Violetum.ApplicationCore.ViewModels.Category;
 
 namespace Violetum.ApplicationCore.Commands.Category
 {
-    public class UpdateCategoryCommand : IRequest<CategoryResponse>
+    public class UpdateCategoryCommand : IRequest<CategoryViewModel>
     {
         public UpdateCategoryCommand(string categoryId, UpdateCategoryDto updateCategoryDto)
         {

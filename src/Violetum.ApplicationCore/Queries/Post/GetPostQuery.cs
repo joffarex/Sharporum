@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
+using Violetum.ApplicationCore.ViewModels.Post;
 
 namespace Violetum.ApplicationCore.Queries.Post
 {
-    public class GetPostQuery : IRequest<PostResponse>
+    public class GetPostQuery : IRequest<PostViewModel>
     {
         public GetPostQuery(string postId)
         {

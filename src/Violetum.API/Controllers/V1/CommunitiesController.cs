@@ -91,14 +91,14 @@ namespace Violetum.API.Controllers.V1
         /// <response code="404">Unable to find community with provided "communityId"</response>
         [HttpGet(ApiRoutes.Communities.Get)]
         [Cached(120)]
-        [ProducesResponseType(typeof(CommunityResponse), (int) HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(Response<CommunityViewModel>), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get([FromRoute] string communityId)
         {
             var query = new GetCommunityQuery(communityId);
-            CommunityResponse result = await _mediator.Send(query);
+            CommunityViewModel result = await _mediator.Send(query);
 
-            return Ok(result);
+            return Ok(new Response<CommunityViewModel> {Data = result});
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace Violetum.API.Controllers.V1
         /// <response code="200">Updates community</response>
         /// <response code="400">Unable to update community due to validation errors</response>
         [HttpPut(ApiRoutes.Communities.Update)]
-        [ProducesResponseType(typeof(CommunityResponse), (int) HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(Response<CommunityViewModel>), (int) HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> Update([FromRoute] string communityId,
@@ -128,9 +128,9 @@ namespace Violetum.API.Controllers.V1
             }
 
             var command = new UpdateCommunityCommand(communityId, community, updateCommunityDto);
-            CommunityResponse result = await _mediator.Send(command);
+            CommunityViewModel result = await _mediator.Send(command);
 
-            return Ok(result);
+            return Ok(new Response<CommunityViewModel> {Data = result});
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace Violetum.API.Controllers.V1
         /// <response code="200">Updates community image</response>
         /// <response code="400">Unable to update community due to validation errors</response>
         [HttpPut(ApiRoutes.Communities.UpdateImage)]
-        [ProducesResponseType(typeof(CommunityResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Response<CommunityViewModel>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> UpdateImage([FromRoute] string communityId,
@@ -159,9 +159,9 @@ namespace Violetum.API.Controllers.V1
             }
 
             var command = new UpdateCommunityImageCommand(community, updateCommunityImageDto);
-            CommunityResponse result = await _mediator.Send(command);
+            CommunityViewModel result = await _mediator.Send(command);
 
-            return Ok(result);
+            return Ok(new Response<CommunityViewModel> {Data = result});
         }
 
         /// <summary>

@@ -1,10 +1,10 @@
 ﻿using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
 using Violetum.ApplicationCore.Dtos.Post;
+using Violetum.ApplicationCore.ViewModels.Post;
 
 namespace Violetum.ApplicationCore.Commands.Post
 {
-    public class UpdatePostCommand : IRequest<PostResponse>
+    public class UpdatePostCommand : IRequest<PostViewModel>
     {
         public UpdatePostCommand(Domain.Entities.Post post, UpdatePostDto updatePostDto)
         {

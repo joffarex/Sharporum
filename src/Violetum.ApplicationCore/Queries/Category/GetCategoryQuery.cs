@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
+using Violetum.ApplicationCore.ViewModels.Category;
 
 namespace Violetum.ApplicationCore.Queries.Category
 {
-    public class GetCategoryQuery : IRequest<CategoryResponse>
+    public class GetCategoryQuery : IRequest<CategoryViewModel>
     {
         public GetCategoryQuery(string categoryId)
         {

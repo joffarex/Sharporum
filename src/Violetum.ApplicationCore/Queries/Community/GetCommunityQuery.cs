@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using Violetum.ApplicationCore.Contracts.V1.Responses;
+using Violetum.ApplicationCore.ViewModels.Community;
 
 namespace Violetum.ApplicationCore.Queries.Community
 {
-    public class GetCommunityQuery : IRequest<CommunityResponse>
+    public class GetCommunityQuery : IRequest<CommunityViewModel>
     {
         public GetCommunityQuery(string communityId)
         {
