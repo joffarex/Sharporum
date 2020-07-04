@@ -65,15 +65,16 @@ namespace Violetum.ApplicationCore.Helpers
             return !errors.Any();
         }
 
-        public static FileData GetFileData<TEntity>(string image, string fileName)
+        public static FileData GetContentFileData<TEntity>(string content, string fileName)
         {
             // TODO: add validation
-            string[] imageParts = image.Split(",");
-            string contentType = imageParts[0].Split("/")[1].Split(";")[0];
+            string[] contentParts = content.Split(",");
+            string contentType = contentParts[0].Split("/")[1].Split(";")[0];
             string blobName = $"{typeof(TEntity).Name}/{fileName}.{contentType}";
             return new FileData
             {
-                Content = imageParts[1],
+                Content = contentParts[1],
+                ContentType = blobName.GetContentType(),
                 FileName = blobName,
             };
         }

@@ -85,9 +85,31 @@ namespace Violetum.API.Controllers.V1
             string userId = _httpContext.User.FindFirstValue("sub");
 
             var command = new CreatePostCommand(userId, createPostDto);
-            string id = await _mediator.Send(command);
+            string postId = await _mediator.Send(command);
 
-            return Created($"{HttpContext.Request.GetDisplayUrl()}/{id}", null);
+            return Created($"{HttpContext.Request.GetDisplayUrl()}/{postId}", null);
+        }
+
+        /// <summary>
+        ///     Creates post with file
+        /// </summary>
+        /// <param name="createPostWithFileDto"></param>
+        /// <response code="200">Creates post with file</response>
+        /// <response code="400">Unable to create post due to validation errors</response>
+        /// <response code="404">Unable to find user with provided "AuthorId"/ community with provided "CommunityId"</response>
+        [HttpPost(ApiRoutes.Posts.Create)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [ProducesResponseType((int) HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(ErrorDetails), (int) HttpStatusCode.NotFound)]
+        public async Task<IActionResult> CreateWithFile([FromBody] CreatePostWithFileDto createPostWithFileDto)
+        {
+            string userId = _httpContext.User.FindFirstValue("sub");
+
+            var command = new CreatePostWithFileCommand(userId, createPostWithFileDto);
+            string postId = await _mediator.Send(command);
+
+            return Created($"{HttpContext.Request.GetDisplayUrl()}/{postId}", null);
         }
 
         /// <summary>

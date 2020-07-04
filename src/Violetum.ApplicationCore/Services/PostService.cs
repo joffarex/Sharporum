@@ -100,10 +100,24 @@ namespace Violetum.ApplicationCore.Services
 
             var post = _mapper.Map<Post>(createPostDto);
             post.AuthorId = user.Id;
+            post.ContentType = "application/text";
 
             await _postRepository.CreatePostAsync(post);
 
             return post.Id;
+        }
+
+        public async Task<Post> CreatePostWithFileAsync(string userId, CreatePostWithFileDto createPostWithFileDto)
+        {
+            User user = await _userManager.FindByIdAsync(userId);
+            Guard.Against.NullItem(user, nameof(user));
+
+            var post = _mapper.Map<Post>(createPostWithFileDto);
+            post.AuthorId = user.Id;
+
+            await _postRepository.CreatePostAsync(post);
+
+            return post;
         }
 
         public async Task<PostViewModel> UpdatePostAsync(Post post, UpdatePostDto updatePostDto)

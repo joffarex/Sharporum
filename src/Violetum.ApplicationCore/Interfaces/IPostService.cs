@@ -17,6 +17,7 @@ namespace Violetum.ApplicationCore.Interfaces
         int GetPostsCountInNewsFeed(string userId, PostSearchParams searchParams);
 
         Task<string> CreatePostAsync(string userId, CreatePostDto createPostDto);
+        Task<Post> CreatePostWithFileAsync(string userId, CreatePostWithFileDto createPostWithFileDto);
         Task<PostViewModel> UpdatePostAsync(Post post, UpdatePostDto updatePostDto);
         Task DeletePostAsync(Post post);
         Task VotePostAsync(string postId, string userId, PostVoteDto postVoteDto);

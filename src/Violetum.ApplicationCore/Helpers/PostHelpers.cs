@@ -29,5 +29,14 @@ namespace Violetum.ApplicationCore.Helpers
                 cfg.CreateMap<Community, PostCommunityViewModel>();
             });
         }
+
+        public static bool IsContentFile(string content)
+        {
+            string[] dataUri = content.Split(",");
+
+            string[] contentParts = dataUri[0].Split("/");
+
+            return "data".Equals(contentParts[0].Split(":")[0]) && "base64".Equals(contentParts[1].Split(";")[1]);
+        }
     }
 }

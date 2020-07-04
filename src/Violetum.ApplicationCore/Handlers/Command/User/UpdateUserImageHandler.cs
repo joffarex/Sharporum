@@ -24,7 +24,7 @@ namespace Violetum.ApplicationCore.Handlers.Command.User
         public async Task<UserResponse> Handle(UpdateUserImageCommand request, CancellationToken cancellationToken)
         {
             FileData data =
-                BaseHelpers.GetFileData<Domain.Entities.User>(request.UpdateUserImageDto.Image, request.UserId);
+                BaseHelpers.GetContentFileData<Domain.Entities.User>(request.UpdateUserImageDto.Image, request.UserId);
             await _blobService.UploadImageBlobAsync(data.Content, data.FileName);
             request.UpdateUserImageDto.Image = data.FileName;
 

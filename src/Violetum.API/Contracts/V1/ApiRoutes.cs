@@ -10,6 +10,7 @@
         {
             public const string GetMany = Base + "/posts";
             public const string Create = Base + "/posts";
+            public const string CreateWithFile = Base + "/posts-file";
             public const string NewsFeed = Base + "/posts/news-feed";
             public const string Get = Base + "/posts/{postId}";
             public const string Update = Base + "/posts/{postId}";

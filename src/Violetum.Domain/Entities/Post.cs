@@ -8,6 +8,7 @@ namespace Violetum.Domain.Entities
         public string Title { get; set; }
 
         [Column(TypeName = "ntext")] public string Content { get; set; }
+        public string ContentType { get; set; }
 
         public string AuthorId { get; set; }
         public User Author { get; set; }

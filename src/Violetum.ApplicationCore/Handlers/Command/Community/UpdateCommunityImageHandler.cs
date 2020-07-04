@@ -24,9 +24,9 @@ namespace Violetum.ApplicationCore.Handlers.Command.Community
         public async Task<CommunityViewModel> Handle(UpdateCommunityImageCommand request,
             CancellationToken cancellationToken)
         {
-            FileData data =
-                BaseHelpers.GetFileData<Domain.Entities.Community>(request.UpdateCommunityImageDto.Image,
-                    request.Community.Id);
+            FileData data = BaseHelpers.GetContentFileData<Domain.Entities.Community>(
+                request.UpdateCommunityImageDto.Image, request.Community.Id
+            );
             await _blobService.UploadImageBlobAsync(data.Content, data.FileName);
             request.UpdateCommunityImageDto.Image = data.FileName;
 
