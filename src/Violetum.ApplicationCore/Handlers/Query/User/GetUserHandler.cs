@@ -22,7 +22,7 @@ namespace Violetum.ApplicationCore.Handlers.Query.User
         public async Task<UserResponse> Handle(GetUserQuery request, CancellationToken cancellationToken)
         {
             UserViewModel user = await _userService.GetUserAsync(request.UserId);
-            IEnumerable<UserRank> userRanks = await _userService.GetUserRanks(request.UserId);
+            IEnumerable<UserRank> userRanks = await _userService.GetUserRanksAsync(request.UserId);
 
             return new UserResponse {User = user, Ranks = userRanks};
         }

@@ -9,8 +9,8 @@ namespace Violetum.ApplicationCore.Interfaces
 {
     public interface ICommentService
     {
-        Task<CommentViewModel> GetComment(string commentId);
-        Task<Comment> GetCommentEntity(string commentId);
+        Task<CommentViewModel> GetCommentByIdAsync(string commentId);
+        Task<Comment> GetCommentEntityAsync(string commentId);
         Task<IEnumerable<CommentViewModel>> GetCommentsAsync(CommentSearchParams searchParams);
         Task<int> GetCommentsCountAsync(CommentSearchParams searchParams);
         Task<string> CreateCommentAsync(string userId, CreateCommentDto createCommentDto);

@@ -55,7 +55,7 @@ namespace Violetum.ApplicationCore.Services
             };
         }
 
-        public async Task<bool> IsAuthenticatedUserFollower(string userToFollowId, string authenticatedUserId)
+        public async Task<bool> IsAuthenticatedUserFollowerAsync(string userToFollowId, string authenticatedUserId)
         {
             return await _userRepository.IsAuthenticatedUserFollower(userToFollowId, authenticatedUserId);
         }

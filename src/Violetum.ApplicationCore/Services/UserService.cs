@@ -73,7 +73,7 @@ namespace Violetum.ApplicationCore.Services
             return _mapper.Map<UserViewModel>(user);
         }
 
-        public async Task<IReadOnlyList<UserRank>> GetUserRanks(string userId)
+        public async Task<IReadOnlyList<UserRank>> GetUserRanksAsync(string userId)
         {
             var postFilterSpecification = new PostFilterSpecification(new PostSearchParams {UserId = userId});
             int userPostsCount = await _postRepository.GetTotalCountAsync(postFilterSpecification);
@@ -92,7 +92,7 @@ namespace Violetum.ApplicationCore.Services
             return userRanks;
         }
 
-        public async Task<IReadOnlyList<Ranks>> GetPostRanks()
+        public async Task<IReadOnlyList<Ranks>> GetPostRanksAsync()
         {
             IReadOnlyList<Ranks> userRanks = await _userRepository.ListRanks<Post>();
 
@@ -106,7 +106,7 @@ namespace Violetum.ApplicationCore.Services
             return userRanks;
         }
 
-        public async Task<IReadOnlyList<Ranks>> GetCommentRanks()
+        public async Task<IReadOnlyList<Ranks>> GetCommentRanksAsync()
         {
             IReadOnlyList<Ranks> userRanks = await _userRepository.ListRanks<Comment>();
 

@@ -18,7 +18,7 @@ namespace Violetum.ApplicationCore.Handlers.Query.Post
 
         public async Task<PostViewModel> Handle(GetPostQuery request, CancellationToken cancellationToken)
         {
-            return await _postService.GetPost(request.PostId);
+            return await _postService.GetPostByIdAsync(request.PostId);
         }
     }
 }

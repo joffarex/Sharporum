@@ -40,7 +40,7 @@ namespace Violetum.ApplicationCore.Services
             _mapper = mapper;
         }
 
-        public async Task<PostViewModel> GetPost(string postId)
+        public async Task<PostViewModel> GetPostByIdAsync(string postId)
         {
             var post = await _postRepository.GetByConditionAsync<PostViewModel>(x => x.Id == postId,
                 PostHelpers.GetPostMapperConfiguration());
@@ -49,7 +49,7 @@ namespace Violetum.ApplicationCore.Services
             return post;
         }
 
-        public async Task<Post> GetPostEntity(string postId)
+        public async Task<Post> GetPostEntityAsync(string postId)
         {
             Post post = await _postRepository.GetByConditionAsync(x => x.Id == postId);
             Guard.Against.NullItem(post, nameof(post));

@@ -9,9 +9,9 @@ namespace Violetum.ApplicationCore.Interfaces
 {
     public interface ICategoryService
     {
-        Task<CategoryViewModel> GetCategoryById(string categoryId);
-        Task<CategoryViewModel> GetCategoryByName(string categoryName);
-        Task<Category> GetCategoryEntity(string categoryId);
+        Task<CategoryViewModel> GetCategoryByIdAsync(string categoryId);
+        Task<CategoryViewModel> GetCategoryByNameAsync(string categoryName);
+        Task<Category> GetCategoryEntityAsync(string categoryId);
         Task<IEnumerable<CategoryViewModel>> GetCategoriesAsync(CategorySearchParams searchParams);
         Task<int> GetCategoriesCountAsync(CategorySearchParams searchParams);
 

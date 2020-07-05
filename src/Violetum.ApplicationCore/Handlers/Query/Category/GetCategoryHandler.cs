@@ -18,7 +18,7 @@ namespace Violetum.ApplicationCore.Handlers.Query.Category
 
         public async Task<CategoryViewModel> Handle(GetCategoryQuery request, CancellationToken cancellationToken)
         {
-            return await _categoryService.GetCategoryById(request.CategoryId);
+            return await _categoryService.GetCategoryByIdAsync(request.CategoryId);
         }
     }
 }

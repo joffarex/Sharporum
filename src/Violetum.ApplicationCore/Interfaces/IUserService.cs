@@ -12,9 +12,9 @@ namespace Violetum.ApplicationCore.Interfaces
         Task<UserViewModel> UpdateUserAsync(string userId, UpdateUserDto updateUserDto);
         Task<UserViewModel> UpdateUserImageAsync(string userId, UpdateUserImageDto updateUserImageDto);
 
-        Task<IReadOnlyList<UserRank>> GetUserRanks(string userId);
+        Task<IReadOnlyList<UserRank>> GetUserRanksAsync(string userId);
 
-        Task<IReadOnlyList<Ranks>> GetPostRanks();
-        Task<IReadOnlyList<Ranks>> GetCommentRanks();
+        Task<IReadOnlyList<Ranks>> GetPostRanksAsync();
+        Task<IReadOnlyList<Ranks>> GetCommentRanksAsync();
     }
 }

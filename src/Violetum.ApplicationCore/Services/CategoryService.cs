@@ -26,7 +26,7 @@ namespace Violetum.ApplicationCore.Services
             _mapper = mapper;
         }
 
-        public async Task<CategoryViewModel> GetCategoryById(string categoryId)
+        public async Task<CategoryViewModel> GetCategoryByIdAsync(string categoryId)
         {
             var category = await _categoryRepository.GetByConditionAsync<CategoryViewModel>(x => x.Id == categoryId,
                 CategoryHelpers.GetCategoryMapperConfiguration());
@@ -35,7 +35,7 @@ namespace Violetum.ApplicationCore.Services
             return category;
         }
 
-        public async Task<CategoryViewModel> GetCategoryByName(string categoryName)
+        public async Task<CategoryViewModel> GetCategoryByNameAsync(string categoryName)
         {
             var category = await _categoryRepository.GetByConditionAsync<CategoryViewModel>(x => x.Name == categoryName,
                 CategoryHelpers.GetCategoryMapperConfiguration());
@@ -44,7 +44,7 @@ namespace Violetum.ApplicationCore.Services
             return category;
         }
 
-        public async Task<Category> GetCategoryEntity(string categoryId)
+        public async Task<Category> GetCategoryEntityAsync(string categoryId)
         {
             Category category = await _categoryRepository.GetByConditionAsync(x => x.Id == categoryId);
             Guard.Against.NullItem(category, nameof(category));
@@ -79,7 +79,7 @@ namespace Violetum.ApplicationCore.Services
         public async Task<CategoryViewModel> UpdateCategoryAsync(string categoryId,
             UpdateCategoryDto updateCategoryDto)
         {
-            Category category = await GetCategoryEntity(categoryId);
+            Category category = await GetCategoryEntityAsync(categoryId);
             category.Name = updateCategoryDto.Name;
 
             await _categoryRepository.UpdateAsync(category);
@@ -89,7 +89,7 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task DeleteCategoryAsync(string categoryId)
         {
-            Category category = await GetCategoryEntity(categoryId);
+            Category category = await GetCategoryEntityAsync(categoryId);
             await _categoryRepository.DeleteAsync(category);
         }
     }

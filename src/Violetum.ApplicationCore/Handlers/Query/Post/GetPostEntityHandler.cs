@@ -17,7 +17,7 @@ namespace Violetum.ApplicationCore.Handlers.Query.Post
 
         public async Task<Domain.Entities.Post> Handle(GetPostEntityQuery request, CancellationToken cancellationToken)
         {
-            return await _postService.GetPostEntity(request.PostId);
+            return await _postService.GetPostEntityAsync(request.PostId);
         }
     }
 }

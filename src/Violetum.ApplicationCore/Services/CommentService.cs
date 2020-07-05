@@ -37,7 +37,7 @@ namespace Violetum.ApplicationCore.Services
             _mapper = mapper;
         }
 
-        public async Task<CommentViewModel> GetComment(string commentId)
+        public async Task<CommentViewModel> GetCommentByIdAsync(string commentId)
         {
             var comment = await _commentRepository.GetByConditionAsync<CommentViewModel>(x => x.Id == commentId,
                 CommentHelpers.GetCommentMapperConfiguration());
@@ -46,7 +46,7 @@ namespace Violetum.ApplicationCore.Services
             return comment;
         }
 
-        public async Task<Comment> GetCommentEntity(string commentId)
+        public async Task<Comment> GetCommentEntityAsync(string commentId)
         {
             Comment comment = await _commentRepository.GetByConditionAsync(x => x.Id == commentId);
             Guard.Against.NullItem(comment, nameof(comment));

@@ -35,7 +35,7 @@ namespace Violetum.ApplicationCore.Services
             _userManager = userManager;
         }
 
-        public async Task<CommunityViewModel> GetCommunityById(string communityId)
+        public async Task<CommunityViewModel> GetCommunityByIdAsync(string communityId)
         {
             var community = await _communityRepository.GetByConditionAsync<CommunityViewModel>(x => x.Id == communityId,
                 CommunityHelpers.GetCommunityMapperConfiguration());
@@ -44,7 +44,7 @@ namespace Violetum.ApplicationCore.Services
             return community;
         }
 
-        public async Task<CommunityViewModel> GetCommunityByName(string communityName)
+        public async Task<CommunityViewModel> GetCommunityByNameAsync(string communityName)
         {
             var community = await _communityRepository.GetByConditionAsync<CommunityViewModel>(
                 x => x.Name == communityName,

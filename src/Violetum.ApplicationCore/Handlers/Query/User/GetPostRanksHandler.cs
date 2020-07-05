@@ -19,7 +19,7 @@ namespace Violetum.ApplicationCore.Handlers.Query.User
 
         public async Task<IEnumerable<Ranks>> Handle(GetPostRanksQuery request, CancellationToken cancellationToken)
         {
-            return await _userService.GetPostRanks();
+            return await _userService.GetPostRanksAsync();
         }
     }
 }

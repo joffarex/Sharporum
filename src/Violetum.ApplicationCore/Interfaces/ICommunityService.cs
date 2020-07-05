@@ -9,8 +9,8 @@ namespace Violetum.ApplicationCore.Interfaces
 {
     public interface ICommunityService
     {
-        Task<CommunityViewModel> GetCommunityById(string communityId);
-        Task<CommunityViewModel> GetCommunityByName(string communityName);
+        Task<CommunityViewModel> GetCommunityByIdAsync(string communityId);
+        Task<CommunityViewModel> GetCommunityByNameAsync(string communityName);
         Task<Community> GetCommunityEntity(string communityId);
         Task<IEnumerable<CommunityViewModel>> GetCommunitiesAsync(CommunitySearchParams searchParams);
         Task<int> GetCategoriesCountAsync(CommunitySearchParams searchParams);
