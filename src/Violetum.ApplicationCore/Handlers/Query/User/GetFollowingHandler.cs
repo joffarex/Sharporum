@@ -9,17 +9,17 @@ namespace Violetum.ApplicationCore.Handlers.Query.User
 {
     public class GetFollowingHandler : IRequestHandler<GetFollowingQuery, UserFollowingViewModel>
     {
-        private readonly IFollowerService _followerService;
+        private readonly IUserService _userService;
 
-        public GetFollowingHandler(IFollowerService followerService)
+        public GetFollowingHandler(IUserService userService)
         {
-            _followerService = followerService;
+            _userService = userService;
         }
 
         public async Task<UserFollowingViewModel> Handle(GetFollowingQuery request,
             CancellationToken cancellationToken)
         {
-            return await _followerService.GetUserFollowingAsync(request.UserId);
+            return await _userService.GetUserFollowingAsync(request.UserId);
         }
     }
 }

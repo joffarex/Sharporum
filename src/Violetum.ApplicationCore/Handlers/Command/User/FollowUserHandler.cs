@@ -8,16 +8,16 @@ namespace Violetum.ApplicationCore.Handlers.Command.User
 {
     public class FollowUserHandler : IRequestHandler<FollowUserCommand>
     {
-        private readonly IFollowerService _followerService;
+        private readonly IUserService _userService;
 
-        public FollowUserHandler(IFollowerService followerService)
+        public FollowUserHandler(IUserService userService)
         {
-            _followerService = followerService;
+            _userService = userService;
         }
 
         public async Task<Unit> Handle(FollowUserCommand request, CancellationToken cancellationToken)
         {
-            await _followerService.FollowUserAsync(request.UserId, request.UserToFollowId);
+            await _userService.FollowUserAsync(request.UserId, request.UserToFollowId);
             return Unit.Value;
         }
     }
