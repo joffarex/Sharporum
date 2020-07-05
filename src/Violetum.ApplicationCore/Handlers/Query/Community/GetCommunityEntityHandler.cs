@@ -15,10 +15,10 @@ namespace Violetum.ApplicationCore.Handlers.Query.Community
             _communityService = communityService;
         }
 
-        public Task<Domain.Entities.Community> Handle(GetCommunityEntityQuery request,
+        public async Task<Domain.Entities.Community> Handle(GetCommunityEntityQuery request,
             CancellationToken cancellationToken)
         {
-            return Task.FromResult(_communityService.GetCommunityEntity(request.CommunityId));
+            return await _communityService.GetCommunityEntity(request.CommunityId);
         }
     }
 }

@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using Violetum.Domain.Models.SearchParams;
+using Violetum.Domain.Infrastructure;
 
 namespace Violetum.ApplicationCore.Responses
 {
     public class FilteredResponse<TViewModel>
     {
-        public FilteredResponse(BaseSearchParams searchParams)
+        public FilteredResponse(ISearchParams<TViewModel> searchParams)
         {
             Limit = searchParams.Limit;
             CurrentPage = searchParams.CurrentPage;

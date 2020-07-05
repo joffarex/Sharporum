@@ -17,9 +17,9 @@ namespace Violetum.ApplicationCore.Handlers.Query.User
             _userService = userService;
         }
 
-        public Task<IEnumerable<Ranks>> Handle(GetPostRanksQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Ranks>> Handle(GetPostRanksQuery request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(_userService.GetPostRanks());
+            return await _userService.GetPostRanks();
         }
     }
 }

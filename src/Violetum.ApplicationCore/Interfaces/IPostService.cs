@@ -9,12 +9,12 @@ namespace Violetum.ApplicationCore.Interfaces
 {
     public interface IPostService
     {
-        PostViewModel GetPost(string postId);
-        Post GetPostEntity(string postId);
+        Task<PostViewModel> GetPost(string postId);
+        Task<Post> GetPostEntity(string postId);
         Task<IEnumerable<PostViewModel>> GetPostsAsync(PostSearchParams searchParams);
-        IEnumerable<PostViewModel> GetNewsFeedPosts(string userId, PostSearchParams searchParams);
+        Task<IEnumerable<PostViewModel>> GetNewsFeedPosts(string userId, PostSearchParams searchParams);
         Task<int> GetPostsCountAsync(PostSearchParams searchParams);
-        int GetPostsCountInNewsFeed(string userId, PostSearchParams searchParams);
+        Task<int> GetPostsCountInNewsFeed(string userId, PostSearchParams searchParams);
 
         Task<string> CreatePostAsync(string userId, CreatePostDto createPostDto);
         Task<Post> CreatePostWithFileAsync(string userId, CreatePostWithFileDto createPostWithFileDto);

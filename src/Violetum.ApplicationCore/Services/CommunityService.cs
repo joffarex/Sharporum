@@ -20,12 +20,12 @@ namespace Violetum.ApplicationCore.Services
     [Service]
     public class CommunityService : ICommunityService
     {
-        private readonly ICommunityRepository _communityRepository;
+        private readonly IAsyncRepository<Community> _communityRepository;
         private readonly IMapper _mapper;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<User> _userManager;
 
-        public CommunityService(ICommunityRepository communityRepository, RoleManager<IdentityRole> roleManager,
+        public CommunityService(IAsyncRepository<Community> communityRepository, RoleManager<IdentityRole> roleManager,
             UserManager<User> userManager, IMapper mapper)
         {
             _communityRepository = communityRepository;
@@ -34,27 +34,28 @@ namespace Violetum.ApplicationCore.Services
             _userManager = userManager;
         }
 
-        public CommunityViewModel GetCommunityById(string communityId)
+        public async Task<CommunityViewModel> GetCommunityById(string communityId)
         {
-            var community = _communityRepository.GetCommunity<CommunityViewModel>(x => x.Id == communityId,
+            var community = await _communityRepository.GetByConditionAsync<CommunityViewModel>(x => x.Id == communityId,
                 CommunityHelpers.GetCommunityMapperConfiguration());
             Guard.Against.NullItem(community, nameof(community));
 
             return community;
         }
 
-        public CommunityViewModel GetCommunityByName(string communityName)
+        public async Task<CommunityViewModel> GetCommunityByName(string communityName)
         {
-            var community = _communityRepository.GetCommunity<CommunityViewModel>(x => x.Name == communityName,
+            var community = await _communityRepository.GetByConditionAsync<CommunityViewModel>(
+                x => x.Name == communityName,
                 CommunityHelpers.GetCommunityMapperConfiguration());
             Guard.Against.NullItem(community, nameof(community));
 
             return community;
         }
 
-        public Community GetCommunityEntity(string communityId)
+        public async Task<Community> GetCommunityEntity(string communityId)
         {
-            Community community = _communityRepository.GetCommunity(x => x.Id == communityId);
+            Community community = await _communityRepository.GetByConditionAsync(x => x.Id == communityId);
             Guard.Against.NullItem(community, nameof(community));
 
             return community;
@@ -65,7 +66,7 @@ namespace Violetum.ApplicationCore.Services
             User user = await _userManager.FindByIdAsync(searchParams.UserId);
             Guard.Against.NullItem(user, nameof(user));
 
-            return _communityRepository.GetCommunities<CommunityViewModel>(searchParams,
+            return await _communityRepository.ListAsync<CommunityViewModel>(searchParams,
                 CommunityHelpers.GetCommunityMapperConfiguration());
         }
 
@@ -74,7 +75,7 @@ namespace Violetum.ApplicationCore.Services
             User user = await _userManager.FindByIdAsync(searchParams.UserId);
             Guard.Against.NullItem(user, nameof(user));
 
-            return _communityRepository.GetCommunityCount(searchParams);
+            return await _communityRepository.GetTotalCountAsync(searchParams);
         }
 
         public async Task<string> CreateCommunityAsync(string userId, CreateCommunityDto createCommunityDto)
@@ -85,7 +86,7 @@ namespace Violetum.ApplicationCore.Services
             var community = _mapper.Map<Community>(createCommunityDto);
             community.Author = user;
 
-            await _communityRepository.CreateCommunityAsync(community);
+            await _communityRepository.CreateAsync(community);
 
             await CreateCommunityAdminRoleAsync(user, community.Id);
 
@@ -98,7 +99,7 @@ namespace Violetum.ApplicationCore.Services
             community.Name = updateCommunityDto.Name;
             community.Description = updateCommunityDto.Description;
 
-            await _communityRepository.UpdateCommunityAsync(community);
+            await _communityRepository.UpdateAsync(community);
 
             return _mapper.Map<CommunityViewModel>(community);
         }
@@ -108,7 +109,7 @@ namespace Violetum.ApplicationCore.Services
         {
             community.Image = updateCommunityImageDto.Image;
 
-            await _communityRepository.UpdateCommunityAsync(community);
+            await _communityRepository.UpdateAsync(community);
 
             return _mapper.Map<CommunityViewModel>(community);
         }
@@ -117,7 +118,7 @@ namespace Violetum.ApplicationCore.Services
         {
             await RemoveCommunityRolesAsync(community.Id);
 
-            await _communityRepository.DeleteCommunityAsync(community);
+            await _communityRepository.DeleteAsync(community);
         }
 
         public async Task AddModeratorAsync(Community community, AddModeratorDto addModeratorDto)

@@ -1,6 +1,8 @@
-﻿namespace Violetum.Domain.Models.SearchParams
+﻿using Violetum.Domain.Entities;
+
+namespace Violetum.Domain.Models.SearchParams
 {
-    public class CommunitySearchParams : BaseSearchParams
+    public class CommunitySearchParams : BaseSearchParams<Community>
     {
         public string UserId { get; set; }
         public string CommunityName { get; set; }

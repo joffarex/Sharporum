@@ -14,12 +14,12 @@ namespace Violetum.ApplicationCore.Services
     [Service]
     public class FollowerService : IFollowerService
     {
-        private readonly IFollowerRepository _followerRepository;
         private readonly UserManager<User> _userManager;
+        private readonly IUserRepository _userRepository;
 
-        public FollowerService(IFollowerRepository followerRepository, UserManager<User> userManager)
+        public FollowerService(IUserRepository userRepository, UserManager<User> userManager)
         {
-            _followerRepository = followerRepository;
+            _userRepository = userRepository;
             _userManager = userManager;
         }
 
@@ -29,7 +29,7 @@ namespace Violetum.ApplicationCore.Services
             Guard.Against.NullItem(user, nameof(user));
 
             IEnumerable<FollowerViewModel> userFollowers =
-                _followerRepository.GetUserFollowing<FollowerViewModel>(userId,
+                await _userRepository.ListUserFollowingAsync<FollowerViewModel>(userId,
                     UserHelpers.GetFollowerMapperConfiguration());
 
             return new UserFollowersViewModel
@@ -45,7 +45,7 @@ namespace Violetum.ApplicationCore.Services
             Guard.Against.NullItem(user, nameof(user));
 
             IEnumerable<FollowingViewModel> userFollowings =
-                _followerRepository.GetUserFollowing<FollowingViewModel>(userId,
+                await _userRepository.ListUserFollowingAsync<FollowingViewModel>(userId,
                     UserHelpers.GetFollowerMapperConfiguration());
 
             return new UserFollowingViewModel
@@ -55,9 +55,9 @@ namespace Violetum.ApplicationCore.Services
             };
         }
 
-        public bool IsAuthenticatedUserFollower(string userToFollowId, string authenticatedUserId)
+        public async Task<bool> IsAuthenticatedUserFollower(string userToFollowId, string authenticatedUserId)
         {
-            return _followerRepository.IsAuthenticatedUserFollower(userToFollowId, authenticatedUserId);
+            return await _userRepository.IsAuthenticatedUserFollower(userToFollowId, authenticatedUserId);
         }
 
         public async Task FollowUserAsync(string userId, string userToFollowId)
@@ -74,7 +74,7 @@ namespace Violetum.ApplicationCore.Services
                 FollowerUserId = followerUser.Id,
             };
 
-            await _followerRepository.FollowUserAsync(follower);
+            await _userRepository.FollowUserAsync(follower);
         }
 
         public async Task UnfollowUserAsync(string userId, string userToUnfollowId)
@@ -85,7 +85,7 @@ namespace Violetum.ApplicationCore.Services
             User userToUnfollow = await _userManager.FindByIdAsync(userToUnfollowId);
             Guard.Against.NullItem(userToUnfollow, nameof(userToUnfollow));
 
-            await _followerRepository.UnfollowUserAsync(userToUnfollow.Id, followerUser.Id);
+            await _userRepository.UnfollowUserAsync(userToUnfollow.Id, followerUser.Id);
         }
     }
 }

@@ -21,8 +21,9 @@ namespace Violetum.ApplicationCore.Handlers.Query.Post
         public async Task<FilteredDataViewModel<PostViewModel>> Handle(GetNewsFeedQuery request,
             CancellationToken cancellationToken)
         {
-            IEnumerable<PostViewModel> posts = _postService.GetNewsFeedPosts(request.UserId, request.SearchParams);
-            int postsCount = _postService.GetPostsCountInNewsFeed(request.UserId, request.SearchParams);
+            IEnumerable<PostViewModel>
+                posts = await _postService.GetNewsFeedPosts(request.UserId, request.SearchParams);
+            int postsCount = await _postService.GetPostsCountInNewsFeed(request.UserId, request.SearchParams);
 
             return new FilteredDataViewModel<PostViewModel>
             {

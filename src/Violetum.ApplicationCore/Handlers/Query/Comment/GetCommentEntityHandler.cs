@@ -15,9 +15,10 @@ namespace Violetum.ApplicationCore.Handlers.Query.Comment
             _commentService = commentService;
         }
 
-        public Task<Domain.Entities.Comment> Handle(GetCommentEntityQuery request, CancellationToken cancellationToken)
+        public async Task<Domain.Entities.Comment> Handle(GetCommentEntityQuery request,
+            CancellationToken cancellationToken)
         {
-            return Task.FromResult(_commentService.GetCommentEntity(request.CommentId));
+            return await _commentService.GetCommentEntity(request.CommentId);
         }
     }
 }

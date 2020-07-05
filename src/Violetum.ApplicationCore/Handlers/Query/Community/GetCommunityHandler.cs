@@ -16,9 +16,9 @@ namespace Violetum.ApplicationCore.Handlers.Query.Community
             _communityService = communityService;
         }
 
-        public Task<CommunityViewModel> Handle(GetCommunityQuery request, CancellationToken cancellationToken)
+        public async Task<CommunityViewModel> Handle(GetCommunityQuery request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(_communityService.GetCommunityById(request.CommunityId));
+            return await _communityService.GetCommunityById(request.CommunityId);
         }
     }
 }

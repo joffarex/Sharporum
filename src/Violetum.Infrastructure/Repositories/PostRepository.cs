@@ -9,43 +9,42 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
-using Violetum.Domain.Models;
 using Violetum.Domain.Models.SearchParams;
 using Violetum.Infrastructure.Extensions;
 
 namespace Violetum.Infrastructure.Repositories
 {
     [Repository]
-    public class PostRepository : BaseRepository, IPostRepository
+    public class PostRepository : IAsyncRepository<Post>
     {
         private readonly ApplicationDbContext _context;
 
-        public PostRepository(ApplicationDbContext context) : base(context)
+        public PostRepository(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        public TResult GetPost<TResult>(Expression<Func<TResult, bool>> condition,
+        public async Task<TResult> GetByConditionAsync<TResult>(Expression<Func<TResult, bool>> condition,
             IConfigurationProvider configurationProvider) where TResult : class
         {
-            return _context.Posts
+            return await _context.Posts
                 .Include(x => x.Author)
                 .Include(x => x.Community)
                 .ProjectTo<TResult>(configurationProvider)
                 .Where(condition)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
 
-        public Post GetPost(Expression<Func<Post, bool>> condition)
+        public async Task<Post> GetByConditionAsync(Expression<Func<Post, bool>> condition)
         {
-            return _context.Posts
+            return await _context.Posts
                 .Include(x => x.Author)
                 .Include(x => x.Community)
                 .Where(condition)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
 
-        public IEnumerable<TResult> GetPosts<TResult>(PostSearchParams searchParams,
+        public async Task<IReadOnlyList<TResult>> ListAsync<TResult>(ISearchParams<Post> searchParams,
             IConfigurationProvider configurationProvider) where TResult : class
         {
             IIncludableQueryable<Post, ICollection<PostVote>> query = _context.Posts
@@ -53,49 +52,45 @@ namespace Violetum.Infrastructure.Repositories
                 .Include(x => x.Author)
                 .Include(x => x.PostVotes);
 
-            IQueryable<Post> whereParams = WhereConditionPredicate(query, searchParams);
+            // IQueryable<Post> whereParams = WhereConditionPredicate(query, searchParams);
 
             IOrderedQueryable<TResult> orderedQuery = searchParams.OrderByDir.ToUpper() == "DESC"
-                ? whereParams
+                ? query
                     .ProjectTo<TResult>(configurationProvider)
                     .OrderByDescending(searchParams.SortBy)
-                : whereParams
+                : query
                     .ProjectTo<TResult>(configurationProvider)
                     .OrderBy(searchParams.SortBy);
 
-            return orderedQuery
+            return await orderedQuery
                 .Skip(searchParams.Offset)
                 .Take(searchParams.Limit)
-                .ToList();
+                .ToListAsync();
         }
 
-        public IEnumerable<string> GetUserFollowings(string userId)
-        {
-            return _context.Followers
-                .Where(x => x.FollowerUserId == userId)
-                .Select(x => x.UserToFollowId)
-                .ToList();
-        }
-
-        public int GetPostCount(PostSearchParams searchParams)
+        public async Task<int> GetTotalCountAsync(ISearchParams<Post> searchParams)
         {
             DbSet<Post> query = _context.Posts;
-            IQueryable<Post> whereParams = WhereConditionPredicate(query, searchParams);
+            // IQueryable<Post> whereParams = WhereConditionPredicate(query, searchParams);
 
-            return whereParams.Count();
+            return await query.CountAsync();
         }
 
-        public async Task CreatePostAsync(Post post)
+        public async Task CreateAsync(Post post)
         {
-            await CreateEntityAsync(post);
+            await _context.Posts.AddAsync(post);
+
+            await _context.SaveChangesAsync();
         }
 
-        public async Task UpdatePostAsync(Post post)
+        public async Task UpdateAsync(Post post)
         {
-            await UpdateEntityAsync(post);
+            _context.Posts.Update(post);
+
+            await _context.SaveChangesAsync();
         }
 
-        public async Task DeletePostAsync(Post post)
+        public async Task DeleteAsync(Post post)
         {
             IQueryable<Comment> comments = _context.Comments.Where(x => x.PostId == post.Id);
             _context.Comments.RemoveRange(comments);
@@ -104,28 +99,9 @@ namespace Violetum.Infrastructure.Repositories
                 .Include(x => x.PostVotes);
             _context.Posts.RemoveRange(votes);
 
-            await DeleteEntityAsync(post);
-        }
+            _context.Posts.Remove(post);
 
-        public List<Ranks> GetPostRanks()
-        {
-            List<Ranks> userPostVotes = _context.PostVotes
-                .GroupBy(x => x.UserId, (key, vote) =>
-                    new Ranks
-                    {
-                        UserId = key,
-                        Rank = vote.Sum(x => x.Direction),
-                    })
-                .ToList();
-
-            return userPostVotes;
-        }
-
-        public int GetUserPostRank(string userId)
-        {
-            return _context.PostVotes
-                .GroupBy(x => x.UserId, (key, vote) => vote.Sum(x => x.Direction))
-                .FirstOrDefault();
+            await _context.SaveChangesAsync();
         }
 
         private static IQueryable<Post> WhereConditionPredicate(IQueryable<Post> query, PostSearchParams searchParams)

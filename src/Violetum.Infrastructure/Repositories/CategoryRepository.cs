@@ -15,70 +15,77 @@ using Violetum.Domain.Models.SearchParams;
 namespace Violetum.Infrastructure.Repositories
 {
     [Repository]
-    public class CategoryRepository : BaseRepository, ICategoryRepository
+    public class CategoryRepository : IAsyncRepository<Category>
     {
         private readonly ApplicationDbContext _context;
 
-        public CategoryRepository(ApplicationDbContext context) : base(context)
+        public CategoryRepository(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        public TResult GetCategory<TResult>(Expression<Func<TResult, bool>> condition,
+        public async Task<TResult> GetByConditionAsync<TResult>(Expression<Func<TResult, bool>> condition,
             IConfigurationProvider configurationProvider) where TResult : class
         {
-            return _context.Categories
+            return await _context.Categories
                 .ProjectTo<TResult>(configurationProvider)
                 .Where(condition)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
 
-        public Category GetCategory(Expression<Func<Category, bool>> condition)
+        public async Task<Category> GetByConditionAsync(Expression<Func<Category, bool>> condition)
         {
-            return _context.Categories.Where(condition).FirstOrDefault();
+            return await _context.Categories.Where(condition).FirstOrDefaultAsync();
         }
 
-        public IEnumerable<TResult> GetCategories<TResult>(CategorySearchParams searchParams,
+        public async Task<IReadOnlyList<TResult>> ListAsync<TResult>(ISearchParams<Category> searchParams,
             IConfigurationProvider configurationProvider) where TResult : class
         {
             DbSet<Category> query = _context.Categories;
 
-            IQueryable<Category> whereParams = WhereConditionPredicate(query, searchParams);
+            // IQueryable<Category> whereParams = WhereConditionPredicate(query, searchParams);
 
-            return whereParams
+            return await query
                 .ProjectTo<TResult>(configurationProvider)
                 .Skip(searchParams.Offset)
                 .Take(searchParams.Limit)
-                .ToList();
+                .ToListAsync();
         }
 
-        public int GetCategoryCount(CategorySearchParams searchParams)
+        public async Task<int> GetTotalCountAsync(ISearchParams<Category> searchParams)
         {
             DbSet<Category> query = _context.Categories;
-            IQueryable<Category> whereParams = WhereConditionPredicate(query, searchParams);
-            return whereParams.Count();
+            // IQueryable<Category> whereParams = WhereConditionPredicate(query, searchParams);
+            return await query.CountAsync();
         }
 
-        public async Task CreateCategoryAsync(Category category)
+        public async Task CreateAsync(Category category)
         {
-            await CreateEntityAsync(category);
+            await _context.Categories.AddAsync(category);
+
+            await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateCategoryAsync(Category category)
+        public async Task UpdateAsync(Category category)
         {
-            await UpdateEntityAsync(category);
+            _context.Categories.Update(category);
+
+            await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteCategoryAsync(Category category)
+        public async Task DeleteAsync(Category category)
         {
-            if (_context.CommunityCategories.Where(x => x.CategoryId == category.Id).Any())
+            if (await _context.CommunityCategories.Where(x => x.CategoryId == category.Id).AnyAsync())
             {
                 throw new HttpStatusCodeException(HttpStatusCode.UnprocessableEntity,
                     "Can not delete category while there are still communities attached to it");
             }
 
-            await DeleteEntityAsync(category);
+            _context.Categories.Remove(category);
+
+            await _context.SaveChangesAsync();
         }
+
 
         private static IQueryable<Category> WhereConditionPredicate(IQueryable<Category> query,
             CategorySearchParams searchParams)

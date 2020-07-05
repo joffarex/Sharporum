@@ -16,72 +16,78 @@ using Violetum.Domain.Models.SearchParams;
 namespace Violetum.Infrastructure.Repositories
 {
     [Repository]
-    public class CommunityRepository : BaseRepository, ICommunityRepository
+    public class CommunityRepository : IAsyncRepository<Community>
     {
         private readonly ApplicationDbContext _context;
 
-        public CommunityRepository(ApplicationDbContext context) : base(context)
+        public CommunityRepository(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        public TResult GetCommunity<TResult>(Expression<Func<TResult, bool>> condition,
+        public async Task<TResult> GetByConditionAsync<TResult>(Expression<Func<TResult, bool>> condition,
             IConfigurationProvider configurationProvider) where TResult : class
         {
-            return _context.Communities
+            return await _context.Communities
                 .Include(x => x.Author)
                 .ProjectTo<TResult>(configurationProvider)
                 .Where(condition)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
 
-        public Community GetCommunity(Expression<Func<Community, bool>> condition)
+        public async Task<Community> GetByConditionAsync(Expression<Func<Community, bool>> condition)
         {
-            return _context.Communities.Include(x => x.Author).Where(condition).FirstOrDefault();
+            return await _context.Communities.Include(x => x.Author).Where(condition).FirstOrDefaultAsync();
         }
 
-        public IEnumerable<TResult> GetCommunities<TResult>(CommunitySearchParams searchParams,
+        public async Task<IReadOnlyList<TResult>> ListAsync<TResult>(ISearchParams<Community> searchParams,
             IConfigurationProvider configurationProvider) where TResult : class
         {
             IIncludableQueryable<Community, User> query = _context.Communities
                 .Include(x => x.Author);
 
-            IQueryable<Community> whereParams = WhereConditionPredicate(query, searchParams);
+            // IQueryable<Community> whereParams = WhereConditionPredicate(query, searchParams);
 
-            return whereParams
+            return await query
                 .ProjectTo<TResult>(configurationProvider)
                 .Skip(searchParams.Offset)
                 .Take(searchParams.Limit)
-                .ToList();
+                .ToListAsync();
         }
 
-        public int GetCommunityCount(CommunitySearchParams searchParams)
+        public async Task<int> GetTotalCountAsync(ISearchParams<Community> searchParams)
         {
             DbSet<Community> query = _context.Communities;
-            IQueryable<Community> whereParams = WhereConditionPredicate(query, searchParams);
-            return whereParams.Count();
+            // IQueryable<Community> whereParams = WhereConditionPredicate(query, searchParams);
+            return await query.CountAsync();
         }
 
-        public async Task CreateCommunityAsync(Community community)
+        public async Task CreateAsync(Community community)
         {
-            await CreateEntityAsync(community);
+            await _context.Communities.AddAsync(community);
+
+            await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateCommunityAsync(Community community)
+        public async Task UpdateAsync(Community community)
         {
-            await UpdateEntityAsync(community);
+            _context.Communities.Update(community);
+
+            await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteCommunityAsync(Community community)
+        public async Task DeleteAsync(Community community)
         {
-            List<Post> posts = _context.Posts.Where(x => x.CommunityId == community.Id).ToList();
+            List<Post> posts = await _context.Posts.Where(x => x.CommunityId == community.Id).ToListAsync();
             if (posts.Any())
             {
                 throw new HttpStatusCodeException(HttpStatusCode.UnprocessableEntity,
                     "Can not delete category while there are still posts in it");
             }
 
-            await DeleteEntityAsync(community);
+            _context.Communities.Remove(community);
+
+            await _context.SaveChangesAsync();
         }
 
         private static IQueryable<Community> WhereConditionPredicate(IQueryable<Community> query,

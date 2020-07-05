@@ -9,110 +9,95 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
-using Violetum.Domain.Models;
 using Violetum.Domain.Models.SearchParams;
 using Violetum.Infrastructure.Extensions;
 
 namespace Violetum.Infrastructure.Repositories
 {
     [Repository]
-    public class CommentRepository : BaseRepository, ICommentRepository
+    public class CommentRepository : IAsyncRepository<Comment>
     {
         private readonly ApplicationDbContext _context;
 
-        public CommentRepository(ApplicationDbContext context) : base(context)
+        public CommentRepository(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        public TResult GetComment<TResult>(Expression<Func<TResult, bool>> condition,
+        public async Task<TResult> GetByConditionAsync<TResult>(Expression<Func<TResult, bool>> condition,
             IConfigurationProvider configurationProvider) where TResult : class
         {
-            return _context.Comments
+            return await _context.Comments
                 .Include(x => x.Author)
                 .Include(x => x.Post)
                 .ProjectTo<TResult>(configurationProvider)
                 .Where(condition)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
 
-        public Comment GetComment(Expression<Func<Comment, bool>> condition)
+        public async Task<Comment> GetByConditionAsync(Expression<Func<Comment, bool>> condition)
         {
-            return _context.Comments
+            return await _context.Comments
                 .Include(x => x.Post)
                 .Include(x => x.Author)
                 .Where(condition)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
 
-        public IEnumerable<TResult> GetComments<TResult>(CommentSearchParams searchParams,
+        public async Task<IReadOnlyList<TResult>> ListAsync<TResult>(ISearchParams<Comment> searchParams,
             IConfigurationProvider configurationProvider) where TResult : class
         {
             IIncludableQueryable<Comment, ICollection<CommentVote>> query = _context.Comments
                 .Include(x => x.Author)
                 .Include(x => x.CommentVotes);
 
-            IQueryable<Comment> whereParams = WhereConditionPredicate(query, searchParams);
+            // IQueryable<Comment> whereParams = WhereConditionPredicate(query, searchParams);
 
             IOrderedQueryable<TResult> orderedQuery = searchParams.OrderByDir.ToUpper() == "DESC"
-                ? whereParams
+                ? query
                     .ProjectTo<TResult>(configurationProvider)
                     .OrderByDescending(searchParams.SortBy)
-                : whereParams
+                : query
                     .ProjectTo<TResult>(configurationProvider)
                     .OrderBy(searchParams.SortBy);
-            return orderedQuery
+
+            return await orderedQuery
                 .Skip(searchParams.Offset)
                 .Take(searchParams.Limit)
-                .ToList();
+                .ToListAsync();
         }
 
-        public int GetCommentsCount(CommentSearchParams searchParams)
+        public async Task<int> GetTotalCountAsync(ISearchParams<Comment> searchParams)
         {
             DbSet<Comment> query = _context.Comments;
-            IQueryable<Comment> whereParams = WhereConditionPredicate(query, searchParams);
+            // IQueryable<Comment> whereParams = WhereConditionPredicate(query, searchParams);
 
-            return whereParams.Count();
+            return await query.CountAsync();
         }
 
-        public async Task CreateCommentAsync(Comment comment)
+        public async Task CreateAsync(Comment comment)
         {
-            await CreateEntityAsync(comment);
+            await _context.Comments.AddAsync(comment);
+
+            await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateCommentAsync(Comment comment)
+        public async Task UpdateAsync(Comment comment)
         {
-            await UpdateEntityAsync(comment);
+            _context.Comments.Update(comment);
+
+            await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteCommentAsync(Comment comment)
+        public async Task DeleteAsync(Comment comment)
         {
             IIncludableQueryable<Comment, IEnumerable<CommentVote>> votes =
                 _context.Comments.Where(x => x.Id == comment.Id).Include(x => x.CommentVotes);
             _context.Comments.RemoveRange(votes);
 
-            await DeleteEntityAsync(comment);
-        }
+            _context.Comments.Remove(comment);
 
-        public List<Ranks> GetCommentRanks()
-        {
-            List<Ranks> userEntityVotes = _context.CommentVotes
-                .GroupBy(x => x.UserId, (key, vote) =>
-                    new Ranks
-                    {
-                        UserId = key,
-                        Rank = vote.Sum(x => x.Direction),
-                    })
-                .ToList();
-
-            return userEntityVotes;
-        }
-
-        public int GetUserCommentRank(string userId)
-        {
-            return _context.CommentVotes
-                .GroupBy(x => x.UserId, (key, vote) => vote.Sum(x => x.Direction))
-                .FirstOrDefault();
+            await _context.SaveChangesAsync();
         }
 
         private static IQueryable<Comment> WhereConditionPredicate(IQueryable<Comment> query,
