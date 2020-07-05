@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using MediatR;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Violetum.ApplicationCore.Interfaces;
@@ -15,6 +16,7 @@ namespace Violetum.API.Installers
         public void InstallServices(IServiceCollection services, IConfiguration configuration,
             IWebHostEnvironment environment)
         {
+            services.AddMediatR(typeof(Startup));
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IVoteRepository, VoteRepository>();
             services.AddScoped<IAsyncRepository<Category>, CategoryRepository>();
