@@ -53,6 +53,15 @@ namespace Violetum.ApplicationCore.Helpers
                 });
             }
 
+            if (!searchParams.SortBy.Equals("CreatedAt") || !searchParams.SortBy.Equals("VoteCount"))
+            {
+                errors.Add(new ErrorModel
+                {
+                    Message = "Can not sort by other values than \"CreatedAt\" or \"VoteCount\"",
+                    Name = nameof(searchParams.SortBy),
+                });
+            }
+
             foreach (ErrorModel errorModel in errors.Select(error => new ErrorModel
             {
                 Name = error.Name,
