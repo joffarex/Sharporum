@@ -8,13 +8,13 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Violetum.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    internal class ApplicationDbContextModelSnapshot : ModelSnapshot
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.4")
+                .HasAnnotation("ProductVersion", "3.1.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -156,33 +156,16 @@ namespace Violetum.Infrastructure.Migrations
                 b.Property<string>("Id")
                     .HasColumnType("nvarchar(450)");
 
-                b.Property<string>("AuthorId")
-                    .HasColumnType("nvarchar(450)");
-
                 b.Property<DateTime>("CreatedAt")
                     .HasColumnType("datetime2");
 
-                b.Property<string>("Description")
-                    .HasColumnType("ntext");
-
-                b.Property<string>("Image")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("nvarchar(max)")
-                    .HasDefaultValue("Category/no-image.jpg");
-
                 b.Property<string>("Name")
-                    .HasColumnType("nvarchar(450)");
+                    .HasColumnType("nvarchar(max)");
 
                 b.Property<DateTime>("UpdatedAt")
                     .HasColumnType("datetime2");
 
                 b.HasKey("Id");
-
-                b.HasIndex("AuthorId");
-
-                b.HasIndex("Name")
-                    .IsUnique()
-                    .HasFilter("[Name] IS NOT NULL");
 
                 b.ToTable("Categories");
             });
@@ -248,6 +231,68 @@ namespace Violetum.Infrastructure.Migrations
                 b.ToTable("CommentVotes");
             });
 
+            modelBuilder.Entity("Violetum.Domain.Entities.Community", b =>
+            {
+                b.Property<string>("Id")
+                    .HasColumnType("nvarchar(450)");
+
+                b.Property<string>("AuthorId")
+                    .HasColumnType("nvarchar(450)");
+
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<string>("Description")
+                    .HasColumnType("ntext");
+
+                b.Property<string>("Image")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("nvarchar(max)")
+                    .HasDefaultValue("Community/no-image.jpg");
+
+                b.Property<string>("Name")
+                    .HasColumnType("nvarchar(450)");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .HasColumnType("datetime2");
+
+                b.HasKey("Id");
+
+                b.HasIndex("AuthorId");
+
+                b.HasIndex("Name")
+                    .IsUnique()
+                    .HasFilter("[Name] IS NOT NULL");
+
+                b.ToTable("Communities");
+            });
+
+            modelBuilder.Entity("Violetum.Domain.Entities.CommunityCategory", b =>
+            {
+                b.Property<string>("Id")
+                    .HasColumnType("nvarchar(450)");
+
+                b.Property<string>("CategoryId")
+                    .HasColumnType("nvarchar(450)");
+
+                b.Property<string>("CommunityId")
+                    .HasColumnType("nvarchar(450)");
+
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .HasColumnType("datetime2");
+
+                b.HasKey("Id");
+
+                b.HasIndex("CategoryId");
+
+                b.HasIndex("CommunityId");
+
+                b.ToTable("CommunityCategories");
+            });
+
             modelBuilder.Entity("Violetum.Domain.Entities.Follower", b =>
             {
                 b.Property<string>("Id")
@@ -282,11 +327,14 @@ namespace Violetum.Infrastructure.Migrations
                 b.Property<string>("AuthorId")
                     .HasColumnType("nvarchar(450)");
 
-                b.Property<string>("CategoryId")
+                b.Property<string>("CommunityId")
                     .HasColumnType("nvarchar(450)");
 
                 b.Property<string>("Content")
                     .HasColumnType("ntext");
+
+                b.Property<string>("ContentType")
+                    .HasColumnType("nvarchar(max)");
 
                 b.Property<DateTime>("CreatedAt")
                     .HasColumnType("datetime2");
@@ -301,7 +349,7 @@ namespace Violetum.Infrastructure.Migrations
 
                 b.HasIndex("AuthorId");
 
-                b.HasIndex("CategoryId");
+                b.HasIndex("CommunityId");
 
                 b.ToTable("Posts");
             });
@@ -366,7 +414,7 @@ namespace Violetum.Infrastructure.Migrations
                 b.Property<string>("Image")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("nvarchar(max)")
-                    .HasDefaultValue("Category/no-image.jpg");
+                    .HasDefaultValue("Community/no-image.jpg");
 
                 b.Property<string>("LastName")
                     .HasColumnType("nvarchar(max)");
@@ -468,13 +516,6 @@ namespace Violetum.Infrastructure.Migrations
                     .IsRequired();
             });
 
-            modelBuilder.Entity("Violetum.Domain.Entities.Category", b =>
-            {
-                b.HasOne("Violetum.Domain.Entities.User", "Author")
-                    .WithMany()
-                    .HasForeignKey("AuthorId");
-            });
-
             modelBuilder.Entity("Violetum.Domain.Entities.Comment", b =>
             {
                 b.HasOne("Violetum.Domain.Entities.User", "Author")
@@ -497,6 +538,24 @@ namespace Violetum.Infrastructure.Migrations
                     .HasForeignKey("UserId");
             });
 
+            modelBuilder.Entity("Violetum.Domain.Entities.Community", b =>
+            {
+                b.HasOne("Violetum.Domain.Entities.User", "Author")
+                    .WithMany()
+                    .HasForeignKey("AuthorId");
+            });
+
+            modelBuilder.Entity("Violetum.Domain.Entities.CommunityCategory", b =>
+            {
+                b.HasOne("Violetum.Domain.Entities.Category", "Category")
+                    .WithMany("CommunityCategories")
+                    .HasForeignKey("CategoryId");
+
+                b.HasOne("Violetum.Domain.Entities.Community", "Community")
+                    .WithMany("CommunityCategories")
+                    .HasForeignKey("CommunityId");
+            });
+
             modelBuilder.Entity("Violetum.Domain.Entities.Follower", b =>
             {
                 b.HasOne("Violetum.Domain.Entities.User", "FollowerUser")
@@ -514,9 +573,9 @@ namespace Violetum.Infrastructure.Migrations
                     .WithMany()
                     .HasForeignKey("AuthorId");
 
-                b.HasOne("Violetum.Domain.Entities.Category", "Category")
+                b.HasOne("Violetum.Domain.Entities.Community", "Community")
                     .WithMany("Posts")
-                    .HasForeignKey("CategoryId");
+                    .HasForeignKey("CommunityId");
             });
 
             modelBuilder.Entity("Violetum.Domain.Entities.PostVote", b =>
