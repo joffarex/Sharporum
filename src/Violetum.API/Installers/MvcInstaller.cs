@@ -163,7 +163,11 @@ namespace Violetum.API.Installers
                     options.Filters.Add<ValidationFilter>();
                     options.Filters.Add<ExceptionHandlerFilter>();
                 })
-                .AddFluentValidation(fv => { fv.RunDefaultMvcValidationAfterFluentValidationExecutes = false; });
+                .AddFluentValidation(fv =>
+                {
+                    fv.RunDefaultMvcValidationAfterFluentValidationExecutes = false;
+                    fv.RegisterValidatorsFromAssemblyContaining<Startup>();
+                });
         }
     }
 }

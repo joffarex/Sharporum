@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Ardalis.GuardClauses;
 using AutoMapper;
-using Violetum.ApplicationCore.Attributes;
 using Violetum.ApplicationCore.Dtos.Category;
 using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Interfaces;
@@ -14,7 +13,6 @@ using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.ApplicationCore.Services
 {
-    [Service]
     public class CategoryService : ICategoryService
     {
         private readonly IAsyncRepository<Category> _categoryRepository;

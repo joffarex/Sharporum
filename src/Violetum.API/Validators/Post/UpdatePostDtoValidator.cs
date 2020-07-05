@@ -3,7 +3,6 @@ using Violetum.ApplicationCore.Dtos.Post;
 
 namespace Violetum.API.Validators.Post
 {
-    [FluentValidator]
     public class UpdatePostDtoValidator : AbstractValidator<UpdatePostDto>
     {
         public UpdatePostDtoValidator()

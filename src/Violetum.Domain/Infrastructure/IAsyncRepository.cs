@@ -4,10 +4,11 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using Joffarex.Specification;
+using Violetum.Domain.Entities;
 
 namespace Violetum.Domain.Infrastructure
 {
-    public interface IAsyncRepository<TEntity>
+    public interface IAsyncRepository<TEntity> where TEntity : BaseEntity
     {
         Task<TResult> GetByConditionAsync<TResult>(Expression<Func<TResult, bool>> condition,
             IConfigurationProvider configurationProvider) where TResult : class;

@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Ardalis.GuardClauses;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using Violetum.ApplicationCore.Attributes;
 using Violetum.ApplicationCore.Dtos.Community;
 using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Interfaces;
@@ -18,7 +17,6 @@ using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.ApplicationCore.Services
 {
-    [Service]
     public class CommunityService : ICommunityService
     {
         private readonly IAsyncRepository<Community> _communityRepository;

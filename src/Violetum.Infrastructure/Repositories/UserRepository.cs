@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -10,7 +11,6 @@ using Violetum.Domain.Models;
 
 namespace Violetum.Infrastructure.Repositories
 {
-    [Repository]
     public class UserRepository : IUserRepository
     {
         private readonly ApplicationDbContext _context;
@@ -75,17 +75,17 @@ namespace Violetum.Infrastructure.Repositories
 
         public async Task<double> GetUserPostRank(string userId)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public async Task<double> GetUserCommentRank(string userId)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public async Task<IReadOnlyList<Ranks>> ListRanks<TRank>()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

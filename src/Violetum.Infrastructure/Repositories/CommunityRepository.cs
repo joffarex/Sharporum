@@ -14,7 +14,6 @@ using Violetum.Domain.Infrastructure;
 
 namespace Violetum.Infrastructure.Repositories
 {
-    [Repository]
     public class CommunityRepository : BaseRepository, IAsyncRepository<Community>
     {
         private readonly ApplicationDbContext _context;
@@ -42,14 +41,15 @@ namespace Violetum.Infrastructure.Repositories
         public async Task<IReadOnlyList<TResult>> ListAsync<TResult>(ISpecification<Community> specification,
             IConfigurationProvider configurationProvider) where TResult : class
         {
-            var query = await ApplySpecification<Community, TResult>(specification, configurationProvider);
+            IQueryable<TResult> query =
+                await ApplySpecification<Community, TResult>(specification, configurationProvider);
 
             return await query.ToListAsync();
         }
 
         public async Task<int> GetTotalCountAsync(ISpecification<Community> specification)
         {
-            var query = await ApplySpecification(specification);
+            IQueryable<Community> query = await ApplySpecification(specification);
 
             return await query.CountAsync();
         }

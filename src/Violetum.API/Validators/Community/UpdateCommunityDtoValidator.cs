@@ -3,7 +3,6 @@ using Violetum.ApplicationCore.Dtos.Community;
 
 namespace Violetum.API.Validators.Community
 {
-    [FluentValidator]
     public class UpdateCommunityDtoValidator : AbstractValidator<UpdateCommunityDto>
     {
         public UpdateCommunityDtoValidator()

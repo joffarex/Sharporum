@@ -3,7 +3,6 @@ using Violetum.ApplicationCore.Dtos.Comment;
 
 namespace Violetum.API.Validators.Comment
 {
-    [FluentValidator]
     public class CreateCommentDtoValidator : AbstractValidator<CreateCommentDto>
     {
         public CreateCommentDtoValidator()

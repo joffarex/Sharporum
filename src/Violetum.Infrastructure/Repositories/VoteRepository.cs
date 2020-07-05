@@ -8,7 +8,6 @@ using Violetum.Domain.Infrastructure;
 
 namespace Violetum.Infrastructure.Repositories
 {
-    [Repository]
     public class VoteRepository : IVoteRepository
     {
         private readonly ApplicationDbContext _context;

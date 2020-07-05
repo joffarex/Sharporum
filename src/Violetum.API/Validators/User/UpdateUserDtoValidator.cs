@@ -3,7 +3,6 @@ using Violetum.ApplicationCore.Dtos.User;
 
 namespace Violetum.API.Validators.User
 {
-    [FluentValidator]
     public class UpdateUserDtoValidator : AbstractValidator<UpdateUserDto>
     {
         public UpdateUserDtoValidator()

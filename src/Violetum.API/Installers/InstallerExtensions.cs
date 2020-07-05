@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,22 +21,6 @@ namespace Violetum.API.Installers
             foreach (IInstaller installer in installers)
             {
                 installer.InstallServices(services, configuration, environment);
-            }
-        }
-
-        public static void InjectCustomServicesByAttribute<TAttribute>(this IServiceCollection @this)
-            where TAttribute : Attribute
-        {
-            Type serviceType = typeof(TAttribute);
-            IEnumerable<TypeInfo> definedType = serviceType.Assembly.DefinedTypes;
-
-            IEnumerable<TypeInfo> services = definedType
-                .Where(x => x.GetTypeInfo().GetCustomAttribute<TAttribute>() != null);
-
-            foreach (TypeInfo service in services)
-            {
-                @this.AddTransient(service.ImplementedInterfaces.FirstOrDefault(x => !x.Name.Contains("Base")),
-                    service);
             }
         }
     }
