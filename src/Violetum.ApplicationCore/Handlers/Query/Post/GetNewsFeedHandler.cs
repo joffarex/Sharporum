@@ -9,20 +9,21 @@ using Violetum.ApplicationCore.ViewModels.Post;
 
 namespace Violetum.ApplicationCore.Handlers.Query.Post
 {
-    public class GetPostsHandler : IRequestHandler<GetPostsQuery, FilteredDataViewModel<PostViewModel>>
+    public class GetNewsFeedHandler : IRequestHandler<GetNewsFeedQuery, FilteredDataViewModel<PostViewModel>>
     {
         private readonly IPostService _postService;
 
-        public GetPostsHandler(IPostService postService)
+        public GetNewsFeedHandler(IPostService postService)
         {
             _postService = postService;
         }
 
-        public async Task<FilteredDataViewModel<PostViewModel>> Handle(GetPostsQuery request,
+        public async Task<FilteredDataViewModel<PostViewModel>> Handle(GetNewsFeedQuery request,
             CancellationToken cancellationToken)
         {
-            IEnumerable<PostViewModel> posts = await _postService.GetPostsAsync(request.SearchParams);
-            int postsCount = await _postService.GetPostsCountAsync(request.SearchParams);
+            IEnumerable<PostViewModel>
+                posts = await _postService.GetNewsFeedPosts(request.UserId, request.SearchParams);
+            int postsCount = await _postService.GetPostsCountInNewsFeed(request.UserId, request.SearchParams);
 
             return new FilteredDataViewModel<PostViewModel>
             {
