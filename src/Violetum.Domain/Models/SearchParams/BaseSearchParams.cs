@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Violetum.Domain.Infrastructure;
 
 namespace Violetum.Domain.Models.SearchParams
 {
-    public abstract class BaseSearchParams<TEntity> : ISearchParams<TEntity>
+    public abstract class BaseSearchParams
     {
         public string SortBy { get; set; } = "CreatedAt";
         public string OrderByDir { get; set; } = "desc";

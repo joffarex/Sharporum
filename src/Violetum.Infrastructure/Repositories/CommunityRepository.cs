@@ -6,21 +6,20 @@ using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Joffarex.Specification;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
-using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.Infrastructure.Repositories
 {
     [Repository]
-    public class CommunityRepository : IAsyncRepository<Community>
+    public class CommunityRepository : BaseRepository, IAsyncRepository<Community>
     {
         private readonly ApplicationDbContext _context;
 
-        public CommunityRepository(ApplicationDbContext context)
+        public CommunityRepository(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }
@@ -40,25 +39,18 @@ namespace Violetum.Infrastructure.Repositories
             return await _context.Communities.Include(x => x.Author).Where(condition).FirstOrDefaultAsync();
         }
 
-        public async Task<IReadOnlyList<TResult>> ListAsync<TResult>(ISearchParams<Community> searchParams,
+        public async Task<IReadOnlyList<TResult>> ListAsync<TResult>(ISpecification<Community> specification,
             IConfigurationProvider configurationProvider) where TResult : class
         {
-            IIncludableQueryable<Community, User> query = _context.Communities
-                .Include(x => x.Author);
+            var query = await ApplySpecification<Community, TResult>(specification, configurationProvider);
 
-            // IQueryable<Community> whereParams = WhereConditionPredicate(query, searchParams);
-
-            return await query
-                .ProjectTo<TResult>(configurationProvider)
-                .Skip(searchParams.Offset)
-                .Take(searchParams.Limit)
-                .ToListAsync();
+            return await query.ToListAsync();
         }
 
-        public async Task<int> GetTotalCountAsync(ISearchParams<Community> searchParams)
+        public async Task<int> GetTotalCountAsync(ISpecification<Community> specification)
         {
-            DbSet<Community> query = _context.Communities;
-            // IQueryable<Community> whereParams = WhereConditionPredicate(query, searchParams);
+            var query = await ApplySpecification(specification);
+
             return await query.CountAsync();
         }
 
@@ -88,27 +80,6 @@ namespace Violetum.Infrastructure.Repositories
             _context.Communities.Remove(community);
 
             await _context.SaveChangesAsync();
-        }
-
-        private static IQueryable<Community> WhereConditionPredicate(IQueryable<Community> query,
-            CommunitySearchParams searchParams)
-        {
-            if (!string.IsNullOrEmpty(searchParams.CategoryName))
-            {
-                query = query.Include(x => x.Categories.Where(y => y.Name.Contains(searchParams.CategoryName)));
-            }
-
-            if (!string.IsNullOrEmpty(searchParams.CommunityName))
-            {
-                query = query.Where(c => c.Name.Contains(searchParams.CommunityName));
-            }
-
-            if (!string.IsNullOrEmpty(searchParams.UserId))
-            {
-                query = query.Where(c => c.AuthorId == searchParams.UserId);
-            }
-
-            return query;
         }
     }
 }

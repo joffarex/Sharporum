@@ -6,6 +6,7 @@ using Violetum.ApplicationCore.Attributes;
 using Violetum.ApplicationCore.Dtos.Category;
 using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Interfaces;
+using Violetum.ApplicationCore.Specifications;
 using Violetum.ApplicationCore.ViewModels.Category;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
@@ -53,13 +54,17 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<IEnumerable<CategoryViewModel>> GetCategoriesAsync(CategorySearchParams searchParams)
         {
-            return await _categoryRepository.ListAsync<CategoryViewModel>(searchParams,
+            var specification = new CategoryFilterSpecification(searchParams);
+
+            return await _categoryRepository.ListAsync<CategoryViewModel>(specification,
                 CategoryHelpers.GetCategoryMapperConfiguration());
         }
 
         public async Task<int> GetCategoriesCountAsync(CategorySearchParams searchParams)
         {
-            return await _categoryRepository.GetTotalCountAsync(searchParams);
+            var specification = new CategoryFilterSpecification(searchParams);
+
+            return await _categoryRepository.GetTotalCountAsync(specification);
         }
 
         public async Task<string> CreateCategoryAsync(CreateCategoryDto createCategoryDto)

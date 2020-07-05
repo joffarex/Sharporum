@@ -4,8 +4,8 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.StaticFiles;
 using Violetum.ApplicationCore.Responses;
-using Violetum.Domain.Infrastructure;
 using Violetum.Domain.Models;
+using Violetum.Domain.Models.SearchParams;
 
 namespace Violetum.ApplicationCore.Helpers
 {
@@ -30,7 +30,7 @@ namespace Violetum.ApplicationCore.Helpers
             return orderByExpr;
         }
 
-        public static bool IsPaginatonSearchParamsValid<TEntity>(ISearchParams<TEntity> searchParams,
+        public static bool IsPaginatonSearchParamsValid(BaseSearchParams searchParams,
             out ErrorResponse errorResponse)
         {
             errorResponse = new ErrorResponse();

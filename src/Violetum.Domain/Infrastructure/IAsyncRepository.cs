@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
+using Joffarex.Specification;
 
 namespace Violetum.Domain.Infrastructure
 {
@@ -13,10 +14,10 @@ namespace Violetum.Domain.Infrastructure
 
         Task<TEntity> GetByConditionAsync(Expression<Func<TEntity, bool>> condition);
 
-        Task<IReadOnlyList<TResult>> ListAsync<TResult>(ISearchParams<TEntity> searchParams,
+        Task<IReadOnlyList<TResult>> ListAsync<TResult>(ISpecification<TEntity> specification,
             IConfigurationProvider configurationProvider) where TResult : class;
 
-        Task<int> GetTotalCountAsync(ISearchParams<TEntity> searchParams);
+        Task<int> GetTotalCountAsync(ISpecification<TEntity> specification);
         Task CreateAsync(TEntity entity);
         Task UpdateAsync(TEntity entity);
         Task DeleteAsync(TEntity entity);

@@ -8,6 +8,7 @@ using Violetum.ApplicationCore.Attributes;
 using Violetum.ApplicationCore.Dtos.Community;
 using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Interfaces;
+using Violetum.ApplicationCore.Specifications;
 using Violetum.ApplicationCore.ViewModels.Community;
 using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Entities;
@@ -66,7 +67,9 @@ namespace Violetum.ApplicationCore.Services
             User user = await _userManager.FindByIdAsync(searchParams.UserId);
             Guard.Against.NullItem(user, nameof(user));
 
-            return await _communityRepository.ListAsync<CommunityViewModel>(searchParams,
+            var specification = new CommunityFilterSpecification(searchParams);
+
+            return await _communityRepository.ListAsync<CommunityViewModel>(specification,
                 CommunityHelpers.GetCommunityMapperConfiguration());
         }
 
@@ -75,7 +78,9 @@ namespace Violetum.ApplicationCore.Services
             User user = await _userManager.FindByIdAsync(searchParams.UserId);
             Guard.Against.NullItem(user, nameof(user));
 
-            return await _communityRepository.GetTotalCountAsync(searchParams);
+            var specification = new CommunityFilterSpecification(searchParams);
+
+            return await _communityRepository.GetTotalCountAsync(specification);
         }
 
         public async Task<string> CreateCommunityAsync(string userId, CreateCommunityDto createCommunityDto)

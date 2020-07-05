@@ -5,21 +5,20 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Joffarex.Specification;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Violetum.Domain.Entities;
 using Violetum.Domain.Infrastructure;
-using Violetum.Domain.Models.SearchParams;
-using Violetum.Infrastructure.Extensions;
 
 namespace Violetum.Infrastructure.Repositories
 {
     [Repository]
-    public class PostRepository : IAsyncRepository<Post>
+    public class PostRepository : BaseRepository, IAsyncRepository<Post>
     {
         private readonly ApplicationDbContext _context;
 
-        public PostRepository(ApplicationDbContext context)
+        public PostRepository(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }
@@ -44,34 +43,17 @@ namespace Violetum.Infrastructure.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<IReadOnlyList<TResult>> ListAsync<TResult>(ISearchParams<Post> searchParams,
+        public async Task<IReadOnlyList<TResult>> ListAsync<TResult>(ISpecification<Post> specification,
             IConfigurationProvider configurationProvider) where TResult : class
         {
-            IIncludableQueryable<Post, ICollection<PostVote>> query = _context.Posts
-                .Include(x => x.Community)
-                .Include(x => x.Author)
-                .Include(x => x.PostVotes);
+            var query = await ApplySpecification<Post, TResult>(specification, configurationProvider);
 
-            // IQueryable<Post> whereParams = WhereConditionPredicate(query, searchParams);
-
-            IOrderedQueryable<TResult> orderedQuery = searchParams.OrderByDir.ToUpper() == "DESC"
-                ? query
-                    .ProjectTo<TResult>(configurationProvider)
-                    .OrderByDescending(searchParams.SortBy)
-                : query
-                    .ProjectTo<TResult>(configurationProvider)
-                    .OrderBy(searchParams.SortBy);
-
-            return await orderedQuery
-                .Skip(searchParams.Offset)
-                .Take(searchParams.Limit)
-                .ToListAsync();
+            return await query.ToListAsync();
         }
 
-        public async Task<int> GetTotalCountAsync(ISearchParams<Post> searchParams)
+        public async Task<int> GetTotalCountAsync(ISpecification<Post> specification)
         {
-            DbSet<Post> query = _context.Posts;
-            // IQueryable<Post> whereParams = WhereConditionPredicate(query, searchParams);
+            var query = await ApplySpecification(specification);
 
             return await query.CountAsync();
         }
@@ -102,31 +84,6 @@ namespace Violetum.Infrastructure.Repositories
             _context.Posts.Remove(post);
 
             await _context.SaveChangesAsync();
-        }
-
-        private static IQueryable<Post> WhereConditionPredicate(IQueryable<Post> query, PostSearchParams searchParams)
-        {
-            if (!string.IsNullOrEmpty(searchParams.CommunityName))
-            {
-                query = query.Where(x => x.Community.Name == searchParams.CommunityName);
-            }
-
-            if (!string.IsNullOrEmpty(searchParams.PostTitle))
-            {
-                query = query.Where(x => x.Title.Contains(searchParams.PostTitle));
-            }
-
-            if (!string.IsNullOrEmpty(searchParams.UserId))
-            {
-                query = query.Where(x => x.AuthorId == searchParams.UserId);
-            }
-
-            if (searchParams.Followers != null)
-            {
-                query = query.Where(x => searchParams.Followers.Contains(x.AuthorId));
-            }
-
-            return query;
         }
     }
 }

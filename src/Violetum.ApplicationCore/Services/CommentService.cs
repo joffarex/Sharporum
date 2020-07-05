@@ -9,6 +9,7 @@ using Violetum.ApplicationCore.Attributes;
 using Violetum.ApplicationCore.Dtos.Comment;
 using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Interfaces;
+using Violetum.ApplicationCore.Specifications;
 using Violetum.ApplicationCore.ViewModels.Comment;
 using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Entities;
@@ -58,7 +59,9 @@ namespace Violetum.ApplicationCore.Services
             User user = await _userManager.FindByIdAsync(searchParams.UserId);
             Guard.Against.NullItem(user.Id, nameof(user));
 
-            return await _commentRepository.ListAsync<CommentViewModel>(searchParams,
+            var specification = new CommentFilterSpecification(searchParams);
+
+            return await _commentRepository.ListAsync<CommentViewModel>(specification,
                 CommentHelpers.GetCommentMapperConfiguration());
         }
 
@@ -70,7 +73,9 @@ namespace Violetum.ApplicationCore.Services
             Post post = await _postRepository.GetByConditionAsync(x => x.Id == searchParams.PostId);
             Guard.Against.NullItem(post, nameof(post));
 
-            return await _commentRepository.GetTotalCountAsync(searchParams);
+            var specification = new CommentFilterSpecification(searchParams);
+
+            return await _commentRepository.GetTotalCountAsync(specification);
         }
 
         public async Task<string> CreateCommentAsync(string userId, CreateCommentDto createCommentDto)

@@ -9,6 +9,7 @@ using Violetum.ApplicationCore.Attributes;
 using Violetum.ApplicationCore.Dtos.Post;
 using Violetum.ApplicationCore.Helpers;
 using Violetum.ApplicationCore.Interfaces;
+using Violetum.ApplicationCore.Specifications;
 using Violetum.ApplicationCore.ViewModels.Post;
 using Violetum.Domain.CustomExceptions;
 using Violetum.Domain.Entities;
@@ -65,7 +66,9 @@ namespace Violetum.ApplicationCore.Services
                 await _communityRepository.GetByConditionAsync(x => x.Name == searchParams.CommunityName);
             Guard.Against.NullItem(community, nameof(community));
 
-            return await _postRepository.ListAsync<PostViewModel>(searchParams,
+            var specification = new PostFilterSpecification(searchParams);
+
+            return await _postRepository.ListAsync<PostViewModel>(specification,
                 PostHelpers.GetPostMapperConfiguration());
         }
 
@@ -76,7 +79,10 @@ namespace Violetum.ApplicationCore.Services
             Guard.Against.NullItem(community, nameof(community));
 
             searchParams.Followers = await _userRepository.ListUserFollowingsAsync(userId);
-            return await _postRepository.ListAsync<PostViewModel>(searchParams,
+
+            var specification = new PostFilterSpecification(searchParams);
+
+            return await _postRepository.ListAsync<PostViewModel>(specification,
                 PostHelpers.GetPostMapperConfiguration());
         }
 
@@ -89,7 +95,9 @@ namespace Violetum.ApplicationCore.Services
             User user = await _userManager.FindByIdAsync(searchParams.UserId);
             Guard.Against.NullItem(user.Id, nameof(user));
 
-            return await _postRepository.GetTotalCountAsync(searchParams);
+            var specification = new PostFilterSpecification(searchParams);
+
+            return await _postRepository.GetTotalCountAsync(specification);
         }
 
         public async Task<int> GetPostsCountInNewsFeed(string userId, PostSearchParams searchParams)
@@ -99,7 +107,10 @@ namespace Violetum.ApplicationCore.Services
             Guard.Against.NullItem(community, nameof(community));
 
             searchParams.Followers = await _userRepository.ListUserFollowingsAsync(userId);
-            return await _postRepository.GetTotalCountAsync(searchParams);
+
+            var specification = new PostFilterSpecification(searchParams);
+
+            return await _postRepository.GetTotalCountAsync(specification);
         }
 
         public async Task<string> CreatePostAsync(string userId, CreatePostDto createPostDto)

@@ -1,8 +1,6 @@
-﻿using Violetum.Domain.Entities;
-
-namespace Violetum.Domain.Models.SearchParams
+﻿namespace Violetum.Domain.Models.SearchParams
 {
-    public class CategorySearchParams : BaseSearchParams<Category>
+    public class CategorySearchParams : BaseSearchParams
     {
         public string CategoryName { get; set; }
     }
