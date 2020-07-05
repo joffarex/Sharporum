@@ -19,9 +19,8 @@ namespace Violetum.Domain.Infrastructure
         Task FollowUserAsync(Follower follower);
         Task UnfollowUserAsync(string userToFollowId, string followerUserId);
         Task<IReadOnlyList<string>> ListUserFollowingsAsync(string userId);
-        Task<double> GetUserPostRank(string userId);
-        Task<double> GetUserCommentRank(string userId);
+        Task<double> GetUserRank<TVoteEntity>(string userId) where TVoteEntity : BaseVoteEntity;
 
-        Task<IReadOnlyList<Ranks>> ListRanks<TRank>();
+        Task<IReadOnlyList<Ranks>> ListRanks<TVoteEntity>() where TVoteEntity : BaseVoteEntity;
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -35,16 +34,6 @@ namespace Violetum.Infrastructure.Repositories
             _context.Set<TEntityVote>().Update(entityVote);
 
             await _context.SaveChangesAsync();
-        }
-
-        public async Task<IReadOnlyList<TEntityVote>> GetEntityRanksAsync<TEntityVote>()
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<int> GetUserEntityRanksAsync(string userId)
-        {
-            throw new NotImplementedException();
         }
     }
 }

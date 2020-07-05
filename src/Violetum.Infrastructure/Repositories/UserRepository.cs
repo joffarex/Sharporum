@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -73,19 +72,26 @@ namespace Violetum.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<double> GetUserPostRank(string userId)
+        public async Task<double> GetUserRank<TVoteEntity>(string userId) where TVoteEntity : BaseVoteEntity
         {
-            throw new NotImplementedException();
+            return await _context.Set<TVoteEntity>()
+                .Where(x => x.UserId == userId)
+                .GroupBy(x => x.UserId, (key, vote) => vote.Sum(x => x.Direction))
+                .FirstOrDefaultAsync();
         }
 
-        public async Task<double> GetUserCommentRank(string userId)
+        public async Task<IReadOnlyList<Ranks>> ListRanks<TVoteEntity>() where TVoteEntity : BaseVoteEntity
         {
-            throw new NotImplementedException();
-        }
+            List<Ranks> userEntityVotes = _context.Set<TVoteEntity>()
+                .GroupBy(x => x.UserId, (key, vote) =>
+                    new Ranks
+                    {
+                        UserId = key,
+                        Rank = vote.Sum(x => x.Direction),
+                    })
+                .ToList();
 
-        public async Task<IReadOnlyList<Ranks>> ListRanks<TRank>()
-        {
-            throw new NotImplementedException();
+            return userEntityVotes;
         }
     }
 }

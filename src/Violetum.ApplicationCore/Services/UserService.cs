@@ -77,11 +77,11 @@ namespace Violetum.ApplicationCore.Services
         {
             var postFilterSpecification = new PostFilterSpecification(new PostSearchParams {UserId = userId});
             int userPostsCount = await _postRepository.GetTotalCountAsync(postFilterSpecification);
-            double userPostRank = await _userRepository.GetUserPostRank(userId) / userPostsCount;
+            double userPostRank = await _userRepository.GetUserRank<PostVote>(userId) / userPostsCount;
 
             var commentFilterSpecification = new CommentFilterSpecification(new CommentSearchParams {UserId = userId});
             int userCommentsCount = await _commentRepository.GetTotalCountAsync(commentFilterSpecification);
-            double userCommentRank = await _userRepository.GetUserCommentRank(userId) / userCommentsCount;
+            double userCommentRank = await _userRepository.GetUserRank<CommentVote>(userId) / userCommentsCount;
 
             var userRanks = new List<UserRank>
             {
@@ -94,7 +94,7 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<IReadOnlyList<Ranks>> GetPostRanksAsync()
         {
-            IReadOnlyList<Ranks> userRanks = await _userRepository.ListRanks<Post>();
+            IReadOnlyList<Ranks> userRanks = await _userRepository.ListRanks<PostVote>();
 
             foreach (Ranks userRank in userRanks)
             {
@@ -108,7 +108,7 @@ namespace Violetum.ApplicationCore.Services
 
         public async Task<IReadOnlyList<Ranks>> GetCommentRanksAsync()
         {
-            IReadOnlyList<Ranks> userRanks = await _userRepository.ListRanks<Comment>();
+            IReadOnlyList<Ranks> userRanks = await _userRepository.ListRanks<CommentVote>();
 
             foreach (Ranks userRank in userRanks)
             {
