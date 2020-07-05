@@ -14,8 +14,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Violetum.IdentityServer", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Violetum.SPA", "src\Violetum.SPA\Violetum.SPA.csproj", "{479CFA36-6AC8-4920-B040-5A3A28D552A0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Joffarex.Specification", "src\Joffarex.Specification\Joffarex.Specification.csproj", "{8D9E0A81-DB41-406D-A6CD-46F657A7B405}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,9 +48,5 @@ Global
 		{479CFA36-6AC8-4920-B040-5A3A28D552A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{479CFA36-6AC8-4920-B040-5A3A28D552A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{479CFA36-6AC8-4920-B040-5A3A28D552A0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8D9E0A81-DB41-406D-A6CD-46F657A7B405}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8D9E0A81-DB41-406D-A6CD-46F657A7B405}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8D9E0A81-DB41-406D-A6CD-46F657A7B405}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8D9E0A81-DB41-406D-A6CD-46F657A7B405}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -6,13 +6,10 @@
 
     <ItemGroup>
         <PackageReference Include="AutoMapper" Version="9.0.0"/>
+        <PackageReference Include="Joffarex.Specification" Version="1.0.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0"/>
         <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="3.1.5"/>
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\Joffarex.Specification\Joffarex.Specification.csproj"/>
     </ItemGroup>
 
 </Project>

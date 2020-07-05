@@ -6,7 +6,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Joffarex.Specification\Joffarex.Specification.csproj"/>
         <ProjectReference Include="..\Violetum.Domain\Violetum.Domain.csproj" />
     </ItemGroup>
 
