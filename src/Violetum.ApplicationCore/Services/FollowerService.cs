@@ -29,7 +29,7 @@ namespace Violetum.ApplicationCore.Services
             Guard.Against.NullItem(user, nameof(user));
 
             IEnumerable<FollowerViewModel> userFollowers =
-                await _userRepository.ListUserFollowersAsync<FollowerViewModel>(userId,
+                await _userRepository.ListUserFollowingAsync<FollowerViewModel>(userId,
                     UserHelpers.GetFollowerMapperConfiguration());
 
             return new UserFollowersViewModel
