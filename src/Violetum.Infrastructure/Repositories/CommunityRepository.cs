@@ -14,7 +14,7 @@ using Violetum.Domain.Infrastructure;
 
 namespace Violetum.Infrastructure.Repositories
 {
-    public class CommunityRepository : BaseRepository, IAsyncRepository<Community>
+    public class CommunityRepository : BaseRepository, ICommunityRepository
     {
         private readonly ApplicationDbContext _context;
 
@@ -80,6 +80,36 @@ namespace Violetum.Infrastructure.Repositories
             _context.Communities.Remove(community);
 
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<IReadOnlyList<CommunityCategory>> ListCommunityCategoriesAsync(string communityId)
+        {
+            return await _context.CommunityCategories.Where(x => x.CommunityId == communityId).ToListAsync();
+        }
+
+        public async Task AddCategoriesToCommunityAsync(string communityId, IEnumerable<string> categoryIds)
+        {
+            await DeleteCommunityCategoriesAsync(communityId);
+
+            foreach (var categoryId in categoryIds)
+            {
+                var communityCategory = new CommunityCategory
+                {
+                    CommunityId = communityId,
+                    CategoryId = categoryId,
+                };
+
+                await _context.CommunityCategories.AddAsync(communityCategory);
+            }
+        }
+
+        public async Task DeleteCommunityCategoriesAsync(string communityId)
+        {
+            var communityCategories = await ListCommunityCategoriesAsync(communityId);
+            if (communityCategories.Any())
+            {
+                _context.CommunityCategories.RemoveRange(communityCategories);
+            }
         }
     }
 }

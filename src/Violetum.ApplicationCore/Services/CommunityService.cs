@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Ardalis.GuardClauses;
@@ -19,12 +20,12 @@ namespace Violetum.ApplicationCore.Services
 {
     public class CommunityService : ICommunityService
     {
-        private readonly IAsyncRepository<Community> _communityRepository;
+        private readonly ICommunityRepository _communityRepository;
         private readonly IMapper _mapper;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<User> _userManager;
 
-        public CommunityService(IAsyncRepository<Community> communityRepository, RoleManager<IdentityRole> roleManager,
+        public CommunityService(ICommunityRepository communityRepository, RoleManager<IdentityRole> roleManager,
             UserManager<User> userManager, IMapper mapper)
         {
             _communityRepository = communityRepository;
@@ -71,7 +72,7 @@ namespace Violetum.ApplicationCore.Services
                 CommunityHelpers.GetCommunityMapperConfiguration());
         }
 
-        public async Task<int> GetCategoriesCountAsync(CommunitySearchParams searchParams)
+        public async Task<int> GetCommunitiesCountAsync(CommunitySearchParams searchParams)
         {
             User user = await _userManager.FindByIdAsync(searchParams.UserId);
             Guard.Against.NullItem(user, nameof(user));
@@ -91,6 +92,11 @@ namespace Violetum.ApplicationCore.Services
 
             await _communityRepository.CreateAsync(community);
 
+            if (createCommunityDto.CategoryIds.Any())
+            {
+                await _communityRepository.AddCategoriesToCommunityAsync(community.Id, createCommunityDto.CategoryIds);
+            }
+
             await CreateCommunityAdminRoleAsync(user, community.Id);
 
             return community.Id;
@@ -103,6 +109,11 @@ namespace Violetum.ApplicationCore.Services
             community.Description = updateCommunityDto.Description;
 
             await _communityRepository.UpdateAsync(community);
+
+            if (updateCommunityDto.CategoryIds.Any())
+            {
+                await _communityRepository.AddCategoriesToCommunityAsync(community.Id, updateCommunityDto.CategoryIds);
+            }
 
             return _mapper.Map<CommunityViewModel>(community);
         }
@@ -122,6 +133,7 @@ namespace Violetum.ApplicationCore.Services
             await RemoveCommunityRolesAsync(community.Id);
 
             await _communityRepository.DeleteAsync(community);
+            await _communityRepository.DeleteCommunityCategoriesAsync(community.Id);
         }
 
         public async Task AddModeratorAsync(Community community, AddModeratorDto addModeratorDto)

@@ -13,7 +13,7 @@ namespace Violetum.ApplicationCore.Interfaces
         Task<CommunityViewModel> GetCommunityByNameAsync(string communityName);
         Task<Community> GetCommunityEntity(string communityId);
         Task<IEnumerable<CommunityViewModel>> GetCommunitiesAsync(CommunitySearchParams searchParams);
-        Task<int> GetCategoriesCountAsync(CommunitySearchParams searchParams);
+        Task<int> GetCommunitiesCountAsync(CommunitySearchParams searchParams);
 
         Task<string> CreateCommunityAsync(string userId, CreateCommunityDto createCommunityDto);
 

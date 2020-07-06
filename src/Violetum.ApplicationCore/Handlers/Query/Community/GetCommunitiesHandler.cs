@@ -23,7 +23,7 @@ namespace Violetum.ApplicationCore.Handlers.Query.Community
         {
             IEnumerable<CommunityViewModel> communities =
                 await _communityService.GetCommunitiesAsync(request.SearchParams);
-            int communitiesCount = await _communityService.GetCategoriesCountAsync(request.SearchParams);
+            int communitiesCount = await _communityService.GetCommunitiesCountAsync(request.SearchParams);
 
             return new FilteredDataViewModel<CommunityViewModel>
             {
