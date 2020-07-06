@@ -53,7 +53,8 @@ namespace Violetum.ApplicationCore.Helpers
                 });
             }
 
-            if (!searchParams.SortBy.Equals("CreatedAt") || !searchParams.SortBy.Equals("VoteCount"))
+            if (!string.IsNullOrEmpty(searchParams.SortBy) &&
+                (!searchParams.SortBy.Equals("CreatedAt") && !searchParams.SortBy.Equals("VoteCount")))
             {
                 errors.Add(new ErrorModel
                 {

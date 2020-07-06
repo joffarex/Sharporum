@@ -22,11 +22,11 @@ namespace Violetum.ApplicationCore.Specifications
 
             if (searchParams.OrderByDir.ToUpper() == "DESC")
             {
-                ApplyFieldOrderByDescending(searchParams.OrderByDir);
+                ApplyFieldOrderByDescending(searchParams.SortBy);
             }
             else
             {
-                ApplyFieldOrderBy(searchParams.OrderByDir);
+                ApplyFieldOrderBy(searchParams.SortBy);
             }
 
             ApplyPaging(searchParams.Offset, searchParams.Limit);

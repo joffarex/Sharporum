@@ -9,6 +9,15 @@ namespace Violetum.ApplicationCore.Specifications
         public CategoryFilterSpecification(CategorySearchParams searchParams)
             : base(x => string.IsNullOrEmpty(searchParams.CategoryName) || x.Name.Contains(searchParams.CategoryName))
         {
+            if (searchParams.OrderByDir.ToUpper() == "DESC")
+            {
+                ApplyFieldOrderByDescending(searchParams.SortBy);
+            }
+            else
+            {
+                ApplyFieldOrderBy(searchParams.SortBy);
+            }
+
             ApplyPaging(searchParams.Offset, searchParams.Limit);
         }
     }
