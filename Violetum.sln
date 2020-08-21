@@ -1,14 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Violetum.ApplicationCore", "src\Violetum.ApplicationCore\Violetum.ApplicationCore.csproj", "{25F355F8-0620-47AF-92E4-853296534DAF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharporum.Core", "src\Sharporum.Core\Sharporum.Core.csproj", "{25F355F8-0620-47AF-92E4-853296534DAF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Violetum.Domain", "src\Violetum.Domain\Violetum.Domain.csproj", "{D36535E6-253E-47B0-9DA8-E92E094B4E10}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharporum.Domain", "src\Sharporum.Domain\Sharporum.Domain.csproj", "{D36535E6-253E-47B0-9DA8-E92E094B4E10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Violetum.Infrastructure", "src\Violetum.Infrastructure\Violetum.Infrastructure.csproj", "{C75FDB79-ADB2-44BE-984D-F00977793FC2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharporum.Infrastructure", "src\Sharporum.Infrastructure\Sharporum.Infrastructure.csproj", "{C75FDB79-ADB2-44BE-984D-F00977793FC2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Violetum.API", "src\Violetum.API\Violetum.API.csproj", "{90B3BD36-4923-4A79-B18D-E568F1ACB87A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharporum.API", "src\Sharporum.API\Sharporum.API.csproj", "{90B3BD36-4923-4A79-B18D-E568F1ACB87A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Violetum.SPA", "src\Violetum.SPA\Violetum.SPA.csproj", "{479CFA36-6AC8-4920-B040-5A3A28D552A0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharporum.SPA", "src\Sharporum.SPA\Sharporum.SPA.csproj", "{479CFA36-6AC8-4920-B040-5A3A28D552A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
