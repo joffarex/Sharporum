@@ -2,6 +2,7 @@
 using IdentityModel;
 using Microsoft.AspNetCore.Authorization;
 using Sharporum.API.Authorization.Category.Requirements;
+using Sharporum.Domain.Models;
 
 namespace Sharporum.API.Authorization.Category.Handlers
 {

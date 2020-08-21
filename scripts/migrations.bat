@@ -1,1 +1,1 @@
-cd ../src/Violetum.Infrastructure && dotnet ef --startup-project ../Violetum.API migrations add %1 && dotnet ef --startup-project ../Violetum.API database update && cd ../../
+cd ../src/Sharporum.Infrastructure && dotnet ef --startup-project ../Sharporum.API migrations add %1 && dotnet ef --startup-project ../Sharporum.API database update && cd ../../

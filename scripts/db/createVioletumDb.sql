@@ -1,4 +1,4 @@
--- Create a new database called 'Violetum'
+-- Create a new database called 'Sharporum'
 -- Connect to the 'master' database to run this snippet
 USE master
 GO
@@ -6,7 +6,7 @@ GO
 IF NOT EXISTS (
     SELECT name
         FROM sys.databases
-        WHERE name = N'Violetum'
+        WHERE name = N'Sharporum'
 )
-CREATE DATABASE Violetum
+CREATE DATABASE Sharporum
 GO

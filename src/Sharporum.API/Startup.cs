@@ -1,3 +1,4 @@
+using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -9,6 +10,7 @@ using Serilog;
 using Sharporum.API.Installers;
 using Sharporum.API.Settings;
 using Sharporum.Core.Responses;
+using Sharporum.Domain.Models;
 
 namespace Sharporum.API
 {

@@ -1,7 +1,9 @@
-﻿using AutoMapper;
+﻿using System.Linq;
+using AutoMapper;
 using Sharporum.Core.Dtos.Post;
 using Sharporum.Core.ViewModels.Comment;
 using Sharporum.Core.ViewModels.Post;
+using Sharporum.Domain.Entities;
 
 namespace Sharporum.API.Profiles
 {

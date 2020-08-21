@@ -2,6 +2,7 @@
 using Sharporum.Core.Dtos.Community;
 using Sharporum.Core.ViewModels.Community;
 using Sharporum.Core.ViewModels.Post;
+using Sharporum.Domain.Entities;
 
 namespace Sharporum.API.Profiles
 {

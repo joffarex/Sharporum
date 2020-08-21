@@ -16,6 +16,8 @@ using Sharporum.Core.Queries.Category;
 using Sharporum.Core.Responses;
 using Sharporum.Core.ViewModels;
 using Sharporum.Core.ViewModels.Category;
+using Sharporum.Domain.Models;
+using Sharporum.Domain.Models.SearchParams;
 
 namespace Sharporum.API.Controllers.V1
 {

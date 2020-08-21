@@ -6,13 +6,13 @@ dotnet ef database update -c PersistedGrantDbContext
 dotnet ef database update -c ConfigurationDbContext
 
 // Infrastructure
-dotnet ef migrations add init -c ApplicationDbContext -o Migrations --startup-project ../Violetum.Web
+dotnet ef migrations add init -c ApplicationDbContext -o Migrations --startup-project ../Sharporum.Web
 
-dotnet ef database update -c ApplicationDbContext --startup-project ../Violetum.Web
+dotnet ef database update -c ApplicationDbContext --startup-project ../Sharporum.Web
 
-dotnet ef migrations add init -c ApplicationDbContext -o Migrations --startup-project ../Violetum.API
+dotnet ef migrations add init -c ApplicationDbContext -o Migrations --startup-project ../Sharporum.API
 
-dotnet ef database update -c ApplicationDbContext --startup-project ../Violetum.API
+dotnet ef database update -c ApplicationDbContext --startup-project ../Sharporum.API
 
 
 SELECT Name from sys.Databases

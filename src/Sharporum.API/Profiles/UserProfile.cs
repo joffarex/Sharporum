@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Sharporum.Core.ViewModels.User;
+using Sharporum.Domain.Entities;
 
 namespace Sharporum.API.Profiles
 {

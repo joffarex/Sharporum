@@ -14,6 +14,7 @@ using Sharporum.Core.Dtos.User;
 using Sharporum.Core.Queries.User;
 using Sharporum.Core.Responses;
 using Sharporum.Core.ViewModels.Follower;
+using Sharporum.Domain.Models;
 
 namespace Sharporum.API.Controllers.V1
 {

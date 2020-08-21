@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Serilog;
+using Sharporum.Domain.CustomExceptions;
+using Sharporum.Domain.Models;
 
 namespace Sharporum.API.Filters
 {

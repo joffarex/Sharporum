@@ -30,6 +30,7 @@ using Sharporum.API.Filters;
 using Sharporum.API.Settings;
 using Sharporum.Core.Interfaces;
 using Sharporum.Core.Services;
+using Sharporum.Domain.Models;
 
 namespace Sharporum.API.Installers
 {

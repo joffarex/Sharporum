@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Sharporum.Core.Interfaces;
 using Sharporum.Core.Services;
+using Sharporum.Domain.Entities;
+using Sharporum.Domain.Infrastructure;
 using Sharporum.Infrastructure.Repositories;
 
 namespace Sharporum.API.Installers

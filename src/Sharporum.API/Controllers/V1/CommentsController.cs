@@ -18,6 +18,9 @@ using Sharporum.Core.Queries.Comment;
 using Sharporum.Core.Responses;
 using Sharporum.Core.ViewModels;
 using Sharporum.Core.ViewModels.Comment;
+using Sharporum.Domain.Entities;
+using Sharporum.Domain.Models;
+using Sharporum.Domain.Models.SearchParams;
 
 namespace Sharporum.API.Controllers.V1
 {
