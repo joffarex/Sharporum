@@ -1,14 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharporum.Core", "src\Sharporum.Core\Sharporum.Core.csproj", "{25F355F8-0620-47AF-92E4-853296534DAF}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29411.108
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sharporum.Core", "src\Sharporum.Core\Sharporum.Core.csproj", "{25F355F8-0620-47AF-92E4-853296534DAF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharporum.Domain", "src\Sharporum.Domain\Sharporum.Domain.csproj", "{D36535E6-253E-47B0-9DA8-E92E094B4E10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sharporum.Domain", "src\Sharporum.Domain\Sharporum.Domain.csproj", "{D36535E6-253E-47B0-9DA8-E92E094B4E10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharporum.Infrastructure", "src\Sharporum.Infrastructure\Sharporum.Infrastructure.csproj", "{C75FDB79-ADB2-44BE-984D-F00977793FC2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sharporum.Infrastructure", "src\Sharporum.Infrastructure\Sharporum.Infrastructure.csproj", "{C75FDB79-ADB2-44BE-984D-F00977793FC2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharporum.API", "src\Sharporum.API\Sharporum.API.csproj", "{90B3BD36-4923-4A79-B18D-E568F1ACB87A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sharporum.API", "src\Sharporum.API\Sharporum.API.csproj", "{90B3BD36-4923-4A79-B18D-E568F1ACB87A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharporum.SPA", "src\Sharporum.SPA\Sharporum.SPA.csproj", "{479CFA36-6AC8-4920-B040-5A3A28D552A0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sharporum.SPA", "src\Sharporum.SPA\Sharporum.SPA.csproj", "{479CFA36-6AC8-4920-B040-5A3A28D552A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,5 +39,11 @@ Global
 		{479CFA36-6AC8-4920-B040-5A3A28D552A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{479CFA36-6AC8-4920-B040-5A3A28D552A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{479CFA36-6AC8-4920-B040-5A3A28D552A0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DD6A63D2-8848-466E-9E58-11F3177CFD9B}
 	EndGlobalSection
 EndGlobal
