@@ -1,2 +1,2 @@
 # Sharporum
-General-purpose forum website
+General-purpose forum website implemented in C#
