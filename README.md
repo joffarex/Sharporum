@@ -1,2 +1,2 @@
 # Sharporum
-General-purpose forum website implemented in C#
+Fully featured, reddit-like forum API, with advanced RBAC system, built with C#
