@@ -11,8 +11,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sharporum.Infrastructure", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sharporum.API", "src\Sharporum.API\Sharporum.API.csproj", "{90B3BD36-4923-4A79-B18D-E568F1ACB87A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sharporum.SPA", "src\Sharporum.SPA\Sharporum.SPA.csproj", "{479CFA36-6AC8-4920-B040-5A3A28D552A0}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
